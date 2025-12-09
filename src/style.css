@@ -1,0 +1,81 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto;
+  scrollbar-width: none;         /* Firefox */
+  -ms-overflow-style: none;      /* IE, Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;                 /* Chrome, Safari */
+}
+
+
+.bg_opacity{
+
+  width: 100%;
+  padding: 10px 20px;
+  background: #fcfcfc35;
+  border-radius: 12px;
+  font-family: 'Segoe UI', sans-serif;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+input{
+  width: 100%;
+  background: rgba(245, 245, 245, 0.733);
+}
+input[type="text"] {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #000102;
+  color: white;
+}
+
+
+#chat-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
+
+
+.chart_candle{
+  height: 300px;
+  color: white;
+  border: 1px solid #ccc;
+}
+
+
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  width: 100%;
+}
+
+.card-row:last-child {
+  border-bottom: none;
+}
+
