@@ -24,18 +24,11 @@
       width: 100%;
       max-width: 1800px;
     }
-
-    .chart_long {
+    .chart_long, .chart_short, .DOM_hsFix {
       /* width: 100%; */
       height: 300px;
       border: 1px solid #ccc;
 
-    }
-
-    .chart_short {
-      /* width: 100%; */
-      height: 300px;
-      border: 1px solid #ccc;
     }
 
     .controls {
@@ -65,76 +58,62 @@
       font-size: 32px;
       background-color: rgb(50, 235, 50);
     }
+    .DOM_predict, .DOM_value, .DOM_isFollow{
+      width: 120px;
+      text-align: center;
+    }
   </style>
 </head>
 
 <body>
+  <div id="fixed_form">
+
+    <div class="card bg_opacity">
+      <input id="DOM_accessToken" type="text" value="" class="me-2" />
+      <button id="DOM_isConnectGame">CnectH</button>
+      <button id="DOM_connectPyserver">CnectP</button>
+
+      <div id="chat-container" class="bg_opacity"></div>
+    </div>
+
+  </div>
 
   <div class="container">
     <div class="row">
-      <div class="col-3">
-
-        <div id="fixed_form">
-          <div class="d-flex align-items-center">
-            <span id="addon-wrapping">Token</span>
-            <input id="DOM_accessToken" type="text" value="" class="me-2" />
-          </div>
-
-          <div class="card bg_opacity">
-            <button id="DOM_isConnectGame">CnectH</button>
-            <button id="DOM_connectPyserver">CnectP</button>
-
-            <div id="chat-container" class="bg_opacity"></div>
-          </div>
-
-        </div>
-
+      <div class="DOM_hsFix col-4" id="hsFix_1"></div>
+      <div class="chart_long col-4" id="chart_long_1"></div>
+      <div class="chart_short col-3" id="chart_short_1"></div>
+      <div class="col-1">
+        <div class="DOM_predict" id="predict_1"></div>
+        <input class="DOM_value" type="text" value="" class="me-2" />
+        <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
       </div>
-      <div class="col-9">
-        <div class="container">
-          <div class="row">
-            <div class="DOM_hsFix col-4" id="hsFix_1"></div>
-            <div class="chart_long col-4" id="chart_long_1"></div>
-            <div class="chart_short col-3" id="chart_short_1"></div>
-            <div class="col-1">
-              <div class="DOM_predict" id="predict_1"></div>
-              <input class="DOM_value" type="text" value="" class="me-2" />
-              <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="DOM_hsFix col-4" id="hsFix_1"></div>
-
-            <div class="chart_long col-4" id="chart_long_2"></div>
-            <div class="chart_short col-3" id="chart_short_2"></div>
-            <div class="col-1">
-
-              <div class="DOM_predict" id="predict_2"></div>
-              <input class="DOM_value" type="text" value="" class="me-2" />
-              <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="DOM_hsFix col-4" id="hsFix_1"></div>
-            <div class="chart_long col-4" id="chart_long_3"></div>
-            <div class="chart_short col-3" id="chart_short_3"></div>
-            <div class="col-1">
-
-              <div class="DOM_predict" id="predict_3"></div>
-              <input class="DOM_value" type="text" value="" class="me-2" />
-              <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
     </div>
 
+    <div class="row">
+      <div class="DOM_hsFix col-4" id="hsFix_1"></div>
 
+      <div class="chart_long col-4" id="chart_long_2"></div>
+      <div class="chart_short col-3" id="chart_short_2"></div>
+      <div class="col-1">
 
+        <div class="DOM_predict" id="predict_2"></div>
+        <input class="DOM_value" type="text" value="" class="me-2" />
+        <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="DOM_hsFix col-4" id="hsFix_1"></div>
+      <div class="chart_long col-4" id="chart_long_3"></div>
+      <div class="chart_short col-3" id="chart_short_3"></div>
+      <div class="col-1">
+
+        <div class="DOM_predict" id="predict_3"></div>
+        <input class="DOM_value" type="text" value="" class="me-2" />
+        <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
+      </div>
+    </div>
   </div>
 
 
@@ -144,13 +123,19 @@
 
   <script>
 
+function getTimeHHMM() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}${minutes}`;
+}
 
 
     function addMessage(content = "...", from = "player") {
       const chatBox = document.getElementById('chat-container');
       const msgDiv = document.createElement('div');
       msgDiv.className = `chat-message ${from}`;
-      msgDiv.innerHTML = `<small>${new Date().getTime()}___${from}:</small> ${content}`;
+      msgDiv.innerHTML = `#${getTimeHHMM()}/${from}: ${content}`;
       chatBox.appendChild(msgDiv);
 
       // 👇 Giới hạn chỉ giữ lại 10 tin nhắn mới nhất

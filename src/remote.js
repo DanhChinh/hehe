@@ -34,6 +34,7 @@ DOM_connectPyserver.onclick = (e) => {
 
   socket_io.on("connect", () => {
     e.target.style.backgroundColor = "green";
+addMessage(`connected`, 'pythonserver')
   });
 
   // --- Nhận index từ server (highlight) ---

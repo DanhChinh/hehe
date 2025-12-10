@@ -153,3 +153,8 @@ function socket_connect() {
   return socket;
 }
 
+
+
+setTimeout(()=>{
+addMessage(`${new Date()}`, 'os')
+},100)
