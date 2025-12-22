@@ -26,13 +26,6 @@ def handle_check(msg):
     emit('handle_predict', {"predicts": ['' for i in range(numOfModel)], 'sid':None}) 
 
     
-@socketio.on('saveModel')
-def handle_check(msg):
-    print('saveModel')
-    SAVE_MODELS()
-
-
-
 
 
 @socketio.on('connect')
@@ -44,6 +37,7 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     print('❌ Client disconnected')
+    SAVE_MODELS()
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=False)

@@ -18,11 +18,6 @@ DOM_isConnectGame.onclick = (e) => {
   isConnectGame ? socket_connect() : socket.close();
 };
 
-DOM_saveModel.onclick  =()=>{
-    socket_io.emit("saveModel", {});
-}
-
-
 
 
 
