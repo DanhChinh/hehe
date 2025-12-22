@@ -73,7 +73,7 @@ class MYMODEL:
         pred_p2 = self.model.predict(data_long)
         compare = np.where(pred_p2 == label_long, 1, -1)
         self.LONG_ARRAY = np.cumsum(compare)
-        self.history = [0]
+        self.history = [rd.choice([-1,1]) for i in range(15)]
         self.history_fix = [0]
         self.history_fix_cumsum = np.array([])
         self.short_array = np.cumsum(self.history)
