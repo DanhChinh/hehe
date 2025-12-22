@@ -18,6 +18,20 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neural_network import MLPClassifier
+from itertools import accumulate
+
+
+def split_and_cumsum(data, chunk_size=15):
+    result = {}
+
+    for key, sessions in data.items():
+        result[key] = []
+        for ss in sessions:
+            for i in range(0, len(ss), chunk_size):
+                chunk = ss[i:i + chunk_size]
+                result[key].append(list(accumulate(chunk)))
+
+    return result
 
 def danh_gia_huong(data):
     # 1. Lọc dữ liệu hợp lệ
@@ -59,7 +73,7 @@ class MYMODEL:
         pred_p2 = self.model.predict(data_long)
         compare = np.where(pred_p2 == label_long, 1, -1)
         self.LONG_ARRAY = np.cumsum(compare)
-        self.history = [rd.choice([-1,1]) for i in range(15)]
+        self.history = [0]
         self.history_fix = [0]
         self.history_fix_cumsum = np.array([])
         self.short_array = np.cumsum(self.history)
@@ -207,7 +221,7 @@ def CHECK(result):
 def SAVE_MODELS():
     for model in models:
         modelName = model.name
-        session = model.history_fix_cumsum
+        session = model.history_fix
         saveModel(modelName, session)
     print('save all: done')
 
@@ -246,6 +260,7 @@ def LOAD():
     # 2. TRAIN RANDOM FOREST
     # ===============================
     jsmodels = get_jsonmodels()
+    jsmodels = split_and_cumsum(jsmodels, chunk_size=15)
     ranking = rank_models(jsmodels)
 
     models = []
