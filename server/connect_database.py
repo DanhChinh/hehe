@@ -44,6 +44,8 @@ def get_jsonmodels():
 
 
 def saveModel(modelName, session):
+    if  len(session)<15:
+        return
     print(modelName, session)
     if isinstance(session, np.ndarray):
         session = session.tolist()
