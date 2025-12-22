@@ -48,7 +48,7 @@ DOM_connectPyserver.onclick = (e) => {
       let value = +DOM_values[i].value * 1000;
       DOM_predicts[i].innerText = predict;
 
-      if (predict && value && i<3) {
+      if (predict && value) {
         console.log(`intput:${i} predict:${predict}, value:${value}`)
         sendMessageToGame(value, msg.sid, predict)
       }
