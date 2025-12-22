@@ -156,7 +156,7 @@ var chart_longs = [];
 var chart_shorts = [];
 for(let i=0; i<numOfModel; i++){
     chart_longs.push(echarts.init(document.getElementById(`chart_long_${i}`)));
-    chart_shorts.push(echarts.init(document.getElementById(`chart_short_${i}`)));
+    // chart_shorts.push(echarts.init(document.getElementById(`chart_short_${i}`)));
 }
 const DOM_hsFixs = document.getElementsByClassName('DOM_hsFix');
 const DOM_predicts = document.getElementsByClassName('DOM_predict');
