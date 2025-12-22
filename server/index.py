@@ -11,7 +11,10 @@ app = Flask(
     )
 CORS(app)  # Bật CORS cho toàn bộ ứng dụng
 socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả nguồn
-
+@app.route("/")
+def home():
+    return render_template("index.html")
+    
 @socketio.on('predict')
 def handle_predict(msg):
     print(f"_______________{msg.get('sid')}__________________")
@@ -44,9 +47,7 @@ def handle_disconnect():
     SAVE_MODELS()
     models, LONGS, numOfModel = LOAD()
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=False)
