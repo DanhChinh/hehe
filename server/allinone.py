@@ -13,7 +13,7 @@ def danh_gia_huong(data):
 
     # Nếu ít hơn 2 điểm => không đánh giá được
     if len(clean) < 2:
-        return "khong_danh_gia_duoc"
+        return "error"
 
     # 2. Tính slope (độ dốc)
     slopes = []
@@ -22,7 +22,7 @@ def danh_gia_huong(data):
             slopes.append((y2 - y1) / (x2 - x1))
 
     if not slopes:
-        return "ngang"
+        return "---"
 
     avg_slope = sum(slopes) / len(slopes)
 
@@ -30,11 +30,11 @@ def danh_gia_huong(data):
     threshold = 0.0001  # ngưỡng gần 0 để coi như đi ngang
 
     if avg_slope > threshold:
-        return "len"
+        return "up"
     elif avg_slope < -threshold:
-        return "xuong"
+        return "down"
     else:
-        return "ngang"
+        return "---"
 
 
 class MYMODEL:
@@ -48,8 +48,8 @@ class MYMODEL:
         compare = np.where(pred_p2 == label_long, 1, -1)
         self.LONG_ARRAY = np.cumsum(compare)
         self.history = [rd.choice([-1,1]) for i in range(15)]
-        self.history_fix = []
-        self.history_fix_cumsum = np.array([0])
+        self.history_fix = [0]
+        self.history_fix_cumsum = []
         self.short_array = np.cumsum(self.history)
         self.predict = None
         self.predict_fix = None
@@ -58,9 +58,9 @@ class MYMODEL:
     def make_predict(self, x_pred):
         self.predict = 1 if int(self.model.predict([x_pred])[0]) ==1 else 2
         self.predict_fix = self.predict
-        if self.best_match["trend"] == "xuong":
+        if self.best_match["trend"] == "down":
             self.predict_fix = 1 if self.predict == 2 else 2
-        if self.best_match["trend"] == "ngang":
+        if self.best_match["trend"] == "---" or self.best_match["trend"] == "error":
             self.predict_fix = None
         print(self.name, self.best_match["trend"], self.predict, self.predict_fix)
         return self.predict_fix
@@ -164,6 +164,9 @@ class MYMODEL:
             # Dữ liệu cho Biểu đồ 2
             "S_centered": S_centered.tolist(),
             "W_centered": W_centered.tolist(),
+
+            #other
+            'modelName':self.name
         }
         return self.best_match
 

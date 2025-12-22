@@ -10,165 +10,49 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="./src/style.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .chart-container {
-      /* display: flex; */
-      justify-content: space-around;
-      width: 100%;
-      max-width: 1800px;
-    }
-    .chart_long, .chart_short, .DOM_hsFix {
-      /* width: 100%; */
-      height: 300px;
-      border: 1px solid #ccc;
-
-    }
-
-    .controls {
-      margin-bottom: 20px;
-      width: 80%;
-      max-width: 600px;
-      text-align: center;
-    }
-
-    textarea {
-      width: 100%;
-      height: 60px;
-      padding: 5px;
-    }
-
-    button {
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-
-    .DOM_predict {
-      width: 50px;
-      height: 50px;
-      line-height: 50px;
-      border: 1px solid black;
-      text-align: center;
-      font-size: 32px;
-      background-color: rgb(50, 235, 50);
-    }
-    .DOM_predict, .DOM_value, .DOM_isFollow{
-      width: 120px;
-      text-align: center;
-    }
-  </style>
 </head>
 
 <body>
-  <div id="fixed_form">
+  <div class="container my-3 bg-dark">
+    <div id="fixed_form">
 
-    <div class="card bg_opacity">
-      <input id="DOM_accessToken" type="text" value="" class="me-2" />
-      <button id="DOM_isConnectGame">CnectH</button>
-      <button id="DOM_connectPyserver">CnectP</button>
+      <div class="card form-group">
+        <input id="DOM_accessToken" type="text" value="" class="me-2 form-control" />
+        <button class="btn btn-outline-dark" id="DOM_isConnectGame">CnectH</button>
+        <button class="btn btn-outline-dark" id="DOM_connectPyserver">CnectP</button>
 
-      <div id="chat-container" class="bg_opacity"></div>
-    </div>
-
-  </div>
-
-  <div class="container">
-    <div class="row">
-      <div class="DOM_hsFix col-4" id="hsFix_1"></div>
-      <div class="chart_long col-4" id="chart_long_1"></div>
-      <div class="chart_short col-3" id="chart_short_1"></div>
-      <div class="col-1">
-        <div class="DOM_predict" id="predict_1"></div>
-        <input class="DOM_value" type="text" value="" class="me-2" />
-        <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
+        <div id="chat-container" class="bg_opacity"></div>
       </div>
-    </div>
 
-    <div class="row">
-      <div class="DOM_hsFix col-4" id="hsFix_1"></div>
-
-      <div class="chart_long col-4" id="chart_long_2"></div>
-      <div class="chart_short col-3" id="chart_short_2"></div>
-      <div class="col-1">
-
-        <div class="DOM_predict" id="predict_2"></div>
-        <input class="DOM_value" type="text" value="" class="me-2" />
-        <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="DOM_hsFix col-4" id="hsFix_1"></div>
-      <div class="chart_long col-4" id="chart_long_3"></div>
-      <div class="chart_short col-3" id="chart_short_3"></div>
-      <div class="col-1">
-
-        <div class="DOM_predict" id="predict_3"></div>
-        <input class="DOM_value" type="text" value="" class="me-2" />
-        <button class="DOM_isFollow" style="background-color: green;" value="1">Follow</button>
-      </div>
     </div>
   </div>
 
+  <div class="container" id="DOM_map">
+  </div>
 
-
-
-
-
+<div class="container-fluid bg-warning fixed-bottom text-center text-danger">
+  <h5>NO RED</h5>
+  <h5>NO BLUE</h5>
+  <h5>accept the outcome</h5>
+</div>
   <script>
-
-function getTimeHHMM() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  return `${hours}${minutes}`;
-}
-
-
-    function addMessage(content = "...", from = "player") {
-      const chatBox = document.getElementById('chat-container');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `chat-message ${from}`;
-      msgDiv.innerHTML = `#${getTimeHHMM()}/${from}: ${content}`;
-      chatBox.appendChild(msgDiv);
-
-      // 👇 Giới hạn chỉ giữ lại 10 tin nhắn mới nhất
-      while (chatBox.children.length > 10) {
-        chatBox.removeChild(chatBox.firstChild);
-      }
-
-      chatBox.scrollTop = chatBox.scrollHeight;
+    var numOfModel = 3;
+    let parent = document.getElementById('DOM_map');
+    for (let i = 0; i < numOfModel; i++) {
+      parent.innerHTML += `
+    <div class="row">
+      <div class="DOM_hsFix  col" id="hsFix_${i}"></div>
+      <div class="chart_long col " id="chart_long_${i}"></div>
+      <div class="chart_short col" id="chart_short_${i}"></div>
+      <div class="col-1">
+        <div class="DOM_predict form-control" id="predict_${i}"></div>
+        <input class="DOM_value form-control" type="text" value="" />
+        <button class="DOM_isFollow btn btn-outline-dark"  value="1">Follow</button>
+      </div>
+    </div>`
     }
-    function hideScrollbars() {
-      document.documentElement.style.overflow = 'auto';
-      document.body.style.overflow = 'auto';
-
-      // Chrome, Safari
-      document.documentElement.style.scrollbarWidth = 'none';
-      document.body.style.scrollbarWidth = 'none';
-
-      // IE, Edge
-      document.documentElement.style.msOverflowStyle = 'none';
-      document.body.style.msOverflowStyle = 'none';
-    }
-
-    // Gọi khi trang load
-    document.addEventListener("DOMContentLoaded", hideScrollbars);
-
-    // Gọi khi resize
-    window.addEventListener("resize", hideScrollbars);
-
-    // Gọi khi nội dung DOM thay đổi
-    const observer = new MutationObserver(hideScrollbars);
-    observer.observe(document.body, { childList: true, subtree: true });
-
   </script>
+  <script src="./src/globalfunc.js"></script>
   <script src="./src/echart.js"></script>
   <script src="./src/main.js"></script>
   <script src="./src/remote.js"></script>

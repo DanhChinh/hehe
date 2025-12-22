@@ -1,5 +1,4 @@
 ﻿function drawChartLong(localData, localStartIndex, matchDataLocal, predictedDataLocal, bestIndex, long_chart, trend) {
-    // Tạo mảng chỉ số x tương ứng với dữ liệu cục bộ
     const x_indices = localData.map((_, i) => localStartIndex + i);
 
     const option1 = {
@@ -7,13 +6,9 @@
         tooltip: {
             trigger: 'axis',
             formatter: function (params) {
-                // Lấy index x từ nhãn trục X
                 const globalIndex = x_indices[params[0].dataIndex];
                 let str = `Index: <b>${globalIndex}</b><br/>`;
-
                 params.forEach(item => {
-                    // Kiểm tra item.value (giá trị y)
-                    // Đối với category X, item.value là giá trị y (số)
                     if (item.value !== null && item.value !== undefined && item.value !== '-') {
                         str += `<span style="color:${item.color}">●</span> ${item.seriesName}: <b>${parseFloat(item.value).toFixed(2)}</b><br/>`;
                     }
@@ -23,7 +18,7 @@
         },
         xAxis: {
             type: 'category',
-            data: x_indices, // Nhãn X
+            data: x_indices, 
             name: 'X'
         },
         yAxis: { type: 'value', name: 'Giá trị' },
@@ -99,26 +94,22 @@ function drawChartShort(S_centered, W_centered, max_score, best_index, chart_sho
     chart_short.setOption(option2);
 }
 
-function drawLineChart(dataArray, chartDom) {
-    // console.log(dataArray)
+function drawLineChart(dataArray, chartDom, modelName) {
     if (!Array.isArray(dataArray)) {
         console.error("dataArray phải là một mảng!");
         return;
     }
-
-    // Khởi tạo chart
     const chart = echarts.init(chartDom);
-
     const option = {
         title: {
-            text: 'Line Chart'
+            text: `${modelName}`
         },
         tooltip: {
             trigger: 'axis'
         },
         xAxis: {
             type: 'category',
-            data: dataArray.map((_, i) => i) // index làm trục X
+            data: dataArray.map((_, i) => i) 
         },
         yAxis: {
             type: 'value'
@@ -131,35 +122,23 @@ function drawLineChart(dataArray, chartDom) {
             }
         ]
     };
-
     chart.setOption(option);
 }
-
-const chart_long = [
-    echarts.init(document.getElementById('chart_long_1')),
-    echarts.init(document.getElementById('chart_long_2')),
-    echarts.init(document.getElementById('chart_long_3'))
-]
-const chart_short = [
-    echarts.init(document.getElementById('chart_short_1')),
-    echarts.init(document.getElementById('chart_short_2')),
-    echarts.init(document.getElementById('chart_short_3'))
-]
-const DOM_predicts = document.getElementsByClassName('DOM_predict');
-const DOM_values = document.getElementsByClassName('DOM_value');
-const DOM_isFollows = document.getElementsByClassName('DOM_isFollow');
-const DOM_hsFixs = document.getElementsByClassName('DOM_hsFix');
 function calculateAndPlot(data) {
 
-    for (let i = 0; i < 3; i++) {
-
+    for (let i = 0; i < numOfModel; i++) {
+        drawLineChart(
+            data[i].history_fix_cumsum, 
+            DOM_hsFixs[i],
+            data[i].modelName 
+        )
         drawChartLong(
             data[i].local_data, 
             data[i].local_start_index, 
             data[i].match_data_local, 
             data[i].predicted_data_local, 
             data[i].best_index, 
-            chart_long[i],
+            chart_longs[i],
             data[i].trend
         );
         drawChartShort(
@@ -167,13 +146,20 @@ function calculateAndPlot(data) {
             data[i].W_centered,
             data[i].max_score.toFixed(4),
             data[i].best_index,
-            chart_short[i]
+            chart_shorts[i]
         );
-        drawLineChart(data[i].history_fix_cumsum, DOM_hsFixs[i])
     }
 }
 
-
-function renderRow(data){
-
+var chart_longs = [];
+var chart_shorts = [];
+for(let i=0; i<numOfModel; i++){
+    chart_longs.push(echarts.init(document.getElementById(`chart_long_${i}`)));
+    chart_shorts.push(echarts.init(document.getElementById(`chart_short_${i}`)));
 }
+const DOM_predicts = document.getElementsByClassName('DOM_predict');
+const DOM_values = document.getElementsByClassName('DOM_value');
+const DOM_isFollows = document.getElementsByClassName('DOM_isFollow');
+const DOM_hsFixs = document.getElementsByClassName('DOM_hsFix');
+
+

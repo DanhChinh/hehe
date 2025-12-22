@@ -1,84 +1,12 @@
 * {
   box-sizing: border-box;
-}
-
-html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  overflow: auto;
-  scrollbar-width: none;         /* Firefox */
-  -ms-overflow-style: none;      /* IE, Edge */
-}
-
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  display: none;                 /* Chrome, Safari */
-}
-
-
-.bg_opacity{
-
-  width: 100%;
-  padding: 10px 20px;
-  background: #fcfcfc35;
-  border-radius: 12px;
-  font-family: 'Segoe UI', sans-serif;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-}
-
-input{
-  width: 100%;
-  background: rgba(245, 245, 245, 0.733);
-}
-input[type="text"] {
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-button:hover {
-  background-color: #000102;
-  color: white;
 }
 
 
 
 
-
-
-.chart_candle{
-  height: 300px;
-  color: white;
-  border: 1px solid #ccc;
-}
-
-
-
-.card-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #eee;
-  width: 100%;
-}
-
-.card-row:last-child {
-  border-bottom: none;
-}
-
-/* #chat-container {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-} */
 
 
 /* Container giống terminal */
@@ -88,7 +16,7 @@ button:hover {
   font-family: "Courier New", monospace;
   padding: 10px;
   border: 1px solid #00ff66;
-  height: 300px;
+  height: 500px;
   overflow-y: auto;
   border-radius: 4px;
   box-shadow: 0 0 10px #00ff66;
@@ -120,29 +48,35 @@ button:hover {
   border-left-color: rgba(68, 170, 255, 0.5);
 }
 
-/* Hiệu ứng nhấp nháy như cursor terminal */
-/* .chat-message::after {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 14px;
-  background: currentColor;
-  margin-left: 4px;
-  animation: cursorBlink 1s infinite;
-} */
 
-@keyframes cursorBlink {
-  0%, 50% { opacity: 1; }
-  50.01%, 100% { opacity: 0; }
+
+
+
+
+
+.chart_long,
+.chart_short,
+.DOM_hsFix {
+  /* width: 100%; */
+  height: 300px;
+  border: 1px solid #ccc;
+
 }
 
 
+.DOM_predict {
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  border: 1px solid black;
+  text-align: center;
+  font-size: 32px;
+  background-color: rgb(50, 235, 50);
+}
 
-
-#fixed_form{
-  width: 300px;
-  height: auto;
-  position: fixed;
-  top: 10px;
-  left: 0;
+.DOM_predict,
+.DOM_value,
+.DOM_isFollow {
+  width: 120px;
+  text-align: center;
 }
