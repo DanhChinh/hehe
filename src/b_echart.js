@@ -94,7 +94,7 @@ function drawChartShort(S_centered, W_centered, max_score, best_index, chart_sho
     chart_short.setOption(option2);
 }
 
-function drawLineChart(dataArray, chartDom, modelName) {
+function drawLineChart(dataArray, chartDom, modelName, stat_score) {
     if (!Array.isArray(dataArray)) {
         console.error("dataArray phải là một mảng!");
         return;
@@ -102,7 +102,7 @@ function drawLineChart(dataArray, chartDom, modelName) {
     const chart = echarts.init(chartDom);
     const option = {
         title: {
-            text: `${modelName}`
+            text: `${modelName}: ${stat_score}`
         },
         tooltip: {
             trigger: 'axis'
@@ -130,7 +130,8 @@ function calculateAndPlot(data) {
         drawLineChart(
             data[i].history_fix_cumsum, 
             DOM_hsFixs[i],
-            data[i].modelName 
+            data[i].modelName,
+            data[i].stat_score
         )
         drawChartLong(
             data[i].local_data, 
@@ -157,9 +158,8 @@ for(let i=0; i<numOfModel; i++){
     chart_longs.push(echarts.init(document.getElementById(`chart_long_${i}`)));
     chart_shorts.push(echarts.init(document.getElementById(`chart_short_${i}`)));
 }
+const DOM_hsFixs = document.getElementsByClassName('DOM_hsFix');
 const DOM_predicts = document.getElementsByClassName('DOM_predict');
 const DOM_values = document.getElementsByClassName('DOM_value');
-const DOM_isFollows = document.getElementsByClassName('DOM_isFollow');
-const DOM_hsFixs = document.getElementsByClassName('DOM_hsFix');
 
 

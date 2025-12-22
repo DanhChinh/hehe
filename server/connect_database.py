@@ -1,10 +1,12 @@
 import requests
 import pandas as pd
+import numpy as np
 
 
 def fetch_data_from_api(url, params=None):
     response = requests.get(url, params=params)
     if response.status_code == 200:
+        print(f'get:{url} ->done')
         return response.json()
     else:
         raise Exception(f"Error: {response.status_code}")
@@ -35,3 +37,20 @@ def get_data_from_api():
             df[col] = pd.to_numeric(df[col], errors='coerce', downcast='integer')
 
     return df
+
+
+def get_jsonmodels():
+    return fetch_data_from_api("https://cyan.io.vn/xg79/models_api.php")
+
+
+def saveModel(modelName, session):
+    print(modelName, session)
+    if isinstance(session, np.ndarray):
+        session = session.tolist()
+    requests.post(
+        "http://cyan.io.vn/xg79/models_api.php",
+        json={
+            "model": modelName,
+            "session": session
+        }
+    )

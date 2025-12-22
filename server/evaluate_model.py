@@ -83,26 +83,26 @@ def rank_models(models):
 # =========================
 # 4. MAIN – chạy thử
 # =========================
-if __name__ == "__main__":
-    models = {
-        "Random Forest": [
-            [0,1,2,3,2,1,2,3,2,1,2],
-            [0,1,0,-1,-2,-1]
-        ],
-        "K-Nearest Neighbors": [
-            [0,1,2,3,2,1,2,3,4,5,6],
-            [0,1,0,-1,-2,-1]
-        ]
-    }
+# if __name__ == "__main__":
+#     models = {
+#         "Random Forest": [
+#             [0,1,2,3,2,1,2,3,2,1,2],
+#             [0,1,0,-1,-2,-1]
+#         ],
+#         "K-Nearest Neighbors": [
+#             [0,1,2,3,2,1,2,3,4,5,6],
+#             [0,1,0,-1,-2,-1]
+#         ]
+#     }
 
-    ranking = rank_models(models)
+#     ranking = rank_models(models)
 
-    print("=== MODEL RANKING (DESC) ===")
-    for i, (name, stat) in enumerate(ranking, 1):
-        print(f"{i}. {name}")
-        print(f"   SCORE     : {stat['score']:.4f}")
-        print(f"   Gain      : {stat['gain']:.4f}")
-        print(f"   Trend     : {stat['trend']:.4f}")
-        print(f"   Drawdown  : {stat['drawdown']:.4f}")
-        print(f"   Stability : {stat['stability']:.4f}")
-        print()
+#     print("=== MODEL RANKING (DESC) ===")
+#     for i, (name, stat) in enumerate(ranking, 1):
+#         print(f"{i}. {name}")
+#         print(f"   SCORE     : {stat['score']:.4f}")
+#         print(f"   Gain      : {stat['gain']:.4f}")
+#         print(f"   Trend     : {stat['trend']:.4f}")
+#         print(f"   Drawdown  : {stat['drawdown']:.4f}")
+#         print(f"   Stability : {stat['stability']:.4f}")
+#         print()

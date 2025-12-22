@@ -18,13 +18,10 @@ DOM_isConnectGame.onclick = (e) => {
   isConnectGame ? socket_connect() : socket.close();
 };
 
-for (let i = 0; i < 3; i++) {
-  DOM_isFollows[i].onclick = (e) => {
-    // console.log(e.target.value)
-    e.target.value = Number(e.target.value) == 1 ? 0 : 1
-    e.target.style.backgroundColor = Number(e.target.value) == 1 ? "green" : "red";
-  }
+DOM_saveModel.onclick  =()=>{
+    socket_io.emit("saveModel", {});
 }
+
 
 
 
@@ -49,15 +46,10 @@ DOM_connectPyserver.onclick = (e) => {
     for (let i = 0; i < numOfModel; i++) {
       let predict = msg.predicts[i];
       let value = +DOM_values[i].value * 1000;
-      let isFollow = Number(DOM_isFollows[i].value)
       DOM_predicts[i].innerText = predict;
-      // console.log(`predict:${predict}, value:${value}, isFollow:${isFollow}`)
 
-      if (!isFollow) {
-        predict = predict == 1 ? 2 : 1
-      }
-      if (predict && value) {
-        console.log(`intput:${i} predict:${predict}, value:${value}, isFollow:${isFollow}`)
+      if (predict && value && i<3) {
+        console.log(`intput:${i} predict:${predict}, value:${value}`)
         sendMessageToGame(value, msg.sid, predict)
       }
       // DOM_values[i].value = '';

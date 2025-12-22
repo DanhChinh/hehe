@@ -2,12 +2,11 @@ from flask import Flask, jsonify
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import os, json
-from allinone import *
-from env import handle_progress
+from mmodel import *
+from handle_data import handle_progress
 app = Flask(__name__)
 CORS(app)  # Bật CORS cho toàn bộ ứng dụng
 socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả nguồn
-
 
 @socketio.on('predict')
 def handle_predict(msg):
@@ -24,10 +23,13 @@ def handle_check(msg):
     CHECK(result)
     best_matchs = FIND_BEST_MATCHS()
     emit("best_matchs", {'best_matchs': best_matchs})
-    emit('handle_predict', {"predicts": ['', '', ''], 'sid':None}) 
+    emit('handle_predict', {"predicts": ['' for i in range(numOfModel)], 'sid':None}) 
 
     
-
+@socketio.on('saveModel')
+def handle_check(msg):
+    print('saveModel')
+    SAVE_MODELS()
 
 
 

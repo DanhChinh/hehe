@@ -1,7 +1,7 @@
 import json, math
 import numpy as np
 import pandas as pd
-from getDb import get_data_from_api
+from connect_database import get_data_from_api
 def lam_tron_bac_thu_2(n):
     if n == 0:
         return 0

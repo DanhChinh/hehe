@@ -1,9 +1,38 @@
 import numpy as np
 import random as rd
-from env import make_data, handle_progress
-from sklearn.ensemble import RandomForestClassifier
+from handle_data import make_data, handle_progress
+from connect_database import get_jsonmodels, saveModel
+from evaluate_model import rank_models
+
+
+from sklearn.ensemble import (
+    RandomForestClassifier,
+    GradientBoostingClassifier,
+    AdaBoostClassifier,
+    ExtraTreesClassifier
+)
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.neural_network import MLPClassifier
+
+models_dict = {
+    "Logistic Regression": LogisticRegression(max_iter=1000),
+    "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5),
+    "SVM (RBF)": SVC(kernel="rbf", probability=True),
+    "Decision Tree": DecisionTreeClassifier(random_state=42),
+    "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
+    "Extra Trees": ExtraTreesClassifier(n_estimators=100, random_state=42),
+    "Gradient Boosting": GradientBoostingClassifier(),
+    "AdaBoost": AdaBoostClassifier(n_estimators=100),
+    "Naive Bayes": GaussianNB(),
+    "LDA": LinearDiscriminantAnalysis(),
+    "MLP (Neural Network)": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500)
+}
+
 
 
 
@@ -38,9 +67,10 @@ def danh_gia_huong(data):
 
 
 class MYMODEL:
-    def __init__(self, name, model):
+    def __init__(self, name, model, stat):
         self.name = name
         self.model = model
+        self.stat = stat
         self.reload()
     def reload(self):
         self.model.fit(data_train, label_train)
@@ -49,7 +79,7 @@ class MYMODEL:
         self.LONG_ARRAY = np.cumsum(compare)
         self.history = [rd.choice([-1,1]) for i in range(15)]
         self.history_fix = [0]
-        self.history_fix_cumsum = []
+        self.history_fix_cumsum = np.array([])
         self.short_array = np.cumsum(self.history)
         self.predict = None
         self.predict_fix = None
@@ -166,7 +196,8 @@ class MYMODEL:
             "W_centered": W_centered.tolist(),
 
             #other
-            'modelName':self.name
+            'modelName':self.name,
+            'stat_score': f"{self.stat['score']:.4f}"
         }
         return self.best_match
 
@@ -189,6 +220,14 @@ def CHECK(result):
     for model in models:
         model.check(result)
         model.check_fix(result)
+
+
+def SAVE_MODELS():
+    for model in models:
+        modelName = model.name
+        session = model.history_fix_cumsum
+        saveModel(modelName, session)
+    print('save all: done')
 # ===============================
 # 1. TẠO DỮ LIỆU
 # ===============================
@@ -208,26 +247,19 @@ label_train = label[:split_idx]
 data_long = data[split_idx:]
 label_long = label[split_idx:]
 
-# In kiểm tra
-print("Train size:", len(label_train))
-print("Long size :", len(label_long))
-
-
-
 # ===============================
 # 2. TRAIN RANDOM FOREST
 # ===============================
+jsmodels = get_jsonmodels()
+ranking = rank_models(jsmodels)
 
+models = []
 
-models = [
-    MYMODEL("Random Forest", RandomForestClassifier(n_estimators=100) ),
-    MYMODEL("K-Nearest Neighbors", KNeighborsClassifier(n_neighbors=5)),
-    MYMODEL( "Naive Bayes (Gaussian)",GaussianNB())
-    ]
-
-
+for i, (name, stat) in enumerate(ranking, 1):
+    models.append( MYMODEL(name, models_dict[name], stat) )
 
 
 LONGS = []
 for model in models:
     LONGS.append(model.reload())
+numOfModel =  len (models)
