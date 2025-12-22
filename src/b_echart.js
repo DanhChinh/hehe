@@ -142,13 +142,13 @@ function calculateAndPlot(data) {
             chart_longs[i],
             data[i].trend
         );
-        drawChartShort(
-            data[i].S_centered,
-            data[i].W_centered,
-            data[i].max_score.toFixed(4),
-            data[i].best_index,
-            chart_shorts[i]
-        );
+        // drawChartShort(
+        //     data[i].S_centered,
+        //     data[i].W_centered,
+        //     data[i].max_score.toFixed(4),
+        //     data[i].best_index,
+        //     chart_shorts[i]
+        // );
     }
 }
 
