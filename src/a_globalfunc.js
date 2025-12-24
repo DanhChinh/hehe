@@ -43,9 +43,10 @@ function setBarValue(value){
 
 
 const TradeTable = {
-  maxRows: 10,
+  maxRows: 20,
   data: {},
   tbody: document.querySelector("#tradeTable tbody"),
+  total:0,
 
   // 🟢 MUA (cộng dồn)
     buy(id, qty) {
@@ -96,7 +97,7 @@ const TradeTable = {
     } else {
       t.profit = -net;
     }
-
+    this.total += t.profit
     this.render();
   },
 
@@ -147,12 +148,11 @@ const TradeTable = {
   // 🖌 Render bảng
   render() {
     this.tbody.innerHTML = "";
-    let total = 0;
 
     Object.values(this.data)
       .slice(-this.maxRows)
       .forEach(t => {
-        total += t.profit;
+        // total += t.profit;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -169,7 +169,7 @@ const TradeTable = {
         this.tbody.appendChild(tr);
       });
 
-    document.getElementById("totalProfit").textContent = total;
+    document.getElementById("totalProfit").textContent = this.total;
     this.updateColors()
   }
 };
@@ -177,28 +177,3 @@ const TradeTable = {
 
 
 
-// TradeTable.buy(1, 'mua', 2);
-// TradeTable.buy(2, 'ban', 1);
-
-// setTimeout(() => {
-//   TradeTable.onMatch(1, 100);
-//   TradeTable.onMatch(2, 120);
-// }, 500);
-
-// setTimeout(() => {
-//   TradeTable.close(1, 'len');
-//   TradeTable.close(2, 'xuong');
-// }, 3000);
-
-
-// {
-//   "bs": [
-//     {
-//       "eid": 1,
-//       "bc": 490,
-//       "b": 1000,
-//       "v": 206784100
-//     }
-//   ],
-//   "cmd": 15002
-// }

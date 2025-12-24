@@ -3,7 +3,7 @@ const main_text = `
 
     <!-- ================= MESSAGES ================= -->
     <div class="col-lg-4">
-      <div class="card shadow-sm"  style="height:450px"  >
+      <div class="card shadow-sm"  style="height:400px"  >
         <div class="card-header fw-bold">
           💬 Tin nhắn mới
         </div>
