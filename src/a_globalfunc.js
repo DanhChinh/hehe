@@ -40,6 +40,29 @@ function setBarValue(value){
 
 
 
+function lerpColor(c1, c2, t) {
+  const a = c1.match(/\w\w/g).map(x => parseInt(x, 16));
+  const b = c2.match(/\w\w/g).map(x => parseInt(x, 16));
+  const c = a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  return "#" + c.map(x => x.toString(16).padStart(2, "0")).join("");
+}
+function gradientByMinMax(value, min, max) {
+  // tất cả bằng nhau → trắng
+  if (min === max) return "#ffffff";
+
+  // điểm giữa (0)
+  if (value === 0) return "#ffffff";
+
+  // ---- LÃI (0 → max): xanh nhạt → xanh đậm
+  if (value > 0) {
+    const t = value / max; // 0 → 1
+    return lerpColor("#E6F1D8", "#5BBD2B", t);
+  }
+
+  // ---- LỖ (min → 0): đỏ đậm → đỏ nhạt
+  const t = value / min; // 0 → 1
+  return lerpColor("#FCDAD5", "#E54646", t);
+}
 
 
 const TradeTable = {
@@ -104,7 +127,6 @@ const TradeTable = {
   // 🧱 Khởi tạo phiên
   init(id) {
     if (!this.data[id]) {
-        if(!id){id=0}
       this.data[id] = {
         id,
         buy: 0,
@@ -116,34 +138,27 @@ const TradeTable = {
       };
     }
   },
-  updateColors() {
+ updateColors() {
   const rows = Object.values(this.data);
-  if (rows.length === 0) return;
+  if (!rows.length) return;
 
-  const profits = rows.map(t => t.profit);
+  const profits = rows.map(r => r.profit);
   const max = Math.max(...profits);
   const min = Math.min(...profits);
 
   [...this.tbody.children].forEach((tr, i) => {
     const p = rows[i].profit;
-    let color = "#ccc"; // mặc định (hòa)
+    const color = gradientByMinMax(p, min, max);
 
-    if (p === 0) color = "#999";
-    else if (p === max && p > 0) color = "#b400ff";        // trần
-    else if (p === min && p < 0) color = "#0066ff";        // sàn
-    else if (p > 0) {
-      color = p > max * 0.7 ? "#008000" : "#00aa00";       // lãi mạnh / nhẹ
-    } else {
-      color = p < min * 0.7 ? "#8b0000" : "#ff3333";       // lỗ mạnh / nhẹ
-    }
+    // tô cột lãi
+    tr.cells[6].style.backgroundColor = color;
+    tr.cells[6].style.color = "#000";
 
-    // áp dụng cho cột lãi
-    tr.cells[6].style.color = color;
-
-    // nếu muốn tô cả dòng (bỏ comment)
-    tr.style.backgroundColor = color + "20";
+    // nếu muốn tô cả dòng
+    tr.style.backgroundColor = color;
   });
-},
+}
+,
 
   // 🖌 Render bảng
   render() {
@@ -173,7 +188,4 @@ const TradeTable = {
     this.updateColors()
   }
 };
-
-
-
 

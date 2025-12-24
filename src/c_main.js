@@ -103,7 +103,7 @@ function socket_connect() {
         sendDataToThuhuyenFun(JSON.parse(JSON.stringify(record)));
         let rs = mgs.d1 + mgs.d2 + mgs.d3;
         TradeTable.close(record.sid, `${rs > 10 ? 'len' : 'xuong'}`);
-        // addMessage(`${rs > 10 ? '💚' : '❤️'}`, "market")
+        addMessage(`${rs > 10 ? '💚' : '❤️'}`, "market")
 
 
         rs = rs > 10 ? 1 : 2;
