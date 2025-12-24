@@ -5,77 +5,36 @@
 }
 
 
-
-
-
-
-/* Container giống terminal */
-#chat-container {
-  background: #0d0d0d;
-  color: #00ff66;
-  font-family: "Courier New", monospace;
-  padding: 10px;
-  border: 1px solid #00ff66;
-  height: 500px;
-  overflow-y: auto;
-  border-radius: 4px;
-  box-shadow: 0 0 10px #00ff66;
-}
-
-/* Tin nhắn */
-.chat-message {
-  padding: 4px 0;
-  border-left: 3px solid rgba(0, 255, 102, 0.4);
-  margin-bottom: 4px;
-  white-space: pre-wrap;
-}
-
-/* Nhãn người gửi */
-.chat-message small {
-  color: #33ff99;
-  opacity: 0.8;
-  font-size: 11px;
-}
-
-/* Tin nhắn từ player */
-.chat-message.player {
-  color: #00ff66;
-}
-
-/* Tin nhắn từ bot */
-.chat-message.bot {
-  color: #44aaff;
-  border-left-color: rgba(68, 170, 255, 0.5);
-}
-
-
-
-
-
-
-
 .chart_long,
 .chart_short,
 .DOM_hsFix {
-  /* width: 100%; */
   height: 300px;
-  border: 1px solid #ccc;
 
 }
 
-
-.DOM_predict {
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
-  border: 1px solid black;
-  text-align: center;
-  font-size: 32px;
-  background-color: rgb(50, 235, 50);
-}
 
 .DOM_predict,
-.DOM_value{
-  width: 120px;
+.DOM_value {
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
   text-align: center;
+  font-size: 32px;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
 }
+
+  .progress-bar {
+    transition: width 1.2s ease;
+  }
+
+
+
+.buy { color: #16a34a; font-weight: bold; }
+.sell { color: #dc2626; font-weight: bold; }
+
+.up { color: #16a34a; }
+.down { color: #dc2626; }
+
+.profit { color: #16a34a; font-weight: bold; }
+.loss { color: #dc2626; font-weight: bold; }

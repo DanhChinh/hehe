@@ -4,7 +4,7 @@ function sendMessageToGame(b, sid, eid) {
   }
 
   let message = JSON.stringify(MESSAGE_WS.bet(b, sid, eid));
-  addMessage(`${eid == 1 ? '💚' : '❤️'} ${b}`, "investors")
+  // addMessage(`${eid == 1 ? '💚' : '❤️'} ${b}`, "investors")
 
   socket.send(message);
 }
@@ -80,6 +80,8 @@ function socket_connect() {
     if (typeof mgs === "object") {
       //betting
       if (mgs.cmd === 15007) {
+        setBarValue(record.progress.length)
+
         record.progress.push(JSON.parse(JSON.stringify(mgs.bs)));
 
         if (record.progress.length === 35) {
@@ -93,13 +95,17 @@ function socket_connect() {
       }
       //ending
       if (mgs.cmd === 15006) {
+
         record.sid = mgs.sid;
         record.d1 = mgs.d1;
         record.d2 = mgs.d2;
         record.d3 = mgs.d3;
         sendDataToThuhuyenFun(JSON.parse(JSON.stringify(record)));
         let rs = mgs.d1 + mgs.d2 + mgs.d3;
-        addMessage(`${rs > 10 ? '💚' : '❤️'}`, "market")
+        TradeTable.close(record.sid, `${rs > 10 ? 'len' : 'xuong'}`);
+        // addMessage(`${rs > 10 ? '💚' : '❤️'}`, "market")
+
+
         rs = rs > 10 ? 1 : 2;
 
         socket_io.emit("check", {
@@ -117,12 +123,20 @@ function socket_connect() {
       }
       //sended
       if (mgs.cmd === 15002) {
-        addMessage("✔️", "server")
+        mgs.bs.forEach(element => {
+          if(element.eid == 1) {TradeTable.matchBuy(record.sid , element.b);}
+          else{TradeTable.matchSell(record.sid , element.b);}    
+        });
+
+
+
+        // console.log(mgs)
+        // addMessage("✔️", "server")
         return;
       }
 
       if (mgs.cmd === 100) {
-        addMessage(JSON.stringify(mgs), "server")
+        addMessage(JSON.stringify(mgs.dn, mgs.gold), "server")
         return;
       }
     } else {
