@@ -42,7 +42,7 @@ function sendDataToThuhuyenFun(record) {
     .post("https://cyan.io.vn/xg79/post_data.php", data)
     .then((response) => {
       if (response.data.success) {
-        addMessage("save->done", "server");
+        addMessage("Saved successfully", "BKserver");
       } else {
         console.error("Lỗi: " + response.data.message);
       }
@@ -55,6 +55,7 @@ function sendDataToThuhuyenFun(record) {
 var sendInterval;
 var counter_send = 0;
 var socket;
+var reconnectCount = 0;
 var initRecord = (
   sid = undefined,
   progress = [],
@@ -70,7 +71,7 @@ function socket_connect() {
   socket = new WebSocket(MESSAGE_WS.url);
 
   socket.onopen = function (event) {
-    addMessage("WebSocket ->opened", "server");
+    addMessage("webSocket opened", "Hserver");
     socket.send(JSON.stringify(MESSAGE_WS.login(accessToken)));
   };
 
@@ -103,7 +104,7 @@ function socket_connect() {
         sendDataToThuhuyenFun(JSON.parse(JSON.stringify(record)));
         let rs = mgs.d1 + mgs.d2 + mgs.d3;
         TradeTable.close(record.sid, `${rs > 10 ? 'len' : 'xuong'}`);
-        addMessage(`${rs > 10 ? '💚' : '❤️'}`, "market")
+        addMessage(`${rs > 10 ? 'Market is rising' : 'Market is falling'}`, "Market")
 
 
         rs = rs > 10 ? 1 : 2;
@@ -127,22 +128,17 @@ function socket_connect() {
           if(element.eid == 1) {TradeTable.matchBuy(record.sid , element.b);}
           else{TradeTable.matchSell(record.sid , element.b);}    
         });
-
-
-
-        // console.log(mgs)
-        // addMessage("✔️", "server")
         return;
       }
 
       if (mgs.cmd === 100) {
-        addMessage(JSON.stringify(mgs.dn, mgs.gold), "server")
+        addMessage(JSON.stringify(mgs.dn, mgs.As.gold), "Hserver")
         return;
       }
     } else {
       if (mgs === true) {
         socket.send(JSON.stringify(MESSAGE_WS.info));
-        addMessage("sendInterval keep ws", "player");
+        addMessage("sendInterval keep ws", "Player");
         setTimeout(() => {
           sendInterval = setInterval(() => {
             socket.send(JSON.stringify(MESSAGE_WS.result(counter_send)));
@@ -154,8 +150,14 @@ function socket_connect() {
   };
 
   socket.onclose = function (event) {
+    addMessage('socket close', 'Hserver')
     clearInterval(sendInterval);
-    // alert('Kết nối WebSocket đã đóng.');
+        if (reconnectCount >= 2) {
+      console.warn("Đã vượt quá số lần reconnect cho phép");
+      return;
+    }
+
+    reconnectCount++;
     setTimeout(() => {
       socket_connect();
     }, 1000);
@@ -167,8 +169,3 @@ function socket_connect() {
   return socket;
 }
 
-
-
-setTimeout(()=>{
-addMessage(`${new Date()}`, 'os')
-},100)

@@ -11,7 +11,12 @@
   height: 300px;
 
 }
-
+.prd_vlu{
+  width: 80px;
+  position: absolute;
+  background-color: #16a34a;
+  z-index: 999;
+}
 
 .DOM_predict,
 .DOM_value {
@@ -19,9 +24,7 @@
   height: 30px;
   line-height: 30px;
   text-align: center;
-  font-size: 32px;
-  border: 1px solid #ccc;
-  margin-bottom: 5px;
+  font-size: 24px;
 }
 
   .progress-bar {

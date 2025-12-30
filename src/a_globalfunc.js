@@ -6,16 +6,14 @@ function getTimeHHMM() {
 }
 
 
-function addMessage(content = "...", from = "player") {
+function addMessage(content = "...", from = "Player") {
     const chatBox = document.getElementById('chat-container');
     const msgDiv = document.createElement('div');
     // msgDiv.className = `chat-message ${from}`;
     msgDiv.innerHTML = `          
         <li class="list-group-item d-flex justify-content-between">
             <div>
-            ${getTimeHHMM()}
-              <strong>${from}</strong>
-              <p class="mb-0 text-muted small">${content}</p>
+              <p class="mb-0 text-muted small"><strong>[${getTimeHHMM()} ${from}] </strong> ${content}</p>
             </div>
           </li>`
     chatBox.appendChild(msgDiv);
@@ -139,7 +137,7 @@ const TradeTable = {
     }
   },
  updateColors() {
-  const rows = Object.values(this.data);
+  const rows = Object.values(this.data)//.slice(-this.maxRows);
   if (!rows.length) return;
 
   const profits = rows.map(r => r.profit);
@@ -165,10 +163,10 @@ const TradeTable = {
     this.tbody.innerHTML = "";
 
     Object.values(this.data)
-      .slice(-this.maxRows)
-      .forEach(t => {
-        // total += t.profit;
+      //.slice(-this.maxRows)
 
+      //style="color:${t.profit >= 0 ? 'green' : 'red'}"
+      .forEach(t => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${t.id}</td>
@@ -177,7 +175,7 @@ const TradeTable = {
           <td>${t.sell}</td>
           <td>${t.matchSell}</td>
           <td>${t.market}</td>
-          <td style="color:${t.profit >= 0 ? 'green' : 'red'}">
+          <td > 
             ${t.profit}
           </td>
         `;
