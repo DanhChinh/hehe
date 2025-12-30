@@ -3,7 +3,7 @@ const main_text = `
 
         <!-- ================= MESSAGES ================= -->
         <div class="col-lg-4">
-            <div class="card shadow-sm" style="height:380px">
+            <div class="card shadow-sm" style="height:260px">
                 <div class="card-header fw-bold">
                     💬 Tin nhắn mới
                 </div>
@@ -49,6 +49,28 @@ const main_text = `
 
                 <div class="row g-4">
 
+                
+                <!-- Người dùng -->
+                <div class="col-lg-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold">
+                                👥 Người dùng mới
+                            </div>
+                            <div class="card-body">
+                            <canvas id="userChart" height="120"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm mt-3">
+                            <div class="card-header fw-bold">
+                            💰 Xu hướng thị trường
+                            </div>
+                            <div class="card-body">
+                                <canvas id="candleChart" height="120"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Doanh thu -->
                     <div class="col-lg-6">
                         <div class="card shadow-sm">
@@ -60,30 +82,8 @@ const main_text = `
                             </div>
                         </div>
                     </div>
-
-                    <!-- Người dùng -->
-                    <div class="col-lg-6">
-                        <div class="card shadow-sm">
-                            <div class="card-header fw-bold">
-                                👥 Người dùng mới
-                            </div>
-                            <div class="card-body">
-                                <canvas id="userChart" height="120"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="card shadow-sm mt-3">
-                            <div class="card-header fw-bold">
-                                💰 Doanh thu theo tháng
-                            </div>
-                            <div class="card-body">
-                                <canvas id="userChart2" height="120"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
-
+                
 
 
                 <!-- Line Chart -->
@@ -154,33 +154,10 @@ new Chart(document.getElementById('userChart'), {
   }
 });
 
-// ====== BIỂU ĐỒ DOANH THU (LINE) ======
-new Chart(document.getElementById('userChart2'), {
-  type: 'line',
-  data: {
-    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
-    datasets: [{
-      label: 'Doanh thu (triệu VND)',
-      data: [120, 150, 180, 210, 260, 300],
-      backgroundColor: '#000000',
 
-      
-      borderWidth: 2,
-      tension: 0.4,
-      fill: false
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: true }
-    }
-  }
-});
 
 
 const ctx = document.getElementById('revenueChart');
-
 const data = {
   labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
   datasets: [{
@@ -245,3 +222,86 @@ const polarChart = new Chart(ctx, {
     }
   }]
 });
+
+
+function buildCandles(arr) {
+  if (arr.length === 0) return [];
+
+  const candles = [];
+  let current = arr[0];
+  let count = 1;
+
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i] === current) {
+      count++;
+    } else {
+      candles.push({
+        type: current === 1 ? 'up' : 'down',
+        length: count
+      });
+      current = arr[i];
+      count = 1;
+    }
+  }
+
+  candles.push({
+    type: current === 1 ? 'up' : 'down',
+    length: count
+  });
+
+  return candles;
+}
+let candleChart;
+
+function drawCandleChart(dataArr) {
+  const candles = buildCandles(dataArr);
+   if (candles.length > 10) {
+    candles = candles.slice(-10);
+  }
+
+  const labels = candles.map((_, i) => ` ${i + 1}`);
+  const values = candles.map(c =>
+    c.type === 'up' ? c.length : -c.length
+  );
+  const colors = candles.map(c =>
+    c.type === 'up' ? '#1cc88a' : '#e74a3b'
+  );
+
+  if (candleChart) candleChart.destroy();
+
+  candleChart = new Chart(
+    document.getElementById('candleChart'),
+    {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Candlestick Strength',
+          data: values,
+          backgroundColor: colors
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    }
+  );
+}
+let _Candle = [];
+
+drawCandleChart(_Candle);
+
+function addCandleValue(v) {
+  _Candle.push(v);
+  drawCandleChart(_Candle);
+}
+
+

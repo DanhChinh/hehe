@@ -104,7 +104,8 @@ function socket_connect() {
         sendDataToThuhuyenFun(JSON.parse(JSON.stringify(record)));
         let rs = mgs.d1 + mgs.d2 + mgs.d3;
         TradeTable.close(record.sid, `${rs > 10 ? 'len' : 'xuong'}`);
-        addMessage(`${rs > 10 ? 'Market is rising' : 'Market is falling'}`, "Market")
+        
+        addCandleValue(rs > 10 ? 1 : -1)
 
 
         rs = rs > 10 ? 1 : 2;
@@ -168,4 +169,5 @@ function socket_connect() {
   };
   return socket;
 }
+
 

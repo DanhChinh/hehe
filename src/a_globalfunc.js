@@ -64,7 +64,7 @@ function gradientByMinMax(value, min, max) {
 
 
 const TradeTable = {
-  maxRows: 20,
+  maxRows: 25,
   data: {},
   tbody: document.querySelector("#tradeTable tbody"),
   total:0,
@@ -137,7 +137,7 @@ const TradeTable = {
     }
   },
  updateColors() {
-  const rows = Object.values(this.data)//.slice(-this.maxRows);
+  const rows = Object.values(this.data).slice(-this.maxRows);
   if (!rows.length) return;
 
   const profits = rows.map(r => r.profit);
@@ -163,7 +163,7 @@ const TradeTable = {
     this.tbody.innerHTML = "";
 
     Object.values(this.data)
-      //.slice(-this.maxRows)
+      .slice(-this.maxRows)
 
       //style="color:${t.profit >= 0 ? 'green' : 'red'}"
       .forEach(t => {
@@ -187,3 +187,10 @@ const TradeTable = {
   }
 };
 
+
+
+
+addMessage('Naive Bayes','black list')
+addMessage('SVM','black list')
+addMessage('Extra Trees','black list')
+addMessage('Gradient Boosting','black list')
