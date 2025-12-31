@@ -1,64 +1,117 @@
 import tkinter as tk
 from tkinter import ttk
+from PIL import Image, ImageTk
 import psutil
-import threading
 import time
 
 class SystemMonitor:
     def __init__(self, root):
         self.root = root
-        self.root.title("System Monitor Pro")
-        self.root.geometry("400x350")
+        self.root.title(f"System Monitor Pro: {time.strftime('%H:%M:%S', time.localtime(psutil.boot_time()))}")
+        self.root.geometry("500x333")
         self.root.attributes('-topmost', True)
-        self.root.configure(bg="#1e1e1e") # Nền tối hiện đại
-        
-        # Style cho Progressbar
-        self.style = ttk.Style()
-        self.style.theme_use('clam')
-        self.style.configure("TProgressbar", thickness=20)
 
-        # --- Giao diện CPU ---
-        self.cpu_label = tk.Label(root, text="CPU Usage: 0%", font=("Segoe UI", 12), bg="#1e1e1e", fg="#00d4ff")
-        self.cpu_label.pack(pady=(20, 5))
-        self.cpu_bar = ttk.Progressbar(root, length=300, mode='determinate')
-        self.cpu_bar.pack(pady=5)
+        # ===== Đọc ảnh nền =====
+        image = Image.open("cat.jpg")
+        image = image.resize((500, 333), Image.Resampling.LANCZOS)
+        self.bg_image = ImageTk.PhotoImage(image)
 
-        # --- Giao diện RAM ---
-        self.ram_label = tk.Label(root, text="RAM Usage: 0%", font=("Segoe UI", 12), bg="#1e1e1e", fg="#00ff00")
-        self.ram_label.pack(pady=(20, 5))
-        self.ram_bar = ttk.Progressbar(root, length=300, mode='determinate')
-        self.ram_bar.pack(pady=5)
+        # Label chứa ảnh nền
+        bg_label = tk.Label(root, image=self.bg_image)
+        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-        # --- Thông tin bổ sung ---
-        self.info_label = tk.Label(root, text="Đang tải dữ liệu...", font=("Segoe UI", 10), bg="#1e1e1e", fg="#aaaaaa", justify="left")
-        self.info_label.pack(pady=20)
+        # ===== Các thông tin =====
+        font_main = ("Segoe UI", 12, "bold")
+        font_small = ("Segoe UI", 11)
 
-        # Khởi chạy luồng cập nhật dữ liệu
+        self.info_label = tk.Label(root, text="Đang tải dữ liệu...", font=font_main,
+                                   bg="#000000", fg="#FFFFFF")
+        self.info_label.place(x=20, y=20)
+
+        self.cpu_label = tk.Label(root, text="CPU Usage: 0%", font=font_main,
+                                  bg="#000000", fg="#00AE72")
+        self.cpu_label.place(x=20, y=60)
+
+        self.temp_label = tk.Label(root, text="CPU Temp: -- °C", font=font_main,
+                                   bg="#000000", fg="#FF5555")
+        self.temp_label.place(x=20, y=100)
+
+        self.net_label = tk.Label(root, text="Network: ↑ 0.00 MB/s | ↓ 0.00 MB/s",
+                                  font=font_main, bg="#000000", fg="#33FFFF")
+        self.net_label.place(x=20, y=140)
+
+        self.ram_label = tk.Label(root, text="RAM Usage: 0%", font=font_main,
+                                  bg="#000000", fg="#00FF00")
+        self.ram_label.place(x=20, y=180)
+
+ 
+
+
+        # ===== Network baseline =====
+        self.last_net = psutil.net_io_counters()
+        self.last_time = time.time()
+
+        # Bắt đầu cập nhật
         self.update_stats()
 
+    # ===== Hàm lấy nhiệt độ CPU =====
+    def get_cpu_temp(self):
+        try:
+            temps = psutil.sensors_temperatures()
+            if temps:
+                for entries in temps.values():
+                    if entries:
+                        return f"{entries[0].current:.1f} °C"
+        except Exception:
+            pass
+        return "Không hỗ trợ"
+
+    # ===== Hàm lấy top process =====
+    def get_top_process(self):
+        top_proc = None
+        max_cpu = 0
+        for proc in psutil.process_iter(['name', 'cpu_percent']):
+            try:
+                cpu = proc.info['cpu_percent']
+                if cpu is not None and cpu > max_cpu:
+                    max_cpu = cpu
+                    top_proc = proc.info['name']
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        if top_proc:
+            return f"Top CPU Process: {top_proc} ({max_cpu:.1f}%)"
+        return "Top CPU Process: --"
+
+    # ===== Cập nhật số liệu =====
     def update_stats(self):
-        # Lấy thông tin CPU
-        cpu_usage = psutil.cpu_percent()
-        self.cpu_label.config(text=f"CPU Usage: {cpu_usage}%")
-        self.cpu_bar['value'] = cpu_usage
+        # CPU
+        cpu = psutil.cpu_percent()
+        self.cpu_label.config(text=f"CPU Usage: {cpu}%")
+        self.temp_label.config(text=f"CPU Temp: {self.get_cpu_temp()}")
 
-        # Lấy thông tin RAM
+        # RAM
         ram = psutil.virtual_memory()
-        self.ram_label.config(text=f"RAM Usage: {ram.percent}% ({ram.used // (1024**2)}MB / {ram.total // (1024**2)}MB)")
-        self.ram_bar['value'] = ram.percent
+        self.ram_label.config(text=f"RAM Usage: {ram.used//(1024**2)} / {ram.total//(1024**2)} MB ({ram.percent}%)")
 
-        # Lấy thông tin chi tiết khác (Số nhân, Tốc độ...)
-        boot_time = time.strftime("%H:%M:%S", time.localtime(psutil.boot_time()))
-        extra_info = (
-            f"Số nhân CPU: {psutil.cpu_count(logical=False)} | "
-            f"Luồng: {psutil.cpu_count(logical=True)}\n"
-            f"Thời gian hoạt động từ: {boot_time}"
-        )
+        # Network
+        now = time.time()
+        net = psutil.net_io_counters()
+        interval = now - self.last_time
+        up = (net.bytes_sent - self.last_net.bytes_sent) / interval / (1024**2)
+        down = (net.bytes_recv - self.last_net.bytes_recv) / interval / (1024**2)
+        self.net_label.config(text=f"Network: ↑ {up:.2f} MB/s | ↓ {down:.2f} MB/s")
+        self.last_net = net
+        self.last_time = now
+
+
+        # Extra info
+        extra_info = f"CPU: {psutil.cpu_count(logical=False)} nhân | {psutil.cpu_count(logical=True)} luồng"
         self.info_label.config(text=extra_info)
 
-        # Đệ quy gọi lại sau 1000ms (1 giây)
+        # Gọi lại sau 1 giây
         self.root.after(1000, self.update_stats)
 
+# ===== Run app =====
 if __name__ == "__main__":
     root = tk.Tk()
     app = SystemMonitor(root)
