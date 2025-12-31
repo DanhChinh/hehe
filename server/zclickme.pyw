@@ -11,15 +11,12 @@ class SystemMonitor:
         self.root.geometry("500x333")
         self.root.attributes('-topmost', True)
 
-        # ===== Đọc ảnh nền =====
-        image = Image.open("cat.jpg")
-        image = image.resize((500, 333), Image.Resampling.LANCZOS)
-        self.bg_image = ImageTk.PhotoImage(image)
+        # Đọc ảnh gốc (giữ kích thước thật)
+        self.original_image = Image.open("zcat.jpg")
 
         # Label chứa ảnh nền
-        bg_label = tk.Label(root, image=self.bg_image)
-        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
-
+        self.bg_label = tk.Label(root)
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
         # ===== Các thông tin =====
         font_main = ("Segoe UI", 12, "bold")
         font_small = ("Segoe UI", 11)
@@ -50,6 +47,9 @@ class SystemMonitor:
         # ===== Network baseline =====
         self.last_net = psutil.net_io_counters()
         self.last_time = time.time()
+
+        # Bind sự kiện resize cửa sổ
+        self.root.bind("<Configure>", self.resize_background)
 
         # Bắt đầu cập nhật
         self.update_stats()
@@ -110,6 +110,15 @@ class SystemMonitor:
 
         # Gọi lại sau 1 giây
         self.root.after(1000, self.update_stats)
+
+    # ===== Hàm resize nền =====
+    def resize_background(self, event):
+        width = event.width
+        height = event.height
+        # Resize ảnh gốc theo window
+        image = self.original_image.resize((width, height), Image.Resampling.LANCZOS)
+        self.bg_image = ImageTk.PhotoImage(image)
+        self.bg_label.config(image=self.bg_image)
 
 # ===== Run app =====
 if __name__ == "__main__":
