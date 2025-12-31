@@ -27,22 +27,27 @@ class SystemMonitor:
 
         self.cpu_label = tk.Label(root, text="CPU Usage: 0%", font=font_main,
                                   bg="#000000", fg="#00AE72")
-        self.cpu_label.place(x=20, y=60)
+        self.cpu_label.place(x=20, y=55)
 
         self.temp_label = tk.Label(root, text="CPU Temp: -- °C", font=font_main,
                                    bg="#000000", fg="#FF5555")
-        self.temp_label.place(x=20, y=100)
+        self.temp_label.place(x=20, y=90)
 
         self.net_label = tk.Label(root, text="Network: ↑ 0.00 MB/s | ↓ 0.00 MB/s",
                                   font=font_main, bg="#000000", fg="#33FFFF")
-        self.net_label.place(x=20, y=140)
+        self.net_label.place(x=20, y=125)
 
         self.ram_label = tk.Label(root, text="RAM Usage: 0%", font=font_main,
                                   bg="#000000", fg="#00FF00")
-        self.ram_label.place(x=20, y=180)
-
+        self.ram_label.place(x=20, y=160)
+        
  
-
+        self.RED_label = tk.Label(root, text="RED   ❌❌❌", font=("Segoe UI", 14, "bold"),bg="#000000", fg="#DF0029")
+        self.BLU_label = tk.Label(root, text="BLUE  ❌❌❌", font=("Segoe UI", 14, "bold"),bg="#000000", fg="#DF0029")
+        self.YEL_label = tk.Label(root, text="YELLOW    ✔️✔️✔️", font=("Segoe UI", 14, "bold"),bg="#000000", fg="#00FF00")
+        self.RED_label.place(x=20, y=215)
+        self.BLU_label.place(x=20, y=250)
+        self.YEL_label.place(x=20, y=285)
 
         # ===== Network baseline =====
         self.last_net = psutil.net_io_counters()
@@ -64,7 +69,7 @@ class SystemMonitor:
                         return f"{entries[0].current:.1f} °C"
         except Exception:
             pass
-        return "Không hỗ trợ"
+        return ""
 
     # ===== Hàm lấy top process =====
     def get_top_process(self):
