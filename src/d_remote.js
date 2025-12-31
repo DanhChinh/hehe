@@ -44,13 +44,15 @@ DOM_connectPyserver.onclick = (e) => {
 
       if (predict && value) {
         console.log(`intput:${i} predict:${predict}, value:${value}`)
-        sendMessageToGame(value, msg.sid, predict)
+        // sendMessageToGame(value, msg.sid, predict)
 
         if(predict==1){
           TradeTable.buy(msg.sid, value);
+          TradeTable.matchBuy(msg.sid, value);
         }
         else if (predict == 2){
           TradeTable.sell(msg.sid, value);
+          TradeTable.matchSell(msg.sid, value);
 
         }else{
 

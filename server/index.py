@@ -21,7 +21,7 @@ def handle_predict(msg):
     progress = msg.get('progress')
     x_pred = handle_progress(progress, isEnd=False)
     predicts =  PREDICT(x_pred)
-    emit('handle_predict', {"predicts": predicts, 'sid': msg.get('sid')}) 
+    emit('handle_predict', {"predicts": predicts, 'sid': msg.get('sid')})
 
 
 @socketio.on('check')
@@ -30,7 +30,8 @@ def handle_check(msg):
     CHECK(result)
     best_matchs = FIND_BEST_MATCHS()
     emit("best_matchs", {'best_matchs': best_matchs})
-    emit('handle_predict', {"predicts": ['' for i in range(numOfModel)], 'sid':None}) 
+    empty_arr = ['' for i in range(numOfModel)]
+    emit('handle_predict', {"predicts": empty_arr, 'sid':None}) 
 
     
 

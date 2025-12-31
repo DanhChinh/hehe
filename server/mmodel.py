@@ -5,16 +5,9 @@ from connect_database import get_jsonmodels, saveModel
 from evaluate_model import rank_models
 
 
-from sklearn.ensemble import (
-    RandomForestClassifier,
-    GradientBoostingClassifier,
-    AdaBoostClassifier,
-    ExtraTreesClassifier
-)
+from sklearn.ensemble import (RandomForestClassifier,AdaBoostClassifier)
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neural_network import MLPClassifier
@@ -225,19 +218,14 @@ def SAVE_MODELS():
         saveModel(modelName, session)
     print('save all: done')
 
-
 def LOAD():
 
     models_dict = {
         "Logistic Regression": LogisticRegression(max_iter=1000),
         "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5),
-        "SVM (RBF)": SVC(kernel="rbf", probability=True),
         "Decision Tree": DecisionTreeClassifier(random_state=42),
         "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
-        "Extra Trees": ExtraTreesClassifier(n_estimators=100, random_state=42),
-        "Gradient Boosting": GradientBoostingClassifier(),
         "AdaBoost": AdaBoostClassifier(n_estimators=100),
-        "Naive Bayes": GaussianNB(),
         "LDA": LinearDiscriminantAnalysis(),
         "MLP (Neural Network)": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500)
     }

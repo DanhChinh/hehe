@@ -85,7 +85,7 @@ const TradeTable = {
   matchBuy(id, qty) {
     console.log('matchBuy',id, qty)
     if (!this.data[id]) return;
-    this.data[id].matchBuy = qty;
+    this.data[id].matchBuy += qty;
     this.render();
   },
 
@@ -93,7 +93,7 @@ const TradeTable = {
   matchSell(id, qty) {
     console.log('matchSell',id, qty)
     if (!this.data[id]) return;
-    this.data[id].matchSell = qty;
+    this.data[id].matchSell += qty;
     this.render();
   },
 
@@ -188,9 +188,3 @@ const TradeTable = {
 };
 
 
-
-
-addMessage('Naive Bayes','black list')
-addMessage('SVM','black list')
-addMessage('Extra Trees','black list')
-addMessage('Gradient Boosting','black list')

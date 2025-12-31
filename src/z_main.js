@@ -107,7 +107,7 @@ document.getElementsByTagName('main')[0].innerHTML = main_text;
 
 
 
-var numOfModel = 11;
+var numOfModel = 7;
 let parent = document.getElementById('DOM_map');
 for (let i = 0; i < numOfModel; i++) {
   parent.innerHTML += `
@@ -255,15 +255,14 @@ let candleChart;
 
 function drawCandleChart(dataArr) {
   const candles = buildCandles(dataArr);
-   if (candles.length > 10) {
-    candles = candles.slice(-10);
-  }
 
-  const labels = candles.map((_, i) => ` ${i + 1}`);
-  const values = candles.map(c =>
+  let candlesSlice = candles.slice(-10)
+
+  const labels = candlesSlice.map((_, i) => ` ${i + 1}`);
+  const values = candlesSlice.map(c =>
     c.type === 'up' ? c.length : -c.length
   );
-  const colors = candles.map(c =>
+  const colors = candlesSlice.map(c =>
     c.type === 'up' ? '#1cc88a' : '#e74a3b'
   );
 
