@@ -1,89 +1,65 @@
 import tkinter as tk
-from tkinter import messagebox
-import requests
+from tkinter import ttk
+import psutil
+import threading
+import time
 
-def check_login():
-    username = entry_user.get()
-    password = entry_pw.get()
-    
-    # Kiểm tra tài khoản admin, mật khẩu 1
-    if username == "admin" and password == "1":
-        messagebox.showinfo("Thành công", "Đăng nhập thành công!")
-    else:
-        messagebox.showerror("Thất bại", "Sai tài khoản hoặc mật khẩu!")
+class SystemMonitor:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("System Monitor Pro")
+        self.root.geometry("400x350")
+        self.root.attributes('-topmost', True)
+        self.root.configure(bg="#1e1e1e") # Nền tối hiện đại
+        
+        # Style cho Progressbar
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        self.style.configure("TProgressbar", thickness=20)
 
-# 1. Khởi tạo cửa sổ chính
-root = tk.Tk()
-root.title("Đăng Nhập Hệ Thống")
-root.geometry("400x450")
-root.configure(bg="#2c3e50") # Nàu nền tối sang trọng
-root.attributes('-topmost', True)
+        # --- Giao diện CPU ---
+        self.cpu_label = tk.Label(root, text="CPU Usage: 0%", font=("Segoe UI", 12), bg="#1e1e1e", fg="#00d4ff")
+        self.cpu_label.pack(pady=(20, 5))
+        self.cpu_bar = ttk.Progressbar(root, length=300, mode='determinate')
+        self.cpu_bar.pack(pady=5)
 
-# 2. Frame trung tâm (Chứa nội dung form)
-login_frame = tk.Frame(root, bg="#ffffff", padx=40, pady=40)
-login_frame.place(relx=0.5, rely=0.5, anchor="center")
+        # --- Giao diện RAM ---
+        self.ram_label = tk.Label(root, text="RAM Usage: 0%", font=("Segoe UI", 12), bg="#1e1e1e", fg="#00ff00")
+        self.ram_label.pack(pady=(20, 5))
+        self.ram_bar = ttk.Progressbar(root, length=300, mode='determinate')
+        self.ram_bar.pack(pady=5)
 
-# 3. Tiêu đề
-lbl_title = tk.Label(
-    login_frame, 
-    text="ĐĂNG NHẬP", 
-    font=("Segoe UI", 18, "bold"), 
-    bg="#ffffff", 
-    fg="#2c3e50"
-)
-lbl_title.pack(pady=(0, 30))
+        # --- Thông tin bổ sung ---
+        self.info_label = tk.Label(root, text="Đang tải dữ liệu...", font=("Segoe UI", 10), bg="#1e1e1e", fg="#aaaaaa", justify="left")
+        self.info_label.pack(pady=20)
 
-# 4. Ô nhập Tài khoản
-tk.Label(login_frame, text="Tài khoản", bg="#ffffff", fg="#7f8c8d", font=("Segoe UI", 10)).pack(anchor="w")
-entry_user = tk.Entry(
-    login_frame, 
-    font=("Segoe UI", 12), 
-    width=25, 
-    bd=0, 
-    highlightthickness=1, 
-    highlightbackground="#dcdde1"
-)
-entry_user.pack(pady=(5, 15), ipady=5)
-entry_user.insert(0, "admin") # Gợi ý sẵn tài khoản theo yêu cầu
+        # Khởi chạy luồng cập nhật dữ liệu
+        self.update_stats()
 
-# 5. Ô nhập Mật khẩu
-tk.Label(login_frame, text="Mật khẩu", bg="#ffffff", fg="#7f8c8d", font=("Segoe UI", 10)).pack(anchor="w")
-entry_pw = tk.Entry(
-    login_frame, 
-    font=("Segoe UI", 12), 
-    width=25, 
-    bd=0, 
-    highlightthickness=1, 
-    highlightbackground="#dcdde1",
-    show="●" # Ẩn mật khẩu
-)
-entry_pw.pack(pady=(5, 25), ipady=5)
+    def update_stats(self):
+        # Lấy thông tin CPU
+        cpu_usage = psutil.cpu_percent()
+        self.cpu_label.config(text=f"CPU Usage: {cpu_usage}%")
+        self.cpu_bar['value'] = cpu_usage
 
-# 6. Nút bấm Đăng nhập
-def on_enter(e):
-    btn_login.config(bg="#2980b9")
+        # Lấy thông tin RAM
+        ram = psutil.virtual_memory()
+        self.ram_label.config(text=f"RAM Usage: {ram.percent}% ({ram.used // (1024**2)}MB / {ram.total // (1024**2)}MB)")
+        self.ram_bar['value'] = ram.percent
 
-def on_leave(e):
-    btn_login.config(bg="#3498db")
+        # Lấy thông tin chi tiết khác (Số nhân, Tốc độ...)
+        boot_time = time.strftime("%H:%M:%S", time.localtime(psutil.boot_time()))
+        extra_info = (
+            f"Số nhân CPU: {psutil.cpu_count(logical=False)} | "
+            f"Luồng: {psutil.cpu_count(logical=True)}\n"
+            f"Thời gian hoạt động từ: {boot_time}"
+        )
+        self.info_label.config(text=extra_info)
 
-btn_login = tk.Button(
-    login_frame, 
-    text="ĐĂNG NHẬP", 
-    font=("Segoe UI", 11, "bold"),
-    bg="#3498db", 
-    fg="white", 
-    bd=0, 
-    width=20, 
-    cursor="hand2",
-    command=check_login
-)
-btn_login.pack(ipady=8)
+        # Đệ quy gọi lại sau 1000ms (1 giây)
+        self.root.after(1000, self.update_stats)
 
-# Gán hiệu ứng hover cho nút
-btn_login.bind("<Enter>", on_enter)
-btn_login.bind("<Leave>", on_leave)
-
-# 7. Chân trang
-tk.Label(root, text="Quên mật khẩu?", bg="#2c3e50", fg="#bdc3c7", font=("Segoe UI", 9), cursor="hand2").pack(side="bottom", pady=20)
-
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = SystemMonitor(root)
+    root.mainloop()

@@ -2,9 +2,6 @@ flask
 flask_socketio
 flask_cors
 pandas
-joblib
 scikit-learn
-xgboost
 requests
-blessed
-matplotlib
+psutil
