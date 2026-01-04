@@ -107,7 +107,7 @@ document.getElementsByTagName('main')[0].innerHTML = main_text;
 
 
 
-var numOfModel = 7;
+var numOfModel = 4;
 let parent = document.getElementById('DOM_map');
 for (let i = 0; i < numOfModel; i++) {
   parent.innerHTML += `
