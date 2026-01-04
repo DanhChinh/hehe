@@ -124,7 +124,7 @@ const TradeTable = {
 
   // 🧱 Khởi tạo phiên
   init(id) {
-    if (!this.data[id]) {
+    if (!this.data[id] && id) {
       this.data[id] = {
         id,
         buy: 0,
