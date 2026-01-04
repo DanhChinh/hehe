@@ -5,11 +5,9 @@ from connect_database import get_jsonmodels, saveModel
 from evaluate_model import rank_models
 
 
-from sklearn.ensemble import (RandomForestClassifier,AdaBoostClassifier)
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from itertools import accumulate
 
@@ -221,13 +219,10 @@ def SAVE_MODELS():
 def LOAD():
 
     models_dict = {
-        "Logistic Regression": LogisticRegression(max_iter=1000),
-        "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5),
-        "Decision Tree": DecisionTreeClassifier(random_state=42),
-        "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
-        "AdaBoost": AdaBoostClassifier(n_estimators=100),
         "LDA": LinearDiscriminantAnalysis(),
         "MLP (Neural Network)": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500)
+        "AdaBoost": AdaBoostClassifier(n_estimators=100),
+        "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5),
     }
     data, label = make_data()
     N = len(label)
