@@ -220,9 +220,9 @@ def LOAD():
 
     models_dict = {
         "LDA": LinearDiscriminantAnalysis(),
-        "MLP (Neural Network)": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500)
+        "MLP (Neural Network)": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500),
         "AdaBoost": AdaBoostClassifier(n_estimators=100),
-        "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5),
+        "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5)
     }
     data, label = make_data()
     N = len(label)

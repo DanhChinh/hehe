@@ -15,26 +15,26 @@ const main_text = `
                     </div>
             </div>
 
+            
+            <table border="1" width="100%" id="tradeTable">
+            <thead>
+            <tr>
+            <th>ID</th>
+            <th>Mua</th>
+            <th>Khớp</th>
+            <th>Bán</th>
+            <th>Khớp</th>
+            <th>Thị trường</th>
+            <th>Lãi</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+            </table>
+            
             <div class="progress col-md-12" style="height: 3px; margin:10px; width: 97%">
                 <div class="progress-bar bg-success" role="progressbar" aria-valuenow="" aria-valuemin="0"
                     aria-valuemax="55"></div>
             </div>
-
-            <table border="1" width="100%" id="tradeTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Mua</th>
-                        <th>Khớp</th>
-                        <th>Bán</th>
-                        <th>Khớp</th>
-                        <th>Thị trường</th>
-                        <th>Lãi</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
             <p><b>Lợi nhuận:</b> <span id="totalProfit">0</span></p>
 
 

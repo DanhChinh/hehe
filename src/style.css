@@ -11,6 +11,12 @@
   height: 300px;
 
 }
+.chart_long{
+  z-index: 2;
+}
+.chart_short{
+  z-index: 1;
+}
 .prd_vlu{
   width: 80px;
   position: absolute;
