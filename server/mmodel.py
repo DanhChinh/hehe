@@ -1,28 +1,12 @@
 import numpy as np
 import random as rd
-from handle_data import make_data, handle_progress
-from connect_database import get_jsonmodels, saveModel
-from evaluate_model import rank_models
-
+from handle_data import make_data, handle_progress, handle_last_30
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
-from itertools import accumulate
 
-
-def split_and_cumsum(data, chunk_size=15):
-    result = {}
-
-    for key, sessions in data.items():
-        result[key] = []
-        for ss in sessions:
-            for i in range(0, len(ss), chunk_size):
-                chunk = ss[i:i + chunk_size]
-                result[key].append(list(accumulate(chunk)))
-
-    return result
 
 def danh_gia_huong(data):
     # 1. Lọc dữ liệu hợp lệ
@@ -55,22 +39,31 @@ def danh_gia_huong(data):
 
 
 class MYMODEL:
-    def __init__(self, name, model, stat):
+    def __init__(self, name, model):
         self.name = name
         self.model = model
-        self.stat = stat
-    def load(self, data_train, label_train, data_long, label_long):
+        self.predict = None
+        self.predict_fix = None
+        self.best_match = None
+        self.history = [0]
+        self.history_fix = [0]
+        self.history_fix_cumsum = np.array([])
+        self.short_array = np.cumsum(self.history)
+    def load(self, data_train, label_train, data_long, label_long, data_last30, label_last30):
         self.model.fit(data_train, label_train)
         pred_p2 = self.model.predict(data_long)
         compare = np.where(pred_p2 == label_long, 1, -1)
         self.LONG_ARRAY = np.cumsum(compare)
-        self.history = [rd.choice([-1,1]) for i in range(15)]
-        self.history_fix = [0]
-        self.history_fix_cumsum = np.array([])
-        self.short_array = np.cumsum(self.history)
-        self.predict = None
-        self.predict_fix = None
-        self.best_match = None
+
+        for i in range(len(data_last30)):
+            x = data_last30[i]
+            y_true = label_last30[i]
+            self.find_best_match_ncc()
+            self.make_predict(x)
+            self.check(y_true)
+            # self.check_fix(y_true)
+
+
         return self.LONG_ARRAY
     def make_predict(self, x_pred):
         self.predict = 1 if int(self.model.predict([x_pred])[0]) ==1 else 2
@@ -184,7 +177,7 @@ class MYMODEL:
 
             #other
             'modelName':self.name,
-            'stat_score': f"{self.stat['score']:.4f}"
+            'stat_score': "remove this later"
         }
         return self.best_match
 
@@ -209,12 +202,7 @@ def CHECK(result):
         model.check_fix(result)
 
 
-def SAVE_MODELS():
-    for model in models:
-        modelName = model.name
-        session = model.history_fix
-        saveModel(modelName, session)
-    print('save all: done')
+
 
 def LOAD():
 
@@ -239,24 +227,26 @@ def LOAD():
     data_long = data[split_idx:]
     label_long = label[split_idx:]
 
+    sid, data_last30, label_last30 = handle_last_30()
+
     # ===============================
     # 2. TRAIN RANDOM FOREST
     # ===============================
-    jsmodels = get_jsonmodels()
-    jsmodels = split_and_cumsum(jsmodels, chunk_size=15)
-    ranking = rank_models(jsmodels)
 
     models = []
 
-    for i, (name, stat) in enumerate(ranking, 1):
-        models.append( MYMODEL(name, models_dict[name], stat) )
+    for name, model in models_dict.items():
+        models.append(
+            MYMODEL(name, model)
+        )
 
 
     LONGS = []
     for model in models:
         LONGS.append(model.load(
             data_train, label_train,
-            data_long, label_long
+            data_long, label_long,
+            data_last30, label_last30
         ))
     numOfModel =  len (models)
     return models, LONGS, numOfModel

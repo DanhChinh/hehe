@@ -1,23 +1,50 @@
 var isConnectGame = false;
 var isConnectMyServer = false;
-var accessToken = "";
 var socket_io = undefined;
+
+let accessToken = null;
+
+async function loadAccessToken() {
+  try {
+    const response = await fetch("https://cyan.io.vn/xg79/get_token.php", {
+      method: "GET"
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      accessToken = data.accessToken;
+      DOM_accessToken.value = accessToken;
+    } else {
+      console.log(data.message);
+    }
+  } catch (err) {
+    console.error("Lỗi khi lấy token:", err);
+  }
+}
+
+loadAccessToken();
+
 var accessTokenStorege = localStorage.getItem("accessToken");
 DOM_accessToken.value = accessTokenStorege;
 
 DOM_isConnectGame.onclick = (e) => {
-  if (DOM_accessToken.value) {
-    accessToken = DOM_accessToken.value;
-    localStorage.setItem("accessToken", accessToken);
-  } else {
+
+  if (!accessToken) {
+    alert("Chưa có accessToken từ server");
     return;
   }
+
   isConnectGame = !isConnectGame;
-  e.target.style.backgroundColor = isConnectGame ? "F08080" : "red";
 
-  isConnectGame ? socket_connect() : socket.close();
+  e.target.style.backgroundColor = isConnectGame ? "#F08080" : "red";
+
+  if (isConnectGame) {
+    socket_connect(accessToken);
+  } else {
+    socket.close();
+  }
 };
-
 
 
 

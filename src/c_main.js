@@ -42,7 +42,7 @@ function sendDataToThuhuyenFun(record) {
     .post("https://cyan.io.vn/xg79/post_data.php", data)
     .then((response) => {
       if (response.data.success) {
-        addMessage("Saved successfully", "BKserver");
+        addMessage(`Saved successfully: ${record.sid} ${record.progress.length}`, "BKserver");
       } else {
         console.error("Lỗi: " + response.data.message);
       }
@@ -133,7 +133,7 @@ function socket_connect() {
       }
 
       if (mgs.cmd === 100) {
-        addMessage(JSON.stringify(mgs.dn, mgs.As.gold), "Hserver")
+        addMessage(JSON.stringify(`${mgs.dn}: ${mgs.As.gold}`), "Hserver")
         return;
       }
     } else {
@@ -160,6 +160,7 @@ function socket_connect() {
 
     reconnectCount++;
     setTimeout(() => {
+      counter_send = 0;
       socket_connect();
     }, 1000);
   };

@@ -45,7 +45,6 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     print('❌ Client disconnected')
-    SAVE_MODELS()
 
 
 

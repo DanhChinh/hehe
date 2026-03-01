@@ -39,20 +39,21 @@ def get_data_from_api():
     return df
 
 
-def get_jsonmodels():
-    return fetch_data_from_api("https://cyan.io.vn/xg79/models_api.php")
 
 
-def saveModel(modelName, session):
-    if  len(session)<15:
-        return
-    print(modelName, session)
-    if isinstance(session, np.ndarray):
-        session = session.tolist()
-    requests.post(
-        "http://cyan.io.vn/xg79/models_api.php",
-        json={
-            "model": modelName,
-            "session": session
-        }
-    )
+def get_last_30_data():
+    url = "https://cyan.io.vn/xg79/get_last_30.php"
+
+    try:
+        response = requests.get(url, timeout=5)
+
+        # kiểm tra HTTP status
+        response.raise_for_status()
+
+        data = response.json()   # chuyển JSON → Python list
+
+        return data
+
+    except requests.exceptions.RequestException as e:
+        print("Lỗi khi lấy dữ liệu:", e)
+        return []

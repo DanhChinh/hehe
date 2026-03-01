@@ -1,7 +1,7 @@
 import json, math
 import numpy as np
 import pandas as pd
-from connect_database import get_data_from_api
+from connect_database import get_data_from_api, get_last_30_data
 def lam_tron_bac_thu_2(n):
     if n == 0:
         return 0
@@ -61,3 +61,17 @@ def make_data():
     data = np.array(data_perfect)
     label = np.array(label_perfect)
     return data, label
+
+
+def handle_last_30():
+    data_rows = get_last_30_data()
+    sid = []
+    data = []
+    label = []
+    for row in data_rows:
+        formater = handle_progress(row['progress'])
+        if formater:
+            sid.append(row['sid'])
+            data.append(formater)
+            label.append(1 if int(row['d1'])+int(row['d2'])+int(row['d3']) > 10 else 2)
+    return np.array(sid), np.array(data), np.array(label)
