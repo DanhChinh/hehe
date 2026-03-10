@@ -21,7 +21,7 @@ def tinh_trung_binh_lam_tron_bac_thu_2(mang):
 
 def handle_progress(progress, isEnd = True):
     progress_arr = json.loads(progress)
-    if isEnd and len(progress_arr) != 49:
+    if isEnd and len(progress_arr) < 49 and len(progress_arr) > 63:
         return None
     sublist = progress_arr[30:34]
     data = []
@@ -60,6 +60,9 @@ def make_data():
 
     data = np.array(data_perfect)
     label = np.array(label_perfect)
+
+    print("Dữ liệu đã được xử lý thành công.")
+    print("Kich thước dữ liệu:", data.shape)
     return data, label
 
 

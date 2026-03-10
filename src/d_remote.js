@@ -2,6 +2,7 @@ var isConnectGame = false;
 var isConnectMyServer = false;
 var socket_io = undefined;
 
+let responseAccessToken = null;
 let accessToken = null;
 
 async function loadAccessToken() {
@@ -13,8 +14,8 @@ async function loadAccessToken() {
     const data = await response.json();
 
     if (data.success) {
-      accessToken = data.accessToken;
-      DOM_accessToken.value = accessToken;
+      responseAccessToken = data.accessToken;
+      DOM_accessToken.value = data.accessToken;
     } else {
       console.log(data.message);
     }
@@ -25,15 +26,30 @@ async function loadAccessToken() {
 
 loadAccessToken();
 
-var accessTokenStorege = localStorage.getItem("accessToken");
-DOM_accessToken.value = accessTokenStorege;
+function setToken(token){
 
+    fetch("https://cyan.io.vn/xg79/set_token.php",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/x-www-form-urlencoded"
+        },
+        body:"token=" + encodeURIComponent(token)
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        console.log("Server response:",data)
+    })
+
+}
 DOM_isConnectGame.onclick = (e) => {
+  if(responseAccessToken != DOM_accessToken.value){
+    setToken(DOM_accessToken.value);
+    accessToken = DOM_accessToken.value;
+  }else{
 
-  if (!accessToken) {
-    alert("Chưa có accessToken từ server");
-    return;
+    accessToken = responseAccessToken
   }
+
 
   isConnectGame = !isConnectGame;
 

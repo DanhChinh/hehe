@@ -61,7 +61,7 @@ class MYMODEL:
             self.find_best_match_ncc()
             self.make_predict(x)
             self.check(y_true)
-            # self.check_fix(y_true)
+            self.check_fix(y_true)
 
 
         return self.LONG_ARRAY
