@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng Đặt cược 10%</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f4f7f6; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; padding: 15px; background: #eef2f3; border-radius: 8px; }
+        .stat-box { text-align: center; }
+        .stat-box span { display: block; font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
+        canvas { margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Mô phỏng Chuỗi 30 ván cược (10% vốn)</h2>
+    
+    <div class="stats" id="statsBoard">
+        <div class="stat-box">Vốn ban đầu<span id="startCap">0</span></div>
+        <div class="stat-box">Vốn cuối cùng<span id="endCap">0</span></div>
+        <div class="stat-box">Tỉ lệ Thắng<span id="winRate">0%</span></div>
+    </div>
+
+    <canvas id="balanceChart"></canvas>
+    <canvas id="resultChart"></canvas>
+</div>
+
+<script>
+    // 1. Cấu hình ban đầu
+    const INITIAL_CAPITAL = 1000000;
+    const TOTAL_ROUNDS = 30;
+    const BET_PERCENT = 0.1;
+
+    // 2. Hàm định dạng tiền tệ (đã bỏ kí tự tệ theo yêu cầu trước đó)
+    const formatNumber = (num) => new Intl.NumberFormat('vi-VN').format(Math.round(num));
+
+    // 3. Mô phỏng dữ liệu
+    const simulate = () => {
+        let currentBalance = INITIAL_CAPITAL;
+        const history = [];
+        let winCount = 0;
+
+        for (let i = 1; i <= TOTAL_ROUNDS; i++) {
+            const betAmount = currentBalance * BET_PERCENT;
+            const isWin = Math.random() > 0.5;
+            
+            if (isWin) {
+                currentBalance += betAmount;
+                winCount++;
+            } else {
+                currentBalance -= betAmount;
+            }
+
+            history.push({
+                round: i,
+                balance: currentBalance,
+                win: isWin
+            });
+        }
+        return { history, winCount, finalBalance: currentBalance };
+    };
+
+    const { history, winCount, finalBalance } = simulate();
+
+    // 4. Hiển thị thông số
+    document.getElementById('startCap').innerText = formatNumber(INITIAL_CAPITAL);
+    document.getElementById('endCap').innerText = formatNumber(finalBalance);
+    document.getElementById('winRate').innerText = ((winCount / TOTAL_ROUNDS) * 100).toFixed(1) + '%';
+
+    // 5. Vẽ biểu đồ Số dư (Line Chart)
+    new Chart(document.getElementById('balanceChart'), {
+        type: 'line',
+        data: {
+            labels: ['Bắt đầu', ...history.map(h => `Ván ${h.round}`)],
+            datasets: [{
+                label: 'Số dư tài khoản',
+                data: [INITIAL_CAPITAL, ...history.map(h => h.balance)],
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: { plugins: { title: { display: true, text: 'Biến động tài sản' } } }
+    });
+
+    // 6. Vẽ biểu đồ Thắng/Thua (Bar Chart)
+    new Chart(document.getElementById('resultChart'), {
+        type: 'bar',
+        data: {
+            labels: history.map(h => h.round),
+            datasets: [{
+                label: 'Kết quả (Thắng: 1 / Thua: -1)',
+                data: history.map(h => h.win ? 1 : -1),
+                backgroundColor: history.map(h => h.win ? '#2ecc71' : '#e74c3c'),
+            }]
+        },
+        options: {
+            plugins: { title: { display: true, text: 'Lịch sử Thắng (Xanh) / Thua (Đỏ)' } },
+            scales: { y: { display: false } }
+        }
+    });
+</script>
+
+</body>
+</html>

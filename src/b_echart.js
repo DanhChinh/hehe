@@ -94,7 +94,7 @@ function drawChartShort(S_centered, W_centered, max_score, best_index, chart_sho
     chart_short.setOption(option2);
 }
 
-function drawLineChart(dataArray, chartDom, modelName, stat_score) {
+function drawLineChart(dataArray, chartDom, modelName, counter, bet) {
     if (!Array.isArray(dataArray)) {
         console.error("dataArray phải là một mảng!");
         return;
@@ -102,7 +102,7 @@ function drawLineChart(dataArray, chartDom, modelName, stat_score) {
     const chart = echarts.init(chartDom);
     const option = {
         title: {
-            text: `${modelName}: ${stat_score}`
+            text: `${modelName}: ${counter} | ${bet}`
         },
         tooltip: {
             trigger: 'axis'
@@ -131,7 +131,8 @@ function calculateAndPlot(data) {
             data[i].history_fix_cumsum, 
             DOM_hsFixs[i],
             data[i].modelName,
-            data[i].stat_score
+            data[i].counter,
+            data[i].bet
         )
         drawChartLong(
             data[i].local_data, 

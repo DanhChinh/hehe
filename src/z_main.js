@@ -19,13 +19,14 @@ const main_text = `
             <table border="1" width="100%" id="tradeTable">
             <thead>
             <tr>
-            <th>ID</th>
+            <th>Mã</th>
             <th>Mua</th>
             <th>Khớp</th>
             <th>Bán</th>
             <th>Khớp</th>
             <th>Thị trường</th>
             <th>Lãi</th>
+            <th>Tổng</th>
             </tr>
             </thead>
             <tbody></tbody>
@@ -35,7 +36,7 @@ const main_text = `
                 <div class="progress-bar bg-success" role="progressbar" aria-valuenow="" aria-valuemin="0"
                     aria-valuemax="55"></div>
             </div>
-            <p><b>Lợi nhuận:</b> <span id="totalProfit">0</span></p>
+            
 
 
         </div>
@@ -119,8 +120,8 @@ for (let i = 0; i < numOfModel; i++) {
       </div>
 
       <div class="row">
-        <div class="DOM_hsFix  col-6" id="hsFix_${i}"></div>
-        <div class="chart_long col-6" id="chart_long_${i}"></div>
+        <div class="DOM_hsFix  col-8" id="hsFix_${i}"></div>
+        <div class="chart_long col-4" id="chart_long_${i}"></div>
       </div>
     </div>`
 }

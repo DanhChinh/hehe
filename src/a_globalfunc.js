@@ -111,14 +111,15 @@ const TradeTable = {
           net < 0 => lỗ
       - Market xuống: ngược lại
     */
-    const net = t.matchBuy - t.matchSell;
+
 
     if (thiTruong === "len") {
-      t.profit = net;
+      t.profit = 0.97*t.matchBuy - t.matchSell;
     } else {
-      t.profit = -net;
+      t.profit = 0.97*t.matchSell-t.matchBuy;
     }
-    this.total += t.profit
+    this.total += t.profit;
+    t.total = this.total;
     this.render();
   },
 
@@ -132,7 +133,8 @@ const TradeTable = {
         matchBuy: 0,
         matchSell: 0,
         market: "",
-        profit: 0
+        profit: 0,
+        total:0
       };
     }
   },
@@ -170,14 +172,13 @@ const TradeTable = {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${t.id}</td>
-          <td>${t.buy}</td>
-          <td>${t.matchBuy}</td>
-          <td>${t.sell}</td>
-          <td>${t.matchSell}</td>
+          <td>${formatNumber(t.buy)}</td>
+          <td>${formatNumber(t.matchBuy)}</td>
+          <td>${formatNumber(t.sell)}</td>
+          <td>${formatNumber(t.matchSell)}</td>
           <td>${t.market}</td>
-          <td > 
-            ${t.profit}
-          </td>
+          <td >${formatNumber(t.profit)}</td>
+          <td >${formatNumber(t.total)}</td>
         `;
         this.tbody.appendChild(tr);
       });
@@ -188,3 +189,10 @@ const TradeTable = {
 };
 
 
+const formatNumber = (amount, locale = 'vi-VN') => {
+  return new Intl.NumberFormat(locale, {
+    style: 'decimal',
+    minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
+    maximumFractionDigits: 2  // Số chữ số thập phân tối đa
+  }).format(amount);
+};

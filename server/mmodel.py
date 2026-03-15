@@ -48,6 +48,8 @@ class MYMODEL:
         self.history = [0]
         self.history_fix = [0]
         self.history_fix_cumsum = np.array([])
+        self.bet=1
+        self.bet_counter = []
         self.short_array = np.cumsum(self.history)
     def load(self, data_train, label_train, data_long, label_long, data_last30, label_last30):
         self.model.fit(data_train, label_train)
@@ -61,9 +63,6 @@ class MYMODEL:
             self.find_best_match_ncc()
             self.make_predict(x)
             self.check(y_true)
-            self.check_fix(y_true)
-
-
         return self.LONG_ARRAY
     def make_predict(self, x_pred):
         self.predict = 1 if int(self.model.predict([x_pred])[0]) ==1 else 2
@@ -89,9 +88,25 @@ class MYMODEL:
             self.history_fix.append(0)
         elif self.predict_fix == result:
             self.history_fix.append(1)
+            self.bet_counter.append(1)
         else:
             self.history_fix.append(-1)
+            self.bet_counter.append(-1)
         self.history_fix_cumsum = np.cumsum(self.history_fix)
+
+        self.bet_counter = self.bet_counter[-30:]
+        if sum(self.bet_counter)<=-10:
+            self.bet+=1
+            self.bet_counter = []
+            return
+        if sum(self.bet_counter)>=10:
+            self.bet -=1
+            self.bet = max(self.bet, 1)
+            self.bet_counter = []
+            return
+        
+
+
 
 
     def find_best_match_ncc(self):
@@ -177,7 +192,8 @@ class MYMODEL:
 
             #other
             'modelName':self.name,
-            'stat_score': "remove this later"
+            'bet':self.bet,
+            'counter': sum(self.bet_counter) 
         }
         return self.best_match
 
