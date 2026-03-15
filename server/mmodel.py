@@ -209,9 +209,11 @@ def FIND_BEST_MATCHS():
     return data
 def PREDICT(x_pred):
     predicts = []
+    bets = []
     for model in models:
         predicts.append(model.make_predict(x_pred))
-    return predicts
+        bets.append(model.bet)
+    return predicts, bets
 def CHECK(result):
     for model in models:
         model.check(result)

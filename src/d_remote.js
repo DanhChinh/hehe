@@ -82,7 +82,8 @@ DOM_connectPyserver.onclick = (e) => {
   socket_io.on("handle_predict", (msg) => {
     for (let i = 0; i < numOfModel; i++) {
       let predict = msg.predicts[i];
-      let value = +DOM_values[i].value * 1000;
+      let xbet = msg.bets[i]
+      let value = +DOM_values[i].value * 1000 * xbet;
       DOM_predicts[i].innerText = predict;
 
       if (predict && value) {
