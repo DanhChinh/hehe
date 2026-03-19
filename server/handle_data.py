@@ -55,7 +55,7 @@ def make_data():
         if formater:
             data_perfect.append(formater)
             rs18 = row['d1']+row['d2']+row['d3']
-            label_perfect.append(1 if rs18>10 else 0)
+            label_perfect.append(1 if rs18>10 else 2)
 
 
     data = np.array(data_perfect)

@@ -49,7 +49,7 @@ class MYMODEL:
         self.history_fix = [0]
         self.history_fix_cumsum = np.array([])
         self.bet=1
-        self.bet_counter = []
+        self.bet_counter = [0]
         self.short_array = np.cumsum(self.history)
     def load(self, data_train, label_train, data_long, label_long, data_last30, label_last30):
         self.model.fit(data_train, label_train)
@@ -63,6 +63,7 @@ class MYMODEL:
             self.find_best_match_ncc()
             self.make_predict(x)
             self.check(y_true)
+            self.check_fix(y_true)
         return self.LONG_ARRAY
     def make_predict(self, x_pred):
         self.predict = 1 if int(self.model.predict([x_pred])[0]) ==1 else 2
@@ -95,14 +96,16 @@ class MYMODEL:
         self.history_fix_cumsum = np.cumsum(self.history_fix)
 
         self.bet_counter = self.bet_counter[-30:]
-        if sum(self.bet_counter)<=-10:
+        cumsum = np.cumsum(self.bet_counter)
+
+        if max(cumsum) - cumsum[-1] >=10:
             self.bet+=1
-            self.bet_counter = []
+            self.bet_counter = [0]
             return
-        if sum(self.bet_counter)>=10:
+        if cumsum[-1] - min(cumsum) >=10:
             self.bet -=1
             self.bet = max(self.bet, 1)
-            self.bet_counter = []
+            self.bet_counter = [0]
             return
         
 
@@ -231,21 +234,24 @@ def LOAD():
         "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5)
     }
     data, label = make_data()
-    N = len(label)
 
-    # Chia thành 2 phần
-    train_ratio = 0.7
-    split_idx = int(N * train_ratio)
+    data_last30 = data[-100:]
+    label_last30 = label[-100:]
+
+    data_remain = data[:-100]
+    label_remain = label[:-100]
+
+
+    split_idx = int(len(label_remain) * 0.7)
 
     # Part 1: Train
-    data_train = data[:split_idx]
-    label_train = label[:split_idx]
+    data_train = data_remain[:split_idx]
+    label_train = label_remain[:split_idx]
 
     # Part 2: Long
-    data_long = data[split_idx:]
-    label_long = label[split_idx:]
+    data_long = data_remain[split_idx:]
+    label_long = label_remain[split_idx:]
 
-    sid, data_last30, label_last30 = handle_last_30()
 
     # ===============================
     # 2. TRAIN RANDOM FOREST

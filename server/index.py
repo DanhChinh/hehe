@@ -28,8 +28,7 @@ def handle_predict(msg):
 def handle_check(msg):
     result = msg.get('rs')
     CHECK(result)
-    best_matchs = FIND_BEST_MATCHS()
-    emit("best_matchs", {'best_matchs': best_matchs})
+    emit("best_matchs", {'best_matchs': FIND_BEST_MATCHS()})
     empty_arr = ['' for i in range(numOfModel)]
     emit('handle_predict', {"predicts": empty_arr, 'sid':None, 'bets':empty_arr}) 
 
@@ -39,8 +38,7 @@ def handle_check(msg):
 @socketio.on('connect')
 def handle_connect():
     print('✅ Client connected')
-    best_matchs = FIND_BEST_MATCHS()
-    emit("best_matchs", {'best_matchs': best_matchs})
+    emit("best_matchs", {'best_matchs': FIND_BEST_MATCHS()})
 
 @socketio.on('disconnect')
 def handle_disconnect():

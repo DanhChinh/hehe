@@ -15,6 +15,15 @@ const main_text = `
                     </div>
             </div>
 
+                            <div class="card-body">
+                                <canvas id="candleChart" height="120"></canvas>
+                            </div>
+
+                            <div class="progress col-md-12" style="height: 3px; margin:10px; width: 97%">
+                                <div class="progress-bar bg-success" role="progressbar" aria-valuenow="" aria-valuemin="0"
+                                    aria-valuemax="55"></div>
+                            </div>
+                            
             
             <table border="1" width="100%" id="tradeTable">
             <thead>
@@ -32,11 +41,6 @@ const main_text = `
             <tbody></tbody>
             </table>
             
-            <div class="progress col-md-12" style="height: 3px; margin:10px; width: 97%">
-                <div class="progress-bar bg-success" role="progressbar" aria-valuenow="" aria-valuemin="0"
-                    aria-valuemax="55"></div>
-            </div>
-            
 
 
         </div>
@@ -46,49 +50,7 @@ const main_text = `
 
         <!-- ================= CHARTS ================= -->
         <div class="col-lg-8">
-            <div class="row g-4">
-
-                <div class="row g-4">
-
-                
-                <!-- Người dùng -->
-                <div class="col-lg-6">
-                        <div class="card shadow-sm">
-                            <div class="card-header fw-bold">
-                                👥 Người dùng mới
-                            </div>
-                            <div class="card-body">
-                            <canvas id="userChart" height="120"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="card shadow-sm mt-3">
-                            <div class="card-header fw-bold">
-                            💰 Xu hướng thị trường
-                            </div>
-                            <div class="card-body">
-                                <canvas id="candleChart" height="120"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Doanh thu -->
-                    <div class="col-lg-6">
-                        <div class="card shadow-sm">
-                            <div class="card-header fw-bold">
-                                🧭 Tỷ trọng doanh thu theo thời gian
-                            </div>
-                            <div class="card-body">
-                                <canvas id="revenueChart" height="120"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-
-
-                <!-- Line Chart -->
-                <div class="col-md-12">
+                        <div class="col-md-12">
                     <div class="card shadow-sm">
                         <div class="card-header fw-bold">
                             📈 Thống kê truy cập
@@ -97,7 +59,6 @@ const main_text = `
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
 
     </div>
@@ -130,99 +91,7 @@ for (let i = 0; i < numOfModel; i++) {
 
 
 
-// ====== BIỂU ĐỒ NGƯỜI DÙNG (BAR) ======
-new Chart(document.getElementById('userChart'), {
-  type: 'bar',
-  data: {
-    labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-    datasets: [{
-      label: 'Người dùng mới',
-      data: [12, 18, 15, 22, 30, 25, 40],
-      backgroundColor: [
-  '#4e73df', '#1cc88a', '#36b9cc',
-  '#f6c23e', '#e74a3b', '#858796', '#fd7e14'
-]
 
-
-      
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: true }
-    }
-  }
-});
-
-
-
-
-const ctx = document.getElementById('revenueChart');
-const data = {
-  labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
-  datasets: [{
-    label: 'Doanh thu (triệu VND)',
-    data: [120, 150, 180, 210, 260, 300],
-    backgroundColor: [
-      '#4e73df',
-      '#1cc88a',
-      '#36b9cc',
-      '#f6c23e',
-      '#e74a3b',
-      '#858796'
-    ],
-    borderWidth: 1
-  }]
-};
-
-const polarChart = new Chart(ctx, {
-  type: 'polarArea',
-  data,
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'right'
-      }
-    },
-    scales: {
-      r: {
-        ticks: {
-          display: false
-        }
-      }
-    }
-  },
-  plugins: [{
-    id: 'centeredLabels',
-    afterDraw(chart) {
-      const { ctx } = chart;
-      const meta = chart.getDatasetMeta(0);
-      const dataset = chart.data.datasets[0];
-
-      ctx.save();
-      ctx.font = 'bold 12px Arial';
-      ctx.fillStyle = '#000';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      meta.data.forEach((arc, index) => {
-        const angle = (arc.startAngle + arc.endAngle) / 2;
-        const radius = (arc.outerRadius + arc.innerRadius) / 2;
-
-        const x = chart.chartArea.left + chart.chartArea.width / 2
-          + Math.cos(angle) * radius;
-        const y = chart.chartArea.top + chart.chartArea.height / 2
-          + Math.sin(angle) * radius;
-
-        ctx.fillText(dataset.data[index], x, y);
-      });
-
-      ctx.restore();
-    }
-  }]
-});
 
 
 function buildCandles(arr) {
