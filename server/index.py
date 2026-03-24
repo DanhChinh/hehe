@@ -20,17 +20,20 @@ def handle_predict(msg):
     print(f"_______________{msg.get('sid')}__________________")
     progress = msg.get('progress')
     x_pred = handle_progress(progress, isEnd=False)
-    predicts, bets =  PREDICT(x_pred)
-    emit('handle_predict', {"predicts": predicts, 'sid': msg.get('sid'), 'bets': bets})
+    PREDICT(x_pred)
+    emit('info', 
+        {
+        'sid': msg.get('sid'),
+        'data':GET_ALL_INFO()
+        })
 
 
 @socketio.on('check')
 def handle_check(msg):
     result = msg.get('rs')
     CHECK(result)
-    emit("best_matchs", {'best_matchs': FIND_BEST_MATCHS()})
-    empty_arr = ['' for i in range(numOfModel)]
-    emit('handle_predict', {"predicts": empty_arr, 'sid':None, 'bets':empty_arr}) 
+    FIND_BEST_MATCHS()
+    emit("info", {'data': GET_ALL_INFO()})
 
     
 
@@ -38,7 +41,8 @@ def handle_check(msg):
 @socketio.on('connect')
 def handle_connect():
     print('✅ Client connected')
-    emit("best_matchs", {'best_matchs': FIND_BEST_MATCHS()})
+    FIND_BEST_MATCHS()
+    emit("info", {'data': GET_ALL_INFO()})
 
 @socketio.on('disconnect')
 def handle_disconnect():

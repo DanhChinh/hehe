@@ -26,26 +26,26 @@ async function loadAccessToken() {
 
 loadAccessToken();
 
-function setToken(token){
+function setToken(token) {
 
-    fetch("https://cyan.io.vn/xg79/set_token.php",{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/x-www-form-urlencoded"
-        },
-        body:"token=" + encodeURIComponent(token)
-    })
-    .then(res=>res.json())
-    .then(data=>{
-        console.log("Server response:",data)
+  fetch("https://cyan.io.vn/xg79/set_token.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "token=" + encodeURIComponent(token)
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Server response:", data)
     })
 
 }
 DOM_isConnectGame.onclick = (e) => {
-  if(responseAccessToken != DOM_accessToken.value){
+  if (responseAccessToken != DOM_accessToken.value) {
     setToken(DOM_accessToken.value);
     accessToken = DOM_accessToken.value;
-  }else{
+  } else {
 
     accessToken = responseAccessToken
   }
@@ -73,34 +73,59 @@ DOM_connectPyserver.onclick = (e) => {
   });
 
   // --- Nhận index từ server (highlight) ---
-  socket_io.on('best_matchs', (msg) => {
-    // console.log(msg)
-    calculateAndPlot(msg.best_matchs)
+  socket_io.on('info', (msg) => {
+    let sid = msg.sid;
+    let data = msg.data;
+    data.forEach(d => {
+      let best_matchs = d.best_matchs
+    drawLineChart(
+
+    )      continue
+      
+    });
+    // calculateAndPlot(msg.best_matchs)
 
   })
 
   socket_io.on("handle_predict", (msg) => {
+
+    // sendMessageToGame(value, msg.sid, predict)
+    let buy = 0;
+    let sell = 0;
     for (let i = 0; i < numOfModel; i++) {
       let predict = msg.predicts[i];
-      let xbet = msg.bets[i]
-      let value = +DOM_values[i].value * 1000 * xbet;
+      let signal = msg.signals[i]
+      let value = +DOM_values[i].value * 1000;
+      if(!signal){
+        return;
+      }
+      console.log(signal)
       DOM_predicts[i].innerText = predict;
+      if (predict == 1) {
+        buy += value
+      }
+      else if (predict == 2) {
+        sell += value
 
-      if (predict && value) {
-        console.log(`intput:${i} predict:${predict}, value:${value}`)
-        sendMessageToGame(value, msg.sid, predict)
-
-        if(predict==1){
-          TradeTable.buy(msg.sid, value);
-        }
-        else if (predict == 2){
-          TradeTable.sell(msg.sid, value);
-
-        }else{
-
-        }
+      } else {
 
       }
+      
+    }
+
+    if(buy == sell){
+      return
+    }
+    if (buy > sell){
+      TradeTable.buy(msg.sid, buy- sell);
+      TradeTable.matchBuy(msg.sid, buy- sell)
+    // sendMessageToGame(buy-sell, msg.sid, 1)
+
+    }else{
+            TradeTable.sell(msg.sid, sell-buy);
+      TradeTable.matchSell(msg.sid, sell-buy)
+    // sendMessageToGame(sell-buy, msg.sid, 2)
+
     }
   });
 };

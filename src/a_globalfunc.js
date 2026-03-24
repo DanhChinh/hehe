@@ -183,7 +183,7 @@ const TradeTable = {
         this.tbody.appendChild(tr);
       });
 
-    document.getElementById("totalProfit").textContent = this.total;
+    // document.getElementById("totalProfit").textContent = this.total;
     this.updateColors()
   }
 };

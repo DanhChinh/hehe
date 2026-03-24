@@ -1,12 +1,13 @@
 import numpy as np
 import random as rd
+import pandas as pd
 from handle_data import make_data, handle_progress, handle_last_30
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
-from zigzag_engine import ZigZagTradingBot
+
 
 def danh_gia_huong(data):
     # 1. Lọc dữ liệu hợp lệ
@@ -49,8 +50,6 @@ class MYMODEL:
         self.history_fix = [0]
         self.history_fix_cumsum = np.array([])
         self.short_array = np.cumsum(self.history)
-        self.bot = ZigZagTradingBot(threshold=0.03)
-        self.signal = None
     def load(self, data_train, label_train, data_long, label_long, data_last30, label_last30):
         self.model.fit(data_train, label_train)
         pred_p2 = self.model.predict(data_long)
@@ -63,8 +62,8 @@ class MYMODEL:
             self.find_best_match_ncc()
             self.make_predict(x)
             self.check(y_true)
-            # self.check_fix(y_true)
-
+            self.check_fix(y_true)
+        return self.history_fix_cumsum
     def make_predict(self, x_pred):
         self.predict = 1 if int(self.model.predict([x_pred])[0]) ==1 else 2
         self.predict_fix = self.predict
@@ -72,7 +71,8 @@ class MYMODEL:
             self.predict_fix = 1 if self.predict == 2 else 2
         if self.best_match["trend"] == "---" or self.best_match["trend"] == "error":
             self.predict_fix = None
-        print(self.name, self.best_match["trend"], self.predict, self.predict_fix)
+        # print(self.name, self.best_match["trend"], self.predict, self.predict_fix)
+        return self.predict_fix
 
     def check(self, result):
         if self.predict == None:
@@ -91,13 +91,10 @@ class MYMODEL:
         else:
             self.history_fix.append(-1)
         self.history_fix_cumsum = np.cumsum(self.history_fix)
-        signal = self.bot.update(self.history_fix_cumsum[-1]) # BUY, SELL, None
-        if signal == "BUY":
-            self.signal = signal
-        elif signal == "SELL":
-            self.signal = None
-        else:
-            pass
+        
+
+
+
 
     def find_best_match_ncc(self):
         S = np.array(self.short_array, dtype=float)
@@ -178,53 +175,52 @@ class MYMODEL:
             
             # Dữ liệu cho Biểu đồ 2
             "S_centered": S_centered.tolist(),
-            "W_centered": W_centered.tolist()
-        }
+            "W_centered": W_centered.tolist(),
 
-    def get_info(self):
-        return {
-            "name": self.name,
-            "predict_fix": self.predict_fix,
-            "best_match": self.best_match,
-            "signal": self.signal
+            #other
+            'modelName':self.name
         }
+        return self.best_match
+
+
 
 
 
 
 def FIND_BEST_MATCHS(): 
+    data = []
     for model in models:
-        model.find_best_match_ncc()
+        data.append(model.find_best_match_ncc())
+    return data
 def PREDICT(x_pred):
+    predicts = []
+    bets = []
     for model in models:
-        model.make_predict(x_pred)
+        predicts.append(model.make_predict(x_pred))
+        bets.append(model.bet)
+    return predicts, bets
 def CHECK(result):
     for model in models:
         model.check(result)
         model.check_fix(result)
 
 
-def GET_ALL_INFO():
-    data = []
-    for model in models:
-        data.append(model.get_info())
-    return data
+
 
 def LOAD():
 
     models_dict = {
-        "LDA": LinearDiscriminantAnalysis(),
-        "MLP (Neural Network)": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500),
-        "AdaBoost": AdaBoostClassifier(n_estimators=100),
-        "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5)
+        "LDA": LinearDiscriminantAnalysis()
     }
     data, label = make_data()
 
-    data_last30 = data[-15:]
-    label_last30 = label[-15:]
+    lenM = 200
 
-    data_remain = data[:-15]
-    label_remain = label[:-15]
+    data_last30 = data[-lenM:]
+    label_last30 = label[-lenM:]
+
+    data_remain = data[:-lenM]
+    label_remain = label[:-lenM]
 
 
     split_idx = int(len(label_remain) * 0.7)
@@ -252,13 +248,19 @@ def LOAD():
 
     LONGS = []
     for model in models:
-        model.load(
+        LONGS.append(model.load(
             data_train, label_train,
             data_long, label_long,
             data_last30, label_last30
-        )
-        LONGS.append(model.LONG_ARRAY)
-    numOfModel =  len (models)
-    return models, LONGS, numOfModel
+        ))
 
-models, LONGS, numOfModel = LOAD()
+    filename="test.csv"
+    prices = LONGS[0]
+    df = pd.DataFrame({'Price': prices})
+    df.to_csv(filename, index_label='Step')
+    print(f"--- Đã lưu vào {filename} ---")
+LOAD()
+
+
+
+
