@@ -1,4 +1,9 @@
-﻿function drawChartLong(localData, localStartIndex, matchDataLocal, predictedDataLocal, bestIndex, long_chart, trend) {
+﻿function drawChartLong(chartDom, localData, localStartIndex, matchDataLocal, predictedDataLocal, bestIndex, trend) {
+    let chart = echarts.getInstanceByDom(chartDom);
+
+    if (!chart) {
+        chart = echarts.init(chartDom);
+    }
     const x_indices = localData.map((_, i) => localStartIndex + i);
 
     const option1 = {
@@ -18,7 +23,7 @@
         },
         xAxis: {
             type: 'category',
-            data: x_indices, 
+            data: x_indices,
             name: 'X'
         },
         yAxis: { type: 'value', name: 'Giá trị' },
@@ -59,7 +64,7 @@
             }
         ]
     };
-    long_chart.setOption(option1, true);
+    chart.setOption(option1, true);
 }
 function drawChartShort(S_centered, W_centered, max_score, best_index, chart_short) {
     // Biểu đồ 2: So sánh Hình dạng (Đã trừ Trung bình)
@@ -94,22 +99,24 @@ function drawChartShort(S_centered, W_centered, max_score, best_index, chart_sho
     chart_short.setOption(option2);
 }
 
-function drawLineChart(dataArray, chartDom, modelName, signal) {
+function drawLineChart(chartDom, dataArray) {
     if (!Array.isArray(dataArray)) {
         console.error("dataArray phải là một mảng!");
         return;
     }
-    const chart = echarts.init(chartDom);
+    let chart = echarts.getInstanceByDom(chartDom);
+
+    if (!chart) {
+        chart = echarts.init(chartDom);
+    }
     const option = {
-        title: {
-            text: `${modelName}: ${signal}`
-        },
+        title: { text: "Line chart" },
         tooltip: {
             trigger: 'axis'
         },
         xAxis: {
             type: 'category',
-            data: dataArray.map((_, i) => i) 
+            data: dataArray.map((_, i) => i)
         },
         yAxis: {
             type: 'value'
@@ -124,42 +131,4 @@ function drawLineChart(dataArray, chartDom, modelName, signal) {
     };
     chart.setOption(option);
 }
-function calculateAndPlot(data) {
-
-    for (let i = 0; i < numOfModel; i++) {
-        drawLineChart(
-            data[i].history_fix_cumsum, 
-            DOM_hsFixs[i],
-            data[i].modelName,
-            data[i].signal
-        )
-        drawChartLong(
-            data[i].local_data, 
-            data[i].local_start_index, 
-            data[i].match_data_local, 
-            data[i].predicted_data_local, 
-            data[i].best_index, 
-            chart_longs[i],
-            data[i].trend
-        );
-        // drawChartShort(
-        //     data[i].S_centered,
-        //     data[i].W_centered,
-        //     data[i].max_score.toFixed(4),
-        //     data[i].best_index,
-        //     chart_shorts[i]
-        // );
-    }
-}
-
-var chart_longs = [];
-var chart_shorts = [];
-for(let i=0; i<numOfModel; i++){
-    chart_longs.push(echarts.init(document.getElementById(`chart_long_${i}`)));
-    // chart_shorts.push(echarts.init(document.getElementById(`chart_short_${i}`)));
-}
-const DOM_hsFixs = document.getElementsByClassName('DOM_hsFix');
-const DOM_predicts = document.getElementsByClassName('DOM_predict');
-const DOM_values = document.getElementsByClassName('DOM_value');
-
 

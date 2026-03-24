@@ -3,7 +3,7 @@ const main_text = `
 
         <!-- ================= MESSAGES ================= -->
         <div class="col-lg-4">
-            <div class="card shadow-sm" style="height:260px">
+            <div class="card shadow-sm" style="height:160px">
                 <div class="card-header fw-bold">
                     💬 Tin nhắn mới
                 </div>
@@ -69,23 +69,6 @@ document.getElementsByTagName('main')[0].innerHTML = main_text;
 
 
 
-var numOfModel = 4;
-let parent = document.getElementById('DOM_map');
-for (let i = 0; i < numOfModel; i++) {
-  parent.innerHTML += `
-  <div class="container">
-  
-      <div class="prd_vlu">
-        <div class="DOM_predict" id="predict_${i}"></div>
-        <input class="DOM_value" type="text" value="" />
-      </div>
-
-      <div class="row">
-        <div class="DOM_hsFix  col-8" id="hsFix_${i}"></div>
-        <div class="chart_long col-4" id="chart_long_${i}"></div>
-      </div>
-    </div>`
-}
 
 
 
@@ -121,17 +104,20 @@ function buildCandles(arr) {
 
   return candles;
 }
+
 let candleChart;
+let _Candle = [];
 
 function drawCandleChart(dataArr) {
   const candles = buildCandles(dataArr);
 
-  let candlesSlice = candles.slice(-10)
+  const candlesSlice = candles.slice(-10);
 
-  const labels = candlesSlice.map((_, i) => ` ${i + 1}`);
-  const values = candlesSlice.map(c =>
-    c.type === 'up' ? c.length : -c.length
-  );
+  const labels = candlesSlice.map((_, i) => `${i + 1}`);
+
+  // ✅ TẤT CẢ GIÁ TRỊ DƯƠNG
+  const values = candlesSlice.map(c => c.length);
+
   const colors = candlesSlice.map(c =>
     c.type === 'up' ? '#1cc88a' : '#e74a3b'
   );
@@ -144,11 +130,18 @@ function drawCandleChart(dataArr) {
       type: 'bar',
       data: {
         labels,
-        datasets: [{
-          label: 'Candlestick Strength',
-          data: values,
-          backgroundColor: colors
-        }]
+        datasets: [
+          {
+            label: 'Candlestick Strength',
+            data: values,
+            backgroundColor: colors,
+
+            // optional styling
+            borderRadius: 4,
+            categoryPercentage: 1.0,
+            barPercentage: 1.0
+          }
+        ]
       },
       options: {
         responsive: true,
@@ -156,21 +149,27 @@ function drawCandleChart(dataArr) {
           legend: { display: false }
         },
         scales: {
+          x: {
+            grid: {
+              display: false
+            }
+          },
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            grid: {
+              color: '#eee'
+            }
           }
         }
       }
     }
   );
 }
-let _Candle = [];
-
-drawCandleChart(_Candle);
 
 function addCandleValue(v) {
   _Candle.push(v);
   drawCandleChart(_Candle);
 }
 
-
+// init
+drawCandleChart(_Candle);

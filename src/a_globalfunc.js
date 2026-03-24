@@ -19,7 +19,7 @@ function addMessage(content = "...", from = "Player") {
     chatBox.appendChild(msgDiv);
 
     // 👇 Giới hạn chỉ giữ lại 20 tin nhắn mới nhất
-    while (chatBox.children.length > 5) {
+    while (chatBox.children.length > 3) {
         chatBox.removeChild(chatBox.firstChild);
     }
     chatBox.scrollTop = chatBox.scrollHeight;

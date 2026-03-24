@@ -214,9 +214,9 @@ def LOAD():
 
     models_dict = {
         "LDA": LinearDiscriminantAnalysis(),
-        "MLP (Neural Network)": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500),
+        "MLP": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500),
         "AdaBoost": AdaBoostClassifier(n_estimators=100),
-        "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5)
+        "KNN": KNeighborsClassifier(n_neighbors=5)
     }
     data, label = make_data()
 
@@ -258,7 +258,6 @@ def LOAD():
             data_last30, label_last30
         )
         LONGS.append(model.LONG_ARRAY)
-    numOfModel =  len (models)
-    return models, LONGS, numOfModel
+    return models, LONGS
 
-models, LONGS, numOfModel = LOAD()
+models, LONGS = LOAD()
