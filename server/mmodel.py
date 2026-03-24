@@ -91,7 +91,7 @@ class MYMODEL:
         else:
             self.history_fix.append(-1)
         self.history_fix_cumsum = np.cumsum(self.history_fix)
-        signal = self.bot.update(self.history_fix_cumsum[-1]) # BUY, SELL, None
+        signal = self.bot.update(self.history_fix_cumsum[-1] +100 ) # BUY, SELL, None
         if signal == "BUY":
             self.signal = signal
         elif signal == "SELL":
