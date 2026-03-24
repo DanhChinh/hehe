@@ -119,7 +119,7 @@ function drawCandleChart(dataArr) {
   const values = candlesSlice.map(c => c.length);
 
   const colors = candlesSlice.map(c =>
-    c.type === 'up' ? '#1cc88a' : '#e74a3b'
+    c.type === 'up' ? '#212121' : '#a29bfe'
   );
 
   if (candleChart) candleChart.destroy();
