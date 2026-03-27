@@ -189,7 +189,8 @@ DOM_connectPyserver.onclick = (e) => {
 
       let volume = +document.getElementById(`DOM_volume_${i}`).value *1000;
       const predict = d.predict;
-      if (predict && volume) {
+      const position = d.position
+      if (predict && volume && position) {
 
         if (predict == 1) {
           buy += volume
