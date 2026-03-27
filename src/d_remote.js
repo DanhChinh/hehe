@@ -175,12 +175,13 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                     <thead class="table-light">
                         <tr>
                             <th>Name</th>
-                            <th>Predict</th>
+                            <th>Trend</th>
                             <th>Position</th>
                             <th>Stop Loss</th>
                             <th>Price</th>
                             <th>Take Profit</th>
                             <th>Volume</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
 
@@ -208,11 +209,31 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                             <td>
                                 <input id="volume_${i}" type="number" class="form-control form-control-sm text-center" >
                             </td>
+                            <td>
+                              <button id="btn_toggle_${i}"
+                                class="btn btn-sm btn-success"
+                                data-index="${i}"
+                                    data-name="${d.name}">
+                              BUY
+                            </button>
+                          </td>
                         </tr>`
 
   });
 
   parent.innerHTML = headText + mainText + footText;
+
+  document.querySelectorAll("[id^=btn_toggle_]").forEach(btn => {
+    btn.onclick = () => {
+      const index = btn.dataset.index;
+      const name = btn.dataset.name;
+
+      socket_io.emit("setPosition", {
+        index, name
+      })
+
+    };
+  });
 }
 
 
@@ -268,17 +289,30 @@ function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
       // Nếu bạn muốn cập nhật volume LẦN ĐẦU TIÊN thì dùng:
       // let volInput = document.getElementById(`volume_${i}`);
       // if (volInput && volInput.value === "") volInput.value = d.volume;
+
+
+      let btn = document.getElementById(`btn_toggle_${i}`);
+      btn.innerText = d.position === "BUY" ? "SELL" : "BUY";
+      btn.classList.remove("btn-success", "btn-danger", "btn-secondary");
+
+      // đổi màu theo trạng thái hiện tại
+      if (d.position === "BUY") {
+        btn.classList.add("btn-danger");   // đang BUY → bấm sẽ SELL → đỏ
+      } else  {
+        btn.classList.add("btn-success");  // đang SELL → bấm sẽ BUY → xanh
+      } 
+
     }
   });
 }
 
-function capNhatMap(data){
-      data.forEach((d, i) => {
-      let best_match = d.best_match
-      drawLineChart(
-        document.getElementById(`hsFix_${i}`),
-        best_match.history_fix_cumsum,
-        d.name
-      )
-    });
+function capNhatMap(data) {
+  data.forEach((d, i) => {
+    let best_match = d.best_match
+    drawLineChart(
+      document.getElementById(`hsFix_${i}`),
+      best_match.history_fix_cumsum,
+      d.name
+    )
+  });
 }

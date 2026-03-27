@@ -36,6 +36,11 @@ def handle_check(msg):
     emit("info", {'data': GET_ALL_INFO()})
 
     
+@socketio.on('setPosition')
+def handle_setPosition(msg):
+    index = int(msg.get('index'))
+    SET_POSITON(index)
+    emit("info", {'data': GET_ALL_INFO()})
 
 
 @socketio.on('connect')

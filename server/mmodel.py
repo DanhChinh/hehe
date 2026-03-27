@@ -56,6 +56,7 @@ def check_pattern(arr, down_threshold=0.6, flat_threshold=0.05):
     if n < 30:
         return False
     
+    arr += 100
     split_idx = int(n * 0.8)
     
     first_part = arr[:split_idx]
@@ -132,16 +133,11 @@ class MYMODEL:
 
         if self.position == "BUY":
             if price >self.take_profit or price <self.stop_loss:
-                self.position = None
-                self.stop_loss = None 
-                self.take_profit = None 
-                return
+                self.set_sell()
                 
         else:
             if check_pattern( self.history_fix_cumsum[-30:]):
-                self.position = "BUY"
-                self.stop_loss = self.history_fix_cumsum[-1] - 5
-                self.take_profit = self.history_fix_cumsum[-1] + 10
+                self.set_buy()
 
     def find_best_match_ncc(self):
         S = np.array(self.short_array, dtype=float)
@@ -238,7 +234,22 @@ class MYMODEL:
             "price": get_price(self.history_fix_cumsum),
             "take_profit": self.take_profit  #number
         }
+    def set_toggle_position(self):
+        if self.position:
+            self.set_sell()
+        else:
+            self.set_buy()
 
+
+    def set_buy(self):
+        price = get_price(self.history_fix_cumsum)
+        self.position = "BUY"
+        self.stop_loss = price - 5
+        self.take_profit = price + 10
+    def set_sell(self):
+        self.position = None
+        self.stop_loss = None 
+        self.take_profit = None
 
 
 
@@ -252,6 +263,8 @@ def CHECK(result):
     for model in models:
         model.check(result)
         model.check_fix(result)
+def SET_POSITON(index):
+    models[index].set_toggle_position()
 
 
 def GET_ALL_INFO():
