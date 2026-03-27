@@ -74,98 +74,19 @@ DOM_connectPyserver.onclick = (e) => {
 
   // --- Nhận index từ server (highlight) ---
   socket_io.on('info', (msg) => {
+    console.log(msg.data)
+    // updateTable(msg.data)
     let sid = msg.sid;
     let data = msg.data;
 
-    let parent = document.getElementById('DOM_map');
-    if (parent.innerHTML.trim() === "") {
-      let text = `<div class="row">`
-      data.forEach((e, i) => {
-        text += `<div class="col-6">
-                        <div class="container my-3">
-                    <div class="row g-3 align-items-stretch">
+    khoiTaoBang(data)
+    khoiTaoMap(data)
 
-                        <!-- Left info -->
-                        <div class="col-md-3">
-                            <div class="border rounded p-2 h-100">
-
-                                <!-- Name -->
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Name:</span>
-                                    <span id="DOM_name_${i}">${e.name}</span>
-                                </div>
-
-                                <!-- Predict -->
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Predict:</span>
-                                    <span id="DOM_predict_${i}" class="text-primary"></span>
-                                </div>
+    capNhatBang(data)
+    capNhatMap(data)
 
 
-                                <!-- Position -->
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Position:</span>
-                                    <span id="DOM_position_${i}" class="text-success"></span>
-                                </div>
 
-                                <!-- take_profit -->
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Take profit:</span>
-                                    <span id="DOM_take_profit_${i}" class="text-success"></span>
-                                </div>
-
-                                <!-- Price -->
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Price:</span>
-                                    <span id="DOM_price_${i}" class="text-success"></span>
-                                </div>
-
-                                <!-- stop_loss -->
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Stop loss:</span>
-                                    <span id="DOM_stop_loss_${i}" class="text-success"></span>
-                                </div>   
-
-                                <!-- Volume -->
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="fw-semibold">Volume:</span>
-                                    <input id="DOM_volume_${i}" type="text" class="form-control form-control-sm w-50"
-                                       value="" />
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <!-- Middle -->
-                        <div class="col-md-9">
-                            <div id="hsFix_${i}" class="border rounded chart-box"></div>
-                        </div>
-                    </div>
-                </div>
-              </div>
-        
-        `
-      })
-      text += `</div>`;
-      parent.innerHTML = text;
-    }
-
-    let meanmodel = []
-
-    data.forEach((d, i) => {
-      let best_match = d.best_match
-      meanmodel.push(best_match.history_fix_cumsum)
-      drawLineChart(
-        document.getElementById(`hsFix_${i}`),
-        best_match.history_fix_cumsum
-      )
-    });
-
-    meanmodel = columnAverages(meanmodel)
-    drawLineChart(
-      document.getElementById("meanmodel"),
-      meanmodel
-    )
 
 
     if (!sid) {
@@ -176,13 +97,9 @@ DOM_connectPyserver.onclick = (e) => {
     let sell = 0;
 
     data.forEach((d, i) => {
-      
-      Object.entries(d).forEach(([k, v]) => {
-        const el = document.getElementById(`DOM_${k}_${i}`);
-        if (el) el.innerText = v;
-      });
 
-      let volume = +document.getElementById(`DOM_volume_${i}`).value *1000;
+
+      let volume = +document.getElementById(`volume_${i}`).value * 1000;
       const predict = d.predict;
       const position = d.position
       if (predict && volume && position) {
@@ -235,4 +152,133 @@ function columnAverages(A) {
   }
 
   return result;
+}
+
+
+
+
+
+function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
+  if (parent.innerHTML.trim() != "") { return }
+  let headText = `    <div class="container mt-4">
+        <div class="card shadow-sm">
+
+            <!-- Header -->
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Trading Dashboard</h5>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table id="Trading_Dashboard" class="table table-bordered table-hover align-middle mb-0 text-center">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Predict</th>
+                            <th>Position</th>
+                            <th>Stop Loss</th>
+                            <th>Price</th>
+                            <th>Take Profit</th>
+                            <th>Volume</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tableBody">
+                        <!-- Row mẫu -->`
+
+  let footText = `</tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>`
+  let mainText = ``
+  data.forEach((d, i) => {
+
+    mainText += `                        
+                        <tr>
+                            <td>${d.name}</td>
+                            <td class="text-primary"></td>
+                            <td class="text-success fw-bold"></td>
+                            <td></td>
+                            <td class="fw-semibold"></td>
+                            <td></td>
+                            <td>
+                                <input id="volume_${i}" type="number" class="form-control form-control-sm text-center" >
+                            </td>
+                        </tr>`
+
+  });
+
+  parent.innerHTML = headText + mainText + footText;
+}
+
+
+function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
+  if (parent.innerHTML.trim() != "") { return }
+  let text = `<div class="row">`
+  data.forEach((e, i) => {
+    text += `<div class="col-6">
+    <div id="hsFix_${i}" class="border rounded chart-box"></div>
+              </div>
+        
+        `
+  })
+  text += `</div>`;
+  parent.innerHTML = text;
+}
+
+function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
+  if (!table) return;
+
+  // Lấy tất cả các dòng trong tbody (bỏ qua header)
+  let tbody = table.getElementsByTagName('tbody')[0];
+  let rows = tbody.getElementsByTagName('tr');
+
+  data.forEach((d, i) => {
+    let row = rows[i];
+    if (row) {
+      // Index 0: Name (Đã có lúc khởi tạo, nhưng cập nhật luôn cho chắc)
+      row.cells[0].innerText = d.name;
+
+      // Index 1: Predict (1 = BUY, 2 = SELL, khác = WAIT)
+      // let predictText = d.predict === 1 ? "BUY" : (d.predict === 2 ? "SELL" : "WAIT");
+      row.cells[1].innerText = d.predict;
+      row.cells[1].className = d.predict === 1 ? "text-primary" : (d.predict === 2 ? "text-danger" : "text-muted");
+
+      // Index 2: Position
+      row.cells[2].innerText = d.position;
+      // Đổi màu theo trạng thái Position
+      if (d.position === "BUY") row.cells[2].className = "text-success fw-bold";
+      else if (d.position === "SELL") row.cells[2].className = "text-danger fw-bold";
+      else row.cells[2].className = "text-secondary fw-bold";
+
+      // Index 3: Stop Loss
+      row.cells[3].innerText = d.stop_loss;
+
+      // Index 4: Price
+      row.cells[4].innerText = d.price;
+
+      // Index 5: Take Profit
+      row.cells[5].innerText = d.take_profit;
+
+      // Index 6: Volume (Input - KHÔNG cập nhật giá trị từ data vào đây để tránh đè lên người dùng)
+      // Nếu bạn muốn cập nhật volume LẦN ĐẦU TIÊN thì dùng:
+      // let volInput = document.getElementById(`volume_${i}`);
+      // if (volInput && volInput.value === "") volInput.value = d.volume;
+    }
+  });
+}
+
+function capNhatMap(data){
+      data.forEach((d, i) => {
+      let best_match = d.best_match
+      drawLineChart(
+        document.getElementById(`hsFix_${i}`),
+        best_match.history_fix_cumsum,
+        d.name
+      )
+    });
 }

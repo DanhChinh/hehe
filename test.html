@@ -1,0 +1,168 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+
+
+    <script>
+        function khoiTaoBang(data, parent = document.getElementsByTagName('body')[0]) {
+            let headText = `    <div class="container mt-4">
+        <div class="card shadow-sm">
+
+            <!-- Header -->
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Trading Dashboard</h5>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table id="Trading_Dashboard" class="table table-bordered table-hover align-middle mb-0 text-center">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Predict</th>
+                            <th>Position</th>
+                            <th>Stop Loss</th>
+                            <th>Price</th>
+                            <th>Take Profit</th>
+                            <th>Volume</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tableBody">
+                        <!-- Row mẫu -->`
+
+            let footText = `</tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>`
+            let mainText = ``
+            data.forEach((d, i) => {
+
+                mainText += `                        
+                        <tr>
+                            <td>${d.name}</td>
+                            <td class="text-primary"></td>
+                            <td class="text-success fw-bold"></td>
+                            <td></td>
+                            <td class="fw-semibold"></td>
+                            <td></td>
+                            <td>
+                                <input id="volume_${i}" type="number" class="form-control form-control-sm text-center" >
+                            </td>
+                        </tr>`
+
+            });
+
+            parent.innerHTML = headText + mainText + footText;
+        }
+
+        function capNhatBang(data, table = document.getElementById("Trading_Dashboard")) {
+            if (!table) return;
+
+            // Lấy tất cả các dòng trong tbody (bỏ qua header)
+            let tbody = table.getElementsByTagName('tbody')[0];
+            let rows = tbody.getElementsByTagName('tr');
+
+            data.forEach((d, i) => {
+                let row = rows[i];
+                if (row) {
+                    // Index 0: Name (Đã có lúc khởi tạo, nhưng cập nhật luôn cho chắc)
+                    row.cells[0].innerText = d.name;
+
+                    // Index 1: Predict (1 = BUY, 2 = SELL, khác = WAIT)
+                    // let predictText = d.predict === 1 ? "BUY" : (d.predict === 2 ? "SELL" : "WAIT");
+                    row.cells[1].innerText = d.predict;
+                    row.cells[1].className = d.predict === 1 ? "text-primary" : (d.predict === 2 ? "text-danger" : "text-muted");
+
+                    // Index 2: Position
+                    row.cells[2].innerText = d.position;
+                    // Đổi màu theo trạng thái Position
+                    if (d.position === "BUY") row.cells[2].className = "text-success fw-bold";
+                    else if (d.position === "SELL") row.cells[2].className = "text-danger fw-bold";
+                    else row.cells[2].className = "text-secondary fw-bold";
+
+                    // Index 3: Stop Loss
+                    row.cells[3].innerText = d.stop_loss;
+
+                    // Index 4: Price
+                    row.cells[4].innerText = d.price;
+
+                    // Index 5: Take Profit
+                    row.cells[5].innerText = d.take_profit;
+
+                    // Index 6: Volume (Input - KHÔNG cập nhật giá trị từ data vào đây để tránh đè lên người dùng)
+                    // Nếu bạn muốn cập nhật volume LẦN ĐẦU TIÊN thì dùng:
+                    // let volInput = document.getElementById(`volume_${i}`);
+                    // if (volInput && volInput.value === "") volInput.value = d.volume;
+                }
+            });
+        }
+        const sampleData = [
+            {
+                name: "BTC",
+                predict: 1,              // 1 = BUY, 2 = SELL
+                position: "BUY",
+                stop_loss: 28000,
+                price: 30000,
+                take_profit: 32000,
+                best_match: {
+                    history_fix_cumsum: [29500, 29600, 29800, 29950, 30000, 30100, 30200]
+                },
+                volume: 5               // input của người dùng, có thể thay đổi realtime
+            },
+            {
+                name: "ETH",
+                predict: 2,
+                position: "SELL",
+                stop_loss: 1800,
+                price: 2000,
+                take_profit: 2200,
+                best_match: {
+                    history_fix_cumsum: [1950, 1980, 1995, 2000, 1990, 1985, 1980]
+                },
+                volume: 3
+            },
+            {
+                name: "BNB",
+                predict: 0,
+                position: "-",
+                stop_loss: 250,
+                price: 270,
+                take_profit: 290,
+                best_match: {
+                    history_fix_cumsum: [260, 265, 268, 270, 269, 271, 272]
+                },
+                volume: 2
+            },
+            {
+                name: "XRP",
+                predict: 1,
+                position: "BUY",
+                stop_loss: 0.45,
+                price: 0.50,
+                take_profit: 0.55,
+                best_match: {
+                    history_fix_cumsum: [0.46, 0.47, 0.48, 0.49, 0.50, 0.51, 0.52]
+                },
+                volume: 10
+            }
+        ];
+        khoiTaoBang(sampleData)
+        capNhatBang(sampleData)
+
+    </script>
+</body>
+
+</html>

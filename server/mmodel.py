@@ -1,5 +1,6 @@
 import numpy as np
 import random as rd
+import json
 from handle_data import make_data, handle_progress, handle_last_30
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -16,7 +17,10 @@ from sklearn.ensemble import (
 from sklearn.neural_network import MLPClassifier
 
 
-
+def get_price(arr):
+    if len(arr)<1:
+        return 0
+    return int(arr[-1])
 def danh_gia_huong(data):
     # 1. Lọc dữ liệu hợp lệ
     clean = [(x, y) for x, y in data if x != "-" and y != "-"]
@@ -84,10 +88,7 @@ class MYMODEL:
         self.position = None
         self.stop_loss = None
         self.take_profit = None
-        self.price = 0
 
-
-        
         self.model.fit(data_train, label_train)
         pred_p2 = self.model.predict(data_long)
         compare = np.where(pred_p2 == label_long, 1, -1)
@@ -99,7 +100,7 @@ class MYMODEL:
             self.find_best_match_ncc()
             self.make_predict(x)
             self.check(y_true)
-            # self.check_fix(y_true)
+            self.check_fix(y_true)
 
     def make_predict(self, x_pred):
         self.predict = 1 if int(self.model.predict([x_pred])[0]) ==1 else 2
@@ -127,10 +128,10 @@ class MYMODEL:
         else:
             self.history_fix.append(-1)
         self.history_fix_cumsum = np.cumsum(self.history_fix)
-        self.price = int(self.history_fix_cumsum[-1])
+        price = get_price(self.history_fix_cumsum)
 
         if self.position == "BUY":
-            if self.price >self.take_profit or self.price <self.stop_loss:
+            if price >self.take_profit or price <self.stop_loss:
                 self.position = None
                 self.stop_loss = None 
                 self.take_profit = None 
@@ -226,16 +227,16 @@ class MYMODEL:
 
     def get_info(self):
         predict = None
-        if self.best_match.trend != "---":
+        if self.best_match['trend'] != "---":
             predict = self.predict_fix
         return {
-            "name": self.name,
-            "predict": predict,
-            "best_match": self.best_match,
-            "position": self.position,  # ✅ Thêm
-            "stop_loss": self.stop_loss,  # ✅ Thêm
-            "price": self.price,
-            "take_profit": self.take_profit  # ✅ Thêm
+            "name": self.name, #string
+            "predict": predict, #number
+            "best_match": self.best_match, #obj
+            "position": self.position,  # stirng
+            "stop_loss": self.stop_loss,  # number
+            "price": get_price(self.history_fix_cumsum),
+            "take_profit": self.take_profit  #number
         }
 
 
@@ -257,6 +258,18 @@ def GET_ALL_INFO():
     data = []
     for model in models:
         data.append(model.get_info())
+    for dt in data:
+        try:
+            json.dumps(dt)
+        except TypeError as e:
+            print("❌ JSON ERROR:", e)
+            
+            # check từng field
+            for k, v in dt.items():
+                try:
+                    json.dumps(v)
+                except TypeError:
+                    print(f"👉 Lỗi ở field: {k}, type = {type(v)}")
     return data
 
 
@@ -275,12 +288,13 @@ def split_10_stratified(X, y):
 
 def LOAD():
     data, label = make_data()
+    lhs = 30
 
-    data_formakehs = data[-15:]
-    label_formakehs = label[-15:]
+    data_formakehs = data[-lhs:]
+    label_formakehs = label[-lhs:]
 
-    data_long = data[-1000:-15]
-    label_long = label[-1000:-15]
+    data_long = data[-1000:-lhs]
+    label_long = label[-1000:-lhs]
 
     data = data[:-1000]
     label = label[:-1000]

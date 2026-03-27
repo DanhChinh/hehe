@@ -54,16 +54,14 @@ const main_text = `
 
         <!-- ================= CHARTS ================= -->
         <div class="col-lg-9">
-                <div class="col-12" id="meanmodel" style="height: 350px;"></div>
-
-
                 <div class="col-md-12">
                     <div class="card shadow-sm">
                         <div class="card-header fw-bold">
                             📈 Thống kê truy cập
                         </div>
-                        <div class="card-body container" id="DOM_map">
-                        </div>
+
+                        <div class="card-body container" id="DOM_dashboard"></div>
+                        <div class="card-body container" id="DOM_map"></div>
                     </div>
                 </div>
         </div>
