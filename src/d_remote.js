@@ -181,17 +181,19 @@ DOM_connectPyserver.onclick = (e) => {
     let sell = 0;
 
     data.forEach((d, i) => {
-    Object.entries(d).forEach(([k, v]) => {
-      const el = document.getElementById(`DOM_${k}_${i}`);
-      if (el) el.innerText = v;
-    });
+      
+      Object.entries(d).forEach(([k, v]) => {
+        const el = document.getElementById(`DOM_${k}_${i}`);
+        if (el) el.innerText = v;
+      });
 
       let volume = +document.getElementById(`DOM_volume_${i}`).value *1000;
-      if (predict_fix && volume) {
+      const predict = d.predict;
+      if (predict && volume) {
 
-        if (predict_fix == 1) {
+        if (predict == 1) {
           buy += volume
-        } else if (predict_fix == 2) {
+        } else if (predict == 2) {
           sell += volume
         } else {
 
