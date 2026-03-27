@@ -107,17 +107,34 @@ DOM_connectPyserver.onclick = (e) => {
                                     <span id="DOM_trend_${i}" class="text-primary"></span>
                                 </div>
 
-                                <!-- Signal -->
+                                <!-- Position -->
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Signal:</span>
-                                    <span id="DOM_signal_${i}" class="text-success"></span>
+                                    <span class="fw-semibold">Position:</span>
+                                    <span id="DOM_position_${i}" class="text-success"></span>
                                 </div>
 
+                                <!-- take_profit -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Take profit:</span>
+                                    <span id="DOM_take_profit_${i}" class="text-success"></span>
+                                </div>
 
-                                <!-- Value -->
+                                <!-- Price -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Price:</span>
+                                    <span id="DOM_price_${i}" class="text-success"></span>
+                                </div>
+
+                                <!-- stop_loss -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Stop loss:</span>
+                                    <span id="DOM_stop_loss_${i}" class="text-success"></span>
+                                </div>   
+
+                                <!-- Volume -->
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="fw-semibold">Value:</span>
-                                    <input id="DOM_value_${i}" type="text" class="form-control form-control-sm w-50"
+                                    <span class="fw-semibold">Volume:</span>
+                                    <input id="DOM_volume_${i}" type="text" class="form-control form-control-sm w-50"
                                        value="" />
                                 </div>
 
@@ -147,15 +164,6 @@ DOM_connectPyserver.onclick = (e) => {
         document.getElementById(`hsFix_${i}`),
         best_match.history_fix_cumsum
       )
-      // drawChartLong(
-      //   document.getElementById(`chart_long_${i}`),
-      //   best_match.local_data,
-      //   best_match.local_start_index,
-      //   best_match.match_data_local,
-      //   best_match.predicted_data_local,
-      //   best_match.best_index,
-      //   best_match.trend
-      // );
     });
 
     meanmodel = columnAverages(meanmodel)
@@ -173,21 +181,18 @@ DOM_connectPyserver.onclick = (e) => {
     let sell = 0;
 
     data.forEach((d, i) => {
-      // let name = d.name;
-      let predict_fix = d.predict_fix;
-      let signal = d.signal;
-      let trend = d.best_match.trend;
-      document.getElementById(`DOM_predict_${i}`).innerText = predict_fix;
-      document.getElementById(`DOM_signal_${i}`).innerText = signal;
-      document.getElementById(`DOM_trend_${i}`).innerText = trend;
+    Object.entries(d).forEach(([k, v]) => {
+      const el = document.getElementById(`DOM_${k}_${i}`);
+      if (el) el.innerText = v;
+    });
 
-      let value = +document.getElementById(`DOM_value_${i}`).value;
-      if (predict_fix && value) {
+      let volume = +document.getElementById(`DOM_volume_${i}`).value *1000;
+      if (predict_fix && volume) {
 
         if (predict_fix == 1) {
-          buy += value
+          buy += volume
         } else if (predict_fix == 2) {
-          sell += value
+          sell += volume
         } else {
 
         }
@@ -199,13 +204,13 @@ DOM_connectPyserver.onclick = (e) => {
     }
     if (buy > sell) {
       TradeTable.buy(msg.sid, buy - sell);
-      // TradeTable.matchBuy(msg.sid, buy - sell)
-      sendMessageToGame(buy-sell, msg.sid, 1)
+      TradeTable.matchBuy(msg.sid, buy - sell)
+      // sendMessageToGame(buy - sell, msg.sid, 1)
 
     } else {
       TradeTable.sell(msg.sid, sell - buy);
-      // TradeTable.matchSell(msg.sid, sell - buy)
-      sendMessageToGame(sell-buy, msg.sid, 2)
+      TradeTable.matchSell(msg.sid, sell - buy)
+      // sendMessageToGame(sell - buy, msg.sid, 2)
 
     }
 

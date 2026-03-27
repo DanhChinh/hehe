@@ -3,7 +3,19 @@ import random as rd
 from handle_data import make_data, handle_progress, handle_last_30
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from zigzag_engine import ZigZagTradingBot
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import (
+    RandomForestClassifier,
+    GradientBoostingClassifier,
+    AdaBoostClassifier,
+    ExtraTreesClassifier
+)
+from sklearn.neural_network import MLPClassifier
+
+
 
 def danh_gia_huong(data):
     # 1. Lọc dữ liệu hợp lệ
@@ -37,7 +49,7 @@ def check_pattern(arr, down_threshold=0.6, flat_threshold=0.05):
     arr = np.array(arr, dtype=float)
     n = len(arr)
     
-    if n < 5:
+    if n < 30:
         return False
     
     split_idx = int(n * 0.8)
@@ -66,10 +78,16 @@ class MYMODEL:
         self.best_match = None
         self.history = [0]
         self.history_fix = [0]
-        self.history_fix_cumsum = np.array([])
+        self.history_fix_cumsum = np.array([0])
         self.short_array = np.cumsum(self.history)
-        
 
+        self.position = None
+        self.stop_loss = None
+        self.take_profit = None
+        self.price = 0
+
+
+        
         self.model.fit(data_train, label_train)
         pred_p2 = self.model.predict(data_long)
         compare = np.where(pred_p2 == label_long, 1, -1)
@@ -105,17 +123,24 @@ class MYMODEL:
         if self.predict_fix == None:
             self.history_fix.append(0)
         elif self.predict_fix == result:
-            self.history_fix.append(1)
+            self.history_fix.append(1)    
         else:
             self.history_fix.append(-1)
         self.history_fix_cumsum = np.cumsum(self.history_fix)
-        signal = self.bot.update(self.history_fix_cumsum[-1] +100 ) # BUY, SELL, None
-        if signal == "BUY":
-            self.signal = signal
-        elif signal == "SELL":
-            self.signal = None
+
+        if self.position == "BUY":
+            self.price = int(self.history_fix_cumsum[-1])
+            if self.price >self.take_profit or self.price <self.stop_loss:
+                self.position = None
+                self.stop_loss = None 
+                self.take_profit = None 
+                return
+                
         else:
-            pass
+            if check_pattern( self.history_fix_cumsum[-30:]):
+                self.position = "BUY"
+                self.stop_loss = self.history_fix_cumsum[-1] - 5
+                self.take_profit = self.history_fix_cumsum[-1] + 10
 
     def find_best_match_ncc(self):
         S = np.array(self.short_array, dtype=float)
@@ -202,9 +227,12 @@ class MYMODEL:
     def get_info(self):
         return {
             "name": self.name,
-            "predict_fix": self.predict_fix,
+            "predict": self.predict_fix,
             "best_match": self.best_match,
-            "signal": self.signal
+            "position": self.position,  # ✅ Thêm
+            "stop_loss": self.stop_loss,  # ✅ Thêm
+            "price": self.price,
+            "take_profit": self.take_profit  # ✅ Thêm
         }
 
 
@@ -241,30 +269,7 @@ def split_10_stratified(X, y):
 
     return splits
 
-# def make_data(n=200, seed=42):
-#     np.random.seed(seed)
 
-#     # --- tạo chuỗi giá ---
-#     t = np.arange(n)
-
-#     trend = 0.05 * t
-#     seasonal = 2 * np.sin(0.2 * t)
-#     noise = np.random.normal(0, 0.5, n)
-
-#     prices = 10 + trend + seasonal + noise
-
-#     # --- tạo label ---
-#     # 1 = tăng, 0 = giảm
-#     y = (prices[1:] > prices[:-1]).astype(int)
-
-#     # --- tạo feature ---
-#     # dùng giá hiện tại và quá khứ gần nhất
-#     X = np.column_stack([
-#         prices[:-1],  # t-1
-#         prices[1:]    # t
-#     ])
-
-#     return X, y
 def LOAD():
     data, label = make_data()
 
@@ -284,17 +289,29 @@ def LOAD():
     # ===============================
     # 2. TRAIN RANDOM FOREST
     # ===============================
+    model_dict = {
+        "lda": LinearDiscriminantAnalysis,
+        "logistic": LogisticRegression,
+        "naive_bayes": GaussianNB,
+        "knn": KNeighborsClassifier,
+        "decision_tree": DecisionTreeClassifier,
+        "random_forest": RandomForestClassifier,
+        "gradient_boosting": GradientBoostingClassifier,
+        "adaboost": AdaBoostClassifier,
+        "extra_trees": ExtraTreesClassifier,
+        "mlp": MLPClassifier,
+    }
 
     models = []
     LONGS = []
 
-    for i in range(10):
+    for i, (name, Model) in enumerate(model_dict.items()):
         (dt, lb) = splits[i]
 
         models.append(
             MYMODEL(
-                f"LDA_{i+1}", 
-                LinearDiscriminantAnalysis(),
+                name, 
+                Model(),
                 dt, lb,
                 data_long, label_long,
                 data_formakehs, label_formakehs
