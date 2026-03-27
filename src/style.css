@@ -6,12 +6,12 @@
 
 
 .h300px {
-  height: 200px;
+  height: 350px;
 
 }
 .chart-box {
-  height: 200px;
-  min-height: 150px;
+  height: 350px;
+  min-height: 300px;
 }
   .progress-bar {
     transition: width 1.2s ease;

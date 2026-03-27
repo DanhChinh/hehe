@@ -79,79 +79,91 @@ DOM_connectPyserver.onclick = (e) => {
 
     let parent = document.getElementById('DOM_map');
     if (parent.innerHTML.trim() === "") {
+      let text = `<div class="row">`
       data.forEach((e, i) => {
-        parent.innerHTML += `
-        <div class="container my-3">
-  <div class="row g-3 align-items-stretch">
-    
-    <!-- Left info -->
-    <div class="col-md-2">
-      <div class="border rounded p-2 h-100">
+        text += `<div class="col-6">
+                        <div class="container my-3">
+                    <div class="row g-3 align-items-stretch">
 
-        <!-- Name -->
-        <div class="d-flex justify-content-between mb-2">
-          <span class="fw-semibold">Name:</span>
-          <span id="DOM_name_${i}">${e.name}</span>
-        </div>
+                        <!-- Left info -->
+                        <div class="col-md-3">
+                            <div class="border rounded p-2 h-100">
 
-        <!-- Predict -->
-        <div class="d-flex justify-content-between mb-2">
-          <span class="fw-semibold">Predict:</span>
-          <span id="DOM_predict_${i}" class="text-primary"></span>
-        </div>
+                                <!-- Name -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Name:</span>
+                                    <span id="DOM_name_${i}">${e.name}</span>
+                                </div>
 
-        <!-- Signal -->
-        <div class="d-flex justify-content-between mb-2">
-          <span class="fw-semibold">Signal:</span>
-          <span id="DOM_signal_${i}" class="text-success"></span>
-        </div>
+                                <!-- Predict -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Predict:</span>
+                                    <span id="DOM_predict_${i}" class="text-primary"></span>
+                                </div>
 
-        <!-- Value -->
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="fw-semibold">Value:</span>
-          <input 
-            id="DOM_value_${i}" 
-            type="text" 
-            class="form-control form-control-sm w-50"
-            placeholder="Enter"
-          />
-        </div>
+                                <!-- Trend -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Trend:</span>
+                                    <span id="DOM_trend_${i}" class="text-primary"></span>
+                                </div>
 
-      </div>
-    </div>
+                                <!-- Signal -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Signal:</span>
+                                    <span id="DOM_signal_${i}" class="text-success"></span>
+                                </div>
 
-    <!-- Middle -->
-    <div class="col-md-6">
-      <div id="hsFix_${i}" class="border rounded chart-box"></div>
-    </div>
 
-    <!-- Right chart -->
-    <div class="col-md-4">
-      <div id="chart_long_${i}" class="border rounded chart-box"></div>
-    </div>
+                                <!-- Value -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-semibold">Value:</span>
+                                    <input id="DOM_value_${i}" type="text" class="form-control form-control-sm w-50"
+                                       value="" />
+                                </div>
 
-  </div>
-</div>
+                            </div>
+                        </div>
+
+                        <!-- Middle -->
+                        <div class="col-md-9">
+                            <div id="hsFix_${i}" class="border rounded chart-box"></div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+        
         `
       })
+      text += `</div>`;
+      parent.innerHTML = text;
     }
+
+    let meanmodel = []
 
     data.forEach((d, i) => {
       let best_match = d.best_match
+      meanmodel.push(best_match.history_fix_cumsum)
       drawLineChart(
         document.getElementById(`hsFix_${i}`),
         best_match.history_fix_cumsum
       )
-      drawChartLong(
-        document.getElementById(`chart_long_${i}`),
-        best_match.local_data,
-        best_match.local_start_index,
-        best_match.match_data_local,
-        best_match.predicted_data_local,
-        best_match.best_index,
-        best_match.trend
-      );
+      // drawChartLong(
+      //   document.getElementById(`chart_long_${i}`),
+      //   best_match.local_data,
+      //   best_match.local_start_index,
+      //   best_match.match_data_local,
+      //   best_match.predicted_data_local,
+      //   best_match.best_index,
+      //   best_match.trend
+      // );
     });
+
+    meanmodel = columnAverages(meanmodel)
+    drawLineChart(
+      document.getElementById("meanmodel"),
+      meanmodel
+    )
+
 
     if (!sid) {
       return
@@ -164,11 +176,13 @@ DOM_connectPyserver.onclick = (e) => {
       // let name = d.name;
       let predict_fix = d.predict_fix;
       let signal = d.signal;
-      document.getElementById(`DOM_predict_${i}`).innerText= predict_fix;
-      document.getElementById(`DOM_signal_${i}`).innerText= signal;
+      let trend = d.best_match.trend;
+      document.getElementById(`DOM_predict_${i}`).innerText = predict_fix;
+      document.getElementById(`DOM_signal_${i}`).innerText = signal;
+      document.getElementById(`DOM_trend_${i}`).innerText = trend;
 
-      let value = +document.getElementById(`DOM_value_${i}`).value * 1000;
-      if (predict_fix && signal && value) {
+      let value = +document.getElementById(`DOM_value_${i}`).value;
+      if (predict_fix && value) {
 
         if (predict_fix == 1) {
           buy += value
@@ -185,13 +199,13 @@ DOM_connectPyserver.onclick = (e) => {
     }
     if (buy > sell) {
       TradeTable.buy(msg.sid, buy - sell);
-      TradeTable.matchBuy(msg.sid, buy - sell)
-      // sendMessageToGame(buy-sell, msg.sid, 1)
+      // TradeTable.matchBuy(msg.sid, buy - sell)
+      sendMessageToGame(buy-sell, msg.sid, 1)
 
     } else {
       TradeTable.sell(msg.sid, sell - buy);
-      TradeTable.matchSell(msg.sid, sell - buy)
-      // sendMessageToGame(sell-buy, msg.sid, 2)
+      // TradeTable.matchSell(msg.sid, sell - buy)
+      sendMessageToGame(sell-buy, msg.sid, 2)
 
     }
 
@@ -203,3 +217,19 @@ DOM_connectPyserver.onclick = (e) => {
 
 
 
+function columnAverages(A) {
+  const rows = A.length;
+  const cols = A[0].length;
+
+  let result = [];
+
+  for (let j = 0; j < cols; j++) {
+    let sum = 0;
+    for (let i = 0; i < rows; i++) {
+      sum += A[i][j];
+    }
+    result.push(sum / rows);
+  }
+
+  return result;
+}

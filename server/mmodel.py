@@ -3,9 +3,6 @@ import random as rd
 from handle_data import make_data, handle_progress, handle_last_30
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
 from zigzag_engine import ZigZagTradingBot
 
 def danh_gia_huong(data):
@@ -36,10 +33,32 @@ def danh_gia_huong(data):
         return "down"
     else:
         return "---"
-
+def check_pattern(arr, down_threshold=0.6, flat_threshold=0.05):
+    arr = np.array(arr, dtype=float)
+    n = len(arr)
+    
+    if n < 5:
+        return False
+    
+    split_idx = int(n * 0.8)
+    
+    first_part = arr[:split_idx]
+    last_part = arr[split_idx:]
+    
+    # kiểm tra dốc xuống
+    diffs = np.diff(first_part)
+    down_ratio = np.sum(diffs < 0) / len(diffs)
+    is_downtrend = down_ratio >= down_threshold
+    
+    # kiểm tra đi ngang
+    mean_last = np.mean(last_part)
+    std_last = np.std(last_part)
+    is_flat = (std_last / mean_last) <= flat_threshold if mean_last != 0 else False
+    
+    return is_downtrend and is_flat
 
 class MYMODEL:
-    def __init__(self, name, model):
+    def __init__(self, name, model, data_train, label_train, data_long, label_long, data_formakehs, label_formakehs):
         self.name = name
         self.model = model
         self.predict = None
@@ -49,17 +68,16 @@ class MYMODEL:
         self.history_fix = [0]
         self.history_fix_cumsum = np.array([])
         self.short_array = np.cumsum(self.history)
-        self.bot = ZigZagTradingBot(threshold=0.03)
-        self.signal = None
-    def load(self, data_train, label_train, data_long, label_long, data_last30, label_last30):
+        
+
         self.model.fit(data_train, label_train)
         pred_p2 = self.model.predict(data_long)
         compare = np.where(pred_p2 == label_long, 1, -1)
         self.LONG_ARRAY = np.cumsum(compare)
 
-        for i in range(len(data_last30)):
-            x = data_last30[i]
-            y_true = label_last30[i]
+        for i in range(len(data_formakehs)):
+            x = data_formakehs[i]
+            y_true = label_formakehs[i]
             self.find_best_match_ncc()
             self.make_predict(x)
             self.check(y_true)
@@ -210,32 +228,57 @@ def GET_ALL_INFO():
         data.append(model.get_info())
     return data
 
-def LOAD():
 
-    models_dict = {
-        "LDA": LinearDiscriminantAnalysis(),
-        "MLP": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500),
-        "AdaBoost": AdaBoostClassifier(n_estimators=100),
-        "KNN": KNeighborsClassifier(n_neighbors=5)
-    }
+from sklearn.model_selection import StratifiedKFold
+def split_10_stratified(X, y):
+    skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+
+    splits = []
+    for train_idx, test_idx in skf.split(X, y):
+        X_part = X[test_idx]
+        y_part = y[test_idx]
+        splits.append((X_part, y_part))
+
+    return splits
+
+# def make_data(n=200, seed=42):
+#     np.random.seed(seed)
+
+#     # --- tạo chuỗi giá ---
+#     t = np.arange(n)
+
+#     trend = 0.05 * t
+#     seasonal = 2 * np.sin(0.2 * t)
+#     noise = np.random.normal(0, 0.5, n)
+
+#     prices = 10 + trend + seasonal + noise
+
+#     # --- tạo label ---
+#     # 1 = tăng, 0 = giảm
+#     y = (prices[1:] > prices[:-1]).astype(int)
+
+#     # --- tạo feature ---
+#     # dùng giá hiện tại và quá khứ gần nhất
+#     X = np.column_stack([
+#         prices[:-1],  # t-1
+#         prices[1:]    # t
+#     ])
+
+#     return X, y
+def LOAD():
     data, label = make_data()
 
-    data_last30 = data[-15:]
-    label_last30 = label[-15:]
+    data_formakehs = data[-15:]
+    label_formakehs = label[-15:]
 
-    data_remain = data[:-15]
-    label_remain = label[:-15]
+    data_long = data[-1000:-15]
+    label_long = label[-1000:-15]
 
+    data = data[:-1000]
+    label = label[:-1000]
 
-    split_idx = int(len(label_remain) * 0.7)
+    splits = split_10_stratified(data, label)
 
-    # Part 1: Train
-    data_train = data_remain[:split_idx]
-    label_train = label_remain[:split_idx]
-
-    # Part 2: Long
-    data_long = data_remain[split_idx:]
-    label_long = label_remain[split_idx:]
 
 
     # ===============================
@@ -243,20 +286,23 @@ def LOAD():
     # ===============================
 
     models = []
-
-    for name, model in models_dict.items():
-        models.append(
-            MYMODEL(name, model)
-        )
-
-
     LONGS = []
-    for model in models:
-        model.load(
-            data_train, label_train,
-            data_long, label_long,
-            data_last30, label_last30
+
+    for i in range(10):
+        (dt, lb) = splits[i]
+
+        models.append(
+            MYMODEL(
+                f"LDA_{i+1}", 
+                LinearDiscriminantAnalysis(),
+                dt, lb,
+                data_long, label_long,
+                data_formakehs, label_formakehs
+                )
         )
+
+
+    for model in models:
         LONGS.append(model.LONG_ARRAY)
     return models, LONGS
 

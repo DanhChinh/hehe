@@ -2,7 +2,7 @@ const main_text = `
     <div class="row g-4">
 
         <!-- ================= MESSAGES ================= -->
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="card shadow-sm" style="height:160px">
                 <div class="card-header fw-bold">
                     💬 Tin nhắn mới
@@ -14,6 +14,10 @@ const main_text = `
                         <a href="#" class="text-decoration-none">Xem tất cả</a>
                     </div>
             </div>
+
+
+
+
 
                             <div class="card-body">
                                 <canvas id="candleChart" height="120"></canvas>
@@ -49,18 +53,20 @@ const main_text = `
 
 
         <!-- ================= CHARTS ================= -->
-        <div class="col-lg-8">
-                        <div class="col-md-12">
+        <div class="col-lg-9">
+                <div class="col-12" id="meanmodel" style="height: 350px;"></div>
+
+
+                <div class="col-md-12">
                     <div class="card shadow-sm">
                         <div class="card-header fw-bold">
                             📈 Thống kê truy cập
                         </div>
-                        <div class="card-body" id="DOM_map">
+                        <div class="card-body container" id="DOM_map">
                         </div>
                     </div>
                 </div>
         </div>
-
     </div>
 
 `
@@ -104,7 +110,7 @@ function buildCandles(arr) {
 
   return candles;
 }
-
+Chart
 let candleChart;
 let _Candle = [];
 

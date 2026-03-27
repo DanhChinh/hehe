@@ -4,8 +4,7 @@ function sendMessageToGame(b, sid, eid) {
   }
 
   let message = JSON.stringify(MESSAGE_WS.bet(b, sid, eid));
-  // addMessage(`${eid == 1 ? '💚' : '❤️'} ${b}`, "investors")
-
+  console.log(message)
   socket.send(message);
 }
 var MESSAGE_WS = {

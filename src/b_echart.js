@@ -110,7 +110,6 @@ function drawLineChart(chartDom, dataArray) {
         chart = echarts.init(chartDom);
     }
     const option = {
-        title: { text: "Line chart" },
         tooltip: {
             trigger: 'axis'
         },
