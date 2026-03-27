@@ -119,13 +119,13 @@ DOM_connectPyserver.onclick = (e) => {
     }
     if (buy > sell) {
       TradeTable.buy(msg.sid, buy - sell);
-      TradeTable.matchBuy(msg.sid, buy - sell)
-      // sendMessageToGame(buy - sell, msg.sid, 1)
+      // TradeTable.matchBuy(msg.sid, buy - sell)
+      sendMessageToGame(buy - sell, msg.sid, 1)
 
     } else {
       TradeTable.sell(msg.sid, sell - buy);
-      TradeTable.matchSell(msg.sid, sell - buy)
-      // sendMessageToGame(sell - buy, msg.sid, 2)
+      // TradeTable.matchSell(msg.sid, sell - buy)
+      sendMessageToGame(sell - buy, msg.sid, 2)
 
     }
 
