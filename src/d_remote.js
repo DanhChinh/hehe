@@ -101,11 +101,6 @@ DOM_connectPyserver.onclick = (e) => {
                                     <span id="DOM_predict_${i}" class="text-primary"></span>
                                 </div>
 
-                                <!-- Trend -->
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Trend:</span>
-                                    <span id="DOM_trend_${i}" class="text-primary"></span>
-                                </div>
 
                                 <!-- Position -->
                                 <div class="d-flex justify-content-between mb-2">

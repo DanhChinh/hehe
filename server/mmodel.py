@@ -225,9 +225,12 @@ class MYMODEL:
         }
 
     def get_info(self):
+        predict = None
+        if self.best_match.trend != "---":
+            predict = self.predict_fix
         return {
             "name": self.name,
-            "predict": self.predict_fix,
+            "predict": predict,
             "best_match": self.best_match,
             "position": self.position,  # ✅ Thêm
             "stop_loss": self.stop_loss,  # ✅ Thêm
