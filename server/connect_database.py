@@ -20,7 +20,6 @@ def get_all_data(api_url="https://cyan.io.vn/xg79/get_data_1.php"):
             break
         all_data.extend(data)
         params['page'] += 1  # Tiến sang trang tiếp theo
-        break
     return all_data
 
 

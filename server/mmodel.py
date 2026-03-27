@@ -127,9 +127,9 @@ class MYMODEL:
         else:
             self.history_fix.append(-1)
         self.history_fix_cumsum = np.cumsum(self.history_fix)
+        self.price = int(self.history_fix_cumsum[-1])
 
         if self.position == "BUY":
-            self.price = int(self.history_fix_cumsum[-1])
             if self.price >self.take_profit or self.price <self.stop_loss:
                 self.position = None
                 self.stop_loss = None 
