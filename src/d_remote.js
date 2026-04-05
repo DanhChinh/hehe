@@ -74,10 +74,10 @@ DOM_connectPyserver.onclick = (e) => {
 
   // --- Nhận index từ server (highlight) ---
   socket_io.on('info', (msg) => {
-    console.log(msg.data)
-    // updateTable(msg.data)
     let sid = msg.sid;
     let data = msg.data;
+
+    console.log(data)
 
     khoiTaoBang(data)
     khoiTaoMap(data)
@@ -101,8 +101,9 @@ DOM_connectPyserver.onclick = (e) => {
 
       let volume = +document.getElementById(`volume_${i}`).value * 1000;
       const predict = d.predict;
-      const position = d.position
-      if (predict && volume && position) {
+      const position = d.position;
+      const is_good = d.is_good;
+      if (is_good && volume && position) {
 
         if (predict == 1) {
           buy += volume
@@ -119,13 +120,12 @@ DOM_connectPyserver.onclick = (e) => {
     }
     if (buy > sell) {
       TradeTable.buy(msg.sid, buy - sell);
-      // TradeTable.matchBuy(msg.sid, buy - sell)
-      sendMessageToGame(buy - sell, msg.sid, 1)
+      (isPlay ? sendMessageToGame(buy - sell, msg.sid, 1) : TradeTable.matchBuy(msg.sid, buy - sell))
+      
 
     } else {
       TradeTable.sell(msg.sid, sell - buy);
-      // TradeTable.matchSell(msg.sid, sell - buy)
-      sendMessageToGame(sell - buy, msg.sid, 2)
+        (isPlay ? sendMessageToGame(sell - buy, msg.sid, 2) : TradeTable.matchSell(msg.sid, sell - buy))
 
     }
 
@@ -207,7 +207,7 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                             <td class="fw-semibold"></td>
                             <td></td>
                             <td>
-                                <input id="volume_${i}" type="number" class="form-control form-control-sm text-center" >
+                                <input id="volume_${i}" type="number" class="form-control form-control-sm text-center" value = "1">
                             </td>
                             <td>
                               <button id="btn_toggle_${i}"

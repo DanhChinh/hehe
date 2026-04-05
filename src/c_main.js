@@ -4,7 +4,6 @@ function sendMessageToGame(b, sid, eid) {
   }
 
   let message = JSON.stringify(MESSAGE_WS.bet(b, sid, eid));
-  console.log(message)
   socket.send(message);
 }
 var MESSAGE_WS = {

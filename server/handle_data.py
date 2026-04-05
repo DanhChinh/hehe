@@ -1,6 +1,8 @@
 import json, math
 import numpy as np
 import pandas as pd
+import os
+from handle_csv import load_from_csv, save_to_csv
 from connect_database import get_data_from_api, get_last_30_data
 def lam_tron_bac_thu_2(n):
     if n == 0:
@@ -42,6 +44,8 @@ def handle_progress(progress, isEnd = True):
     return [bc2, bc1, v2, v1]
 
 def make_data():
+    if os.path.exists('dataset.csv'):
+        return load_from_csv()
     df = get_data_from_api()
 
     if df is not None:
@@ -63,6 +67,7 @@ def make_data():
 
     print("Dữ liệu đã được xử lý thành công.")
     print("Kich thước dữ liệu:", data.shape)
+    save_to_csv(data, label)
     return data, label
 
 

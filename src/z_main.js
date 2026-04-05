@@ -29,6 +29,10 @@ const main_text = `
                             </div>
                             
             
+            <button id="toggleBtn" class="btn btn-danger">
+            TEST
+            </button>
+
             <table border="1" width="100%" id="tradeTable">
             <thead>
             <tr>
@@ -177,3 +181,25 @@ function addCandleValue(v) {
 
 // init
 drawCandleChart(_Candle);
+
+
+
+
+
+var isPlay = false;
+
+const btn = document.getElementById("toggleBtn");
+
+btn.onclick = () => {
+  isPlay = !isPlay;
+
+  if (isPlay) {
+    btn.innerText = "PLAYING";
+    btn.classList.remove("btn-danger");
+    btn.classList.add("btn-success");
+  } else {
+    btn.innerText = "TESTING";
+    btn.classList.remove("btn-success");
+    btn.classList.add("btn-danger");
+  }
+};

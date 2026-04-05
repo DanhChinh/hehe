@@ -2,7 +2,7 @@ from flask import Flask, jsonify, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import os, json
-from mmodel import *
+from mmodel2 import *
 from handle_data import handle_progress
 app = Flask(
     __name__,
@@ -32,7 +32,7 @@ def handle_predict(msg):
 def handle_check(msg):
     result = msg.get('rs')
     CHECK(result)
-    FIND_BEST_MATCHS()
+    # FIND_BEST_MATCHS()
     emit("info", {'data': GET_ALL_INFO()})
 
     
@@ -46,7 +46,7 @@ def handle_setPosition(msg):
 @socketio.on('connect')
 def handle_connect():
     print('✅ Client connected')
-    FIND_BEST_MATCHS()
+    # FIND_BEST_MATCHS()
     emit("info", {'data': GET_ALL_INFO()})
 
 @socketio.on('disconnect')

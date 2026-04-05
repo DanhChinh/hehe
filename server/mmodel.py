@@ -1,20 +1,15 @@
 import numpy as np
 import random as rd
 import json
-from handle_data import make_data, handle_progress, handle_last_30
+from handle_data import make_data
 
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
+
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import (
-    RandomForestClassifier,
-    GradientBoostingClassifier,
-    AdaBoostClassifier,
-    ExtraTreesClassifier
-)
-from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier)
+
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
 
 
 def get_price(arr):
@@ -93,6 +88,7 @@ class MYMODEL:
         self.model.fit(data_train, label_train)
         pred_p2 = self.model.predict(data_long)
         compare = np.where(pred_p2 == label_long, 1, -1)
+        print(f"{self.name} - compare: {compare}")
         self.LONG_ARRAY = np.cumsum(compare)
 
         for i in range(len(data_formakehs)):
@@ -104,7 +100,8 @@ class MYMODEL:
             self.check_fix(y_true)
 
     def make_predict(self, x_pred):
-        self.predict = 1 if int(self.model.predict([x_pred])[0]) ==1 else 2
+        x_pred = scaler.transform([x_pred])
+        self.predict = 1 if int(self.model.predict(x_pred)[0]) ==1 else 2
         self.predict_fix = self.predict
         if self.best_match["trend"] == "down":
             self.predict_fix = 1 if self.predict == 2 else 2
@@ -287,8 +284,8 @@ def GET_ALL_INFO():
 
 
 from sklearn.model_selection import StratifiedKFold
-def split_10_stratified(X, y):
-    skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+def split_n_stratified(X, y, n_splits=5):
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
     splits = []
     for train_idx, test_idx in skf.split(X, y):
@@ -301,6 +298,8 @@ def split_10_stratified(X, y):
 
 def LOAD():
     data, label = make_data()
+    data = scaler.fit_transform(data)
+
     lhs = 30
 
     data_formakehs = data[-lhs:]
@@ -312,7 +311,7 @@ def LOAD():
     data = data[:-1000]
     label = label[:-1000]
 
-    splits = split_10_stratified(data, label)
+    splits = split_n_stratified(data, label, n_splits=5)
 
 
 
@@ -320,16 +319,11 @@ def LOAD():
     # 2. TRAIN RANDOM FOREST
     # ===============================
     model_dict = {
-        "lda": LinearDiscriminantAnalysis,
-        "logistic": LogisticRegression,
-        "naive_bayes": GaussianNB,
         "knn": KNeighborsClassifier,
-        "decision_tree": DecisionTreeClassifier,
         "random_forest": RandomForestClassifier,
         "gradient_boosting": GradientBoostingClassifier,
-        "adaboost": AdaBoostClassifier,
         "extra_trees": ExtraTreesClassifier,
-        "mlp": MLPClassifier,
+        "decision_tree": DecisionTreeClassifier
     }
 
     models = []

@@ -83,7 +83,6 @@ const TradeTable = {
 
   // 🔵 Khớp mua
   matchBuy(id, qty) {
-    console.log('matchBuy',id, qty)
     if (!this.data[id]) return;
     this.data[id].matchBuy = qty;
     this.render();
@@ -91,7 +90,6 @@ const TradeTable = {
 
   // 🔵 Khớp bán
   matchSell(id, qty) {
-    console.log('matchSell',id, qty)
     if (!this.data[id]) return;
     this.data[id].matchSell = qty;
     this.render();
