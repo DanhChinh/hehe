@@ -34,18 +34,23 @@ class MYMODEL:
         self.iso_model.fit(X_train_for_iso)
 
     def make_predict(self, new_data_sample):
-        self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le)
+        self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le, threshold=0.55)
 
     def check(self, actual_result):
         if self.predict is None or self.predict['is_good'] is False:
             self.history.append(0)
+            self.predict = None
             return
 
         confidence = self.predict['confidence']
         if self.predict['label'] == actual_result:
+            print(f"✅ {self.name} dự đoán {self.predict['label']} đúng với độ tin cậy {confidence*100:.1f}%")
             self.history.append(confidence)
         else:
+            print(f"❌ {self.name} dự đoán {self.predict['label']} sai")
             self.history.append(-confidence)
+        self.predict = None
+
 
 
     def get_info(self):
@@ -53,15 +58,13 @@ class MYMODEL:
         return {
             "name": str(self.name),
             "predict": self.predict['label'] if self.predict else None,
+            "is_good": self.predict['is_good'] if self.predict else None,
+            "confidence": self.predict['confidence'] if self.predict else None,
             "position": self.position, 
             "stop_loss": float(self.stop_loss) if self.stop_loss  else None,
             "take_profit": float(self.take_profit) if self.take_profit  else None,
             "price": get_price(self.history),
-            "is_good": self.predict['is_good'] if self.predict else None,
-            "best_match":{
-                "history_fix_cumsum": np.cumsum(self.history).tolist(),
-                "trend": "up"
-            }
+            "history_cumsum": np.cumsum(self.history).tolist(),
         }
 
     def set_toggle_position(self):
@@ -127,7 +130,6 @@ def LOAD():
     model_dict = {
         "knn": KNeighborsClassifier,
         "random_forest": RandomForestClassifier,
-        "gradient_boosting": GradientBoostingClassifier,
         "extra_trees": ExtraTreesClassifier,
         "decision_tree": DecisionTreeClassifier
     }

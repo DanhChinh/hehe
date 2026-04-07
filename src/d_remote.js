@@ -101,14 +101,15 @@ DOM_connectPyserver.onclick = (e) => {
 
       let volume = +document.getElementById(`volume_${i}`).value * 1000;
       const predict = d.predict;
-      const position = d.position;
+      // const position = d.position;
       const is_good = d.is_good;
-      if (is_good && volume && position) {
+      const confidence = d.confidence;
+      if (is_good && volume) {
 
         if (predict == 1) {
-          buy += volume
+          buy += volume * confidence;
         } else if (predict == 2) {
-          sell += volume
+          sell += volume * confidence;
         } else {
 
         }
@@ -119,13 +120,15 @@ DOM_connectPyserver.onclick = (e) => {
       return
     }
     if (buy > sell) {
-      TradeTable.buy(msg.sid, buy - sell);
-      (isPlay ? sendMessageToGame(buy - sell, msg.sid, 1) : TradeTable.matchBuy(msg.sid, buy - sell))
+      let money = roundToThousand(buy - sell);
+      TradeTable.buy(sid, money);
+      (isPlay ? sendMessageToGame(money, sid, 1) : TradeTable.matchBuy(sid, money))
       
 
     } else {
-      TradeTable.sell(msg.sid, sell - buy);
-        (isPlay ? sendMessageToGame(sell - buy, msg.sid, 2) : TradeTable.matchSell(msg.sid, sell - buy))
+      let money = roundToThousand(sell - buy);
+      TradeTable.sell(sid, money);
+      (isPlay ? sendMessageToGame(money, sid, 2) : TradeTable.matchSell(sid, money))
 
     }
 
@@ -134,7 +137,9 @@ DOM_connectPyserver.onclick = (e) => {
 
 };
 
-
+function roundToThousand(num) {
+    return Math.round(num / 1000) * 1000;
+}
 
 
 function columnAverages(A) {
@@ -175,7 +180,9 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                     <thead class="table-light">
                         <tr>
                             <th>Name</th>
-                            <th>Trend</th>
+                            <th>Predict</th>
+                            <th>Good</th>
+                            <th>Confidence</th>
                             <th>Position</th>
                             <th>Stop Loss</th>
                             <th>Price</th>
@@ -201,10 +208,12 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
     mainText += `                        
                         <tr>
                             <td>${d.name}</td>
-                            <td class="text-primary"></td>
-                            <td class="text-success fw-bold"></td>
                             <td></td>
-                            <td class="fw-semibold"></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                             <td></td>
                             <td>
                                 <input id="volume_${i}" type="number" class="form-control form-control-sm text-center" value = "1">
@@ -264,31 +273,21 @@ function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
       // Index 0: Name (Đã có lúc khởi tạo, nhưng cập nhật luôn cho chắc)
       row.cells[0].innerText = d.name;
 
-      // Index 1: Predict (1 = BUY, 2 = SELL, khác = WAIT)
-      // let predictText = d.predict === 1 ? "BUY" : (d.predict === 2 ? "SELL" : "WAIT");
       row.cells[1].innerText = d.predict;
       row.cells[1].className = d.predict === 1 ? "text-primary" : (d.predict === 2 ? "text-danger" : "text-muted");
 
-      // Index 2: Position
-      row.cells[2].innerText = d.position;
-      // Đổi màu theo trạng thái Position
-      if (d.position === "BUY") row.cells[2].className = "text-success fw-bold";
-      else if (d.position === "SELL") row.cells[2].className = "text-danger fw-bold";
-      else row.cells[2].className = "text-secondary fw-bold";
+      row.cells[2].innerText = d.is_good ? "GOOD" : "BAD";
+      row.cells[2].className = d.is_good ? "text-success fw-bold" : "text-danger fw-bold";
 
-      // Index 3: Stop Loss
-      row.cells[3].innerText = d.stop_loss;
+      row.cells[3].innerText = (d.confidence * 100).toFixed(1) + "%";
+      row.cells[3].className = d.confidence >= 0.8 ? "text-success fw-bold" : (d.confidence >= 0.5 ? "text-warning fw-bold" : "text-danger fw-bold");
 
-      // Index 4: Price
-      row.cells[4].innerText = d.price;
+      row.cells[4].innerText = d.position;
+      row.cells[4].className = d.position === "BUY" ? "text-primary fw-semibold" : (d.position === "SELL" ? "text-danger fw-semibold" : "text-muted fw-semibold");
 
-      // Index 5: Take Profit
-      row.cells[5].innerText = d.take_profit;
-
-      // Index 6: Volume (Input - KHÔNG cập nhật giá trị từ data vào đây để tránh đè lên người dùng)
-      // Nếu bạn muốn cập nhật volume LẦN ĐẦU TIÊN thì dùng:
-      // let volInput = document.getElementById(`volume_${i}`);
-      // if (volInput && volInput.value === "") volInput.value = d.volume;
+      row.cells[5].innerText = d.stop_loss;
+      row.cells[6].innerText = d.price;
+      row.cells[7].innerText = d.take_profit;
 
 
       let btn = document.getElementById(`btn_toggle_${i}`);
@@ -308,10 +307,9 @@ function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
 
 function capNhatMap(data) {
   data.forEach((d, i) => {
-    let best_match = d.best_match
     drawLineChart(
       document.getElementById(`hsFix_${i}`),
-      best_match.history_fix_cumsum,
+      d.history_cumsum,
       d.name
     )
   });

@@ -84,47 +84,57 @@ def get_beauty_model(X_clean, y_clean, model = RandomForestClassifier(n_estimato
 
     return clf_final, X_train
 
-def evaluate_new_data(new_row, model, iso_model, le, threshold=0.6):
+def doidudoan(nhan):
+    if nhan == 1:
+        return 2 
+    return 1
+
+
+def evaluate_new_data(new_row, model, iso_model, le, threshold=0.8):
     """
-    Đánh giá xem một dòng dữ liệu mới có 'đáng tin' để dự đoán không.
+    Đánh giá xem một dòng dữ liệu mới có đạt tiêu chuẩn 'vàng' để dự đoán hay không.
     """
+    # Đảm bảo đầu vào là ma trận (1, 4)
     row = np.array(new_row).reshape(1, -1)
     
-    # 1. Kiểm tra Outlier (Tính bất thường)
-    is_outlier = iso_model.predict(row)[0]
+    # 1. Kiểm tra Outlier (Sử dụng Isolation Forest đã fit trên X_train sạch)
+    # 1 là bình thường (Inlier), -1 là bất thường (Outlier)
+    is_outlier_signal = iso_model.predict(row)[0]
     
-    # 2. Kiểm tra độ tự tin của Model (Xác suất dự đoán cao nhất)
+    # 2. Lấy xác suất dự đoán từ RandomForest
     probs = model.predict_proba(row)[0]
-    max_prob = np.max(probs)
+    max_prob = float(np.max(probs)) # Chuyển về float chuẩn
     predicted_class_idx = np.argmax(probs)
     
-    # Dịch ngược về nhãn gốc
+    # Dịch ngược về nhãn gốc từ LabelEncoder
     original_label = le.inverse_transform([predicted_class_idx])[0]
     
     reasons = []
-    is_good = True
     
-    if is_outlier == -1:
-        is_good = False
-        reasons.append("Dữ liệu lạ/ngoại lai (Outlier)")
+    # Kiểm tra điều kiện 1: Phải nằm trong phân phối quen thuộc
+    if is_outlier_signal == -1:
+        reasons.append("Outlier (Dữ liệu lạ)")
     
+    # Kiểm tra điều kiện 2: Độ tin cậy phải vượt ngưỡng (ví dụ 80%)
     if max_prob < threshold:
-        is_good = False
-        reasons.append(f"Độ tin cậy thấp ({max_prob*100:.1f}%)")
+        reasons.append(f"Confidence thấp ({max_prob*100:.1f}%)")
         
+    # CHỈ COI LÀ TỐT khi không có bất kỳ lý do loại bỏ nào
+    is_good = len(reasons) == 0
+    
     return {
         "is_good": is_good,
-        "label": int(original_label),
+        "label": int(doidudoan(original_label)), # Ép kiểu về int để an toàn cho JSON/Trading
         "confidence": max_prob,
         "reasons": reasons
     }
-
 # # --- THỰC THI TOÀN BỘ QUY TRÌNH ---
 
 # # 1. Load và làm sạch
+
+# from handle_data import make_data
 # X_raw, y_raw = make_data()
 # X_clean, y_clean, label_encoder = clean_data(X_raw, y_raw)
-
 # # Giải phóng bộ nhớ dữ liệu gốc
 # del X_raw, y_raw
 # gc.collect()
