@@ -23,9 +23,10 @@ def get_all_data(api_url="https://cyan.io.vn/xg79/get_data_1.php"):
     return all_data
 
 
-def get_data_from_api():
+def get_data_from_api(ignore_number = 1500):
     data_rows = get_all_data()
-    df = pd.DataFrame(data_rows)
+    rest = data_rows[:-ignore_number]
+    df = pd.DataFrame(rest)
 
     # Đảm bảo cột 'progress' là kiểu object, các cột còn lại là int64
     for col in df.columns:
@@ -41,19 +42,27 @@ def get_data_from_api():
 
 
 
-def get_last_30_data():
-    url = "https://cyan.io.vn/xg79/get_last_30.php"
+def get_last_n(n=1500):
+    # Đường dẫn tới file PHP mới (hoặc file cũ đã sửa)
+    url = "https://cyan.io.vn/xg79/get_last_n.php"
+    
+    # Truyền tham số n vào dictionary params
+    params = {'n': n}
 
     try:
-        response = requests.get(url, timeout=5)
+        # Gửi request kèm theo params (?n=...)
+        response = requests.get(url, params=params, timeout=5)
 
-        # kiểm tra HTTP status
+        # Kiểm tra lỗi HTTP (404, 500, v.v.)
         response.raise_for_status()
 
-        data = response.json()   # chuyển JSON → Python list
+        # Chuyển đổi JSON thành Python list
+        data = response.json()
 
         return data
 
     except requests.exceptions.RequestException as e:
-        print("Lỗi khi lấy dữ liệu:", e)
+        print(f"Lỗi khi lấy {n} dòng dữ liệu:", e)
         return []
+
+

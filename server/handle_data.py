@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 from handle_csv import load_from_csv, save_to_csv
-from connect_database import get_data_from_api, get_last_30_data
+from connect_database import get_data_from_api
 def lam_tron_bac_thu_2(n):
     if n == 0:
         return 0
@@ -70,16 +70,3 @@ def make_data():
     save_to_csv(data, label)
     return data, label
 
-
-def handle_last_30():
-    data_rows = get_last_30_data()
-    sid = []
-    data = []
-    label = []
-    for row in data_rows:
-        formater = handle_progress(row['progress'])
-        if formater:
-            sid.append(row['sid'])
-            data.append(formater)
-            label.append(1 if int(row['d1'])+int(row['d2'])+int(row['d3']) > 10 else 2)
-    return np.array(sid), np.array(data), np.array(label)

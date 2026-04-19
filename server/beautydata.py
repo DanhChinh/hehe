@@ -132,15 +132,15 @@ def evaluate_new_data(new_row, model, iso_model, le, threshold=0.8):
 
 # # 1. Load và làm sạch
 
-# from handle_data import make_data
-# X_raw, y_raw = make_data()
-# X_clean, y_clean, label_encoder = clean_data(X_raw, y_raw)
+from handle_data import make_data
+X_raw, y_raw = make_data()
+X_clean, y_clean, label_encoder = clean_data(X_raw, y_raw)
 # # Giải phóng bộ nhớ dữ liệu gốc
 # del X_raw, y_raw
 # gc.collect()
 
 # # 2. Huấn luyện mô hình chuẩn
-# clf_final, X_train_for_iso = get_beauty_model(X_clean, y_clean)
+clf_final, X_train_for_iso = get_beauty_model(X_clean, y_clean)
 
 # # 3. Xây dựng bộ lọc Outlier dựa trên vùng dữ liệu Train sạch
 # iso_forest = IsolationForest(contamination=0.01, random_state=42)

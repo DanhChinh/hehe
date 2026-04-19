@@ -2,12 +2,13 @@ import numpy as np
 import random as rd
 import json
 from handle_data import make_data
-
+# from q import QTradingBot
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier)
+from sklearn.ensemble import RandomForestClassifier
 
+from state_score import StateScoreAnalyzer
 from beautydata import *
 
 
@@ -27,6 +28,16 @@ class MYMODEL:
         self.take_profit = None
         self.predict = None
         self.le = le
+        # self.bot = QTradingBot(window_size=10, epsilon=0.1, filename=f"qtable/{name}.json")
+        self.analyzer = StateScoreAnalyzer(window_size=5, horizon_size=10)
+        history_buffer = []
+        with open(f"history/{name}.json", 'r', encoding='utf-8') as f:
+            history_buffer = json.load(f)
+        self.analyzer.fit(history_buffer)
+        print(f"--- Đã huấn luyện StateScoreAnalyzer cho mô hình {name} ---")
+        print(f"Knowledge Base Sample:\n{self.analyzer.knowledge_base.head()}\n")
+        self.avg_future_score = 0
+
 
         # Khởi tạo mô hình chính và bộ lọc Outlier
         self.clf_final, X_train_for_iso = get_beauty_model(X_clean, y_clean, model)
@@ -35,6 +46,8 @@ class MYMODEL:
 
     def make_predict(self, new_data_sample):
         self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le, threshold=0.55)
+        current_observation = self.history[-5:] if len(self.history) >= 5 else self.history
+        self.avg_future_score = self.analyzer.get_score_by_state(current_observation)['avg_future_score']
 
     def check(self, actual_result):
         if self.predict is None or self.predict['is_good'] is False:
@@ -44,13 +57,10 @@ class MYMODEL:
 
         confidence = self.predict['confidence']
         if self.predict['label'] == actual_result:
-            print(f"✅ {self.name} dự đoán {self.predict['label']} đúng với độ tin cậy {confidence*100:.1f}%")
-            self.history.append(confidence)
+            self.history.append(1)
         else:
-            print(f"❌ {self.name} dự đoán {self.predict['label']} sai")
-            self.history.append(-confidence)
+            self.history.append(-1)
         self.predict = None
-
 
 
     def get_info(self):
@@ -65,6 +75,7 @@ class MYMODEL:
             "take_profit": float(self.take_profit) if self.take_profit  else None,
             "price": get_price(self.history),
             "history_cumsum": np.cumsum(self.history).tolist(),
+            "avg_future_score": self.avg_future_score
         }
 
     def set_toggle_position(self):
@@ -130,7 +141,6 @@ def LOAD():
     model_dict = {
         "knn": KNeighborsClassifier,
         "random_forest": RandomForestClassifier,
-        "extra_trees": ExtraTreesClassifier,
         "decision_tree": DecisionTreeClassifier
     }
 
