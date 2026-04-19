@@ -1,4 +1,4 @@
-node_modules/
-server/pythonenv/
-server/__pycache__/
-server/dataset.csv
+backend/__pycache__/
+backend/data_local.csv
+
+
