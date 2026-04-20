@@ -86,7 +86,7 @@ def get_beauty_model(X_clean, y_clean, model = RandomForestClassifier(n_estimato
 
 def doidudoan(nhan):
     if nhan == 1:
-        return 2 
+        return 2
     return 1
 
 
@@ -128,32 +128,14 @@ def evaluate_new_data(new_row, model, iso_model, le, threshold=0.8):
         "confidence": max_prob,
         "reasons": reasons
     }
-# # --- THỰC THI TOÀN BỘ QUY TRÌNH ---
 
-# # 1. Load và làm sạch
+# from handle_db import load_db_as_df, update_local_db
 
-from handle_data import make_data
-X_raw, y_raw = make_data()
-X_clean, y_clean, label_encoder = clean_data(X_raw, y_raw)
-# # Giải phóng bộ nhớ dữ liệu gốc
-# del X_raw, y_raw
-# gc.collect()
 
-# # 2. Huấn luyện mô hình chuẩn
-clf_final, X_train_for_iso = get_beauty_model(X_clean, y_clean)
+# df = load_db_as_df()
 
-# # 3. Xây dựng bộ lọc Outlier dựa trên vùng dữ liệu Train sạch
-# iso_forest = IsolationForest(contamination=0.01, random_state=42)
-# iso_forest.fit(X_train_for_iso)
+# progress = np.stack(df['progress'].values)
 
-# # 4. Thử nghiệm dự đoán dữ liệu mới
-# print("\n--- Đánh giá mẫu dữ liệu mới ---")
-# new_data_sample = [0.5, 1.2, -0.3, 0.8] # Thay bằng dữ liệu thực tế của bạn
-# eval_result = evaluate_new_data(new_data_sample, clf_final, iso_forest, label_encoder)
+# print(progress)
 
-# if eval_result["is_good"]:
-#     print(f"✅ Dữ liệu TỐT.")
-#     print(f"   Dự đoán: {eval_result['label']}")
-#     print(f"   Độ tin cậy: {eval_result['confidence']*100:.2f}%")
-# else:
-#     print(f"❌ Dữ liệu NGHI NGỜ: {', '.join(eval_result['reasons'])}")
+#tai sao ket qua tra ve lai la [list([,,,,]), list([,,,]), ...] thay vi [[,,,],[,,,],...]

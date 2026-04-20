@@ -3,11 +3,11 @@ from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import os, json
 from mmodel2 import *
-from handle_data import handle_progress
+from handle_db import handle_progress
 app = Flask(
     __name__,
     template_folder="../",
-    static_folder="../src"
+    static_folder="../frontend"
     )
 CORS(app)  # Bật CORS cho toàn bộ ứng dụng
 socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả nguồn

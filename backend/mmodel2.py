@@ -1,16 +1,13 @@
 import numpy as np
 import random as rd
 import json
-from handle_data import make_data
-# from q import QTradingBot
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-from state_score import StateScoreAnalyzer
 from beautydata import *
-
+from handle_db import load_db_as_df, handle_progress
 
 def get_price(arr):
     if len(arr)<1:
@@ -28,15 +25,6 @@ class MYMODEL:
         self.take_profit = None
         self.predict = None
         self.le = le
-        # self.bot = QTradingBot(window_size=10, epsilon=0.1, filename=f"qtable/{name}.json")
-        self.analyzer = StateScoreAnalyzer(window_size=5, horizon_size=10)
-        history_buffer = []
-        with open(f"history/{name}.json", 'r', encoding='utf-8') as f:
-            history_buffer = json.load(f)
-        self.analyzer.fit(history_buffer)
-        print(f"--- Đã huấn luyện StateScoreAnalyzer cho mô hình {name} ---")
-        print(f"Knowledge Base Sample:\n{self.analyzer.knowledge_base.head()}\n")
-        self.avg_future_score = 0
 
 
         # Khởi tạo mô hình chính và bộ lọc Outlier
@@ -46,8 +34,8 @@ class MYMODEL:
 
     def make_predict(self, new_data_sample):
         self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le, threshold=0.55)
-        current_observation = self.history[-5:] if len(self.history) >= 5 else self.history
-        self.avg_future_score = self.analyzer.get_score_by_state(current_observation)['avg_future_score']
+        # current_observation = self.history[-5:] if len(self.history) >= 5 else self.history
+        # self.avg_future_score = self.analyzer.get_score_by_state(current_observation)['avg_future_score']
 
     def check(self, actual_result):
         if self.predict is None or self.predict['is_good'] is False:
@@ -74,8 +62,7 @@ class MYMODEL:
             "stop_loss": float(self.stop_loss) if self.stop_loss  else None,
             "take_profit": float(self.take_profit) if self.take_profit  else None,
             "price": get_price(self.history),
-            "history_cumsum": np.cumsum(self.history).tolist(),
-            "avg_future_score": self.avg_future_score
+            "history_cumsum": np.cumsum(self.history).tolist()
         }
 
     def set_toggle_position(self):
@@ -131,13 +118,11 @@ def GET_ALL_INFO():
 
 
 def LOAD():
-    X_raw, y_raw = make_data()
-    X_clean, y_clean, le = clean_data(X_raw, y_raw)
 
+    df = load_db_as_df()#.iloc[:-800]
+    print(df)
+    X_clean, y_clean, le = clean_data(np.stack(df['progress'].values), df['label'].to_numpy())
 
-    # ===============================
-    # 2. TRAIN RANDOM FOREST
-    # ===============================
     model_dict = {
         "knn": KNeighborsClassifier,
         "random_forest": RandomForestClassifier,
