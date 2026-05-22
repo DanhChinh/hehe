@@ -14,6 +14,25 @@ def get_price(arr):
         return 0
     return int(np.cumsum(arr)[-1])
 
+class Player:
+    def __init__(self):
+        self.bet = 1
+        self.counter_profit = 0
+        self.total_profit = 0
+        self.take_profit = 5
+    def check(self, isWin):
+        if isWin:
+            self.total_profit += self.bet
+            self.counter_profit +=1
+            if self.counter_profit == self.take_profit:
+                self.bet = 1
+                self.counter_profit = 0
+        else:
+            self.total_profit -= self.bet
+            self.counter_profit -=1
+            if self.counter_profit == -self.take_profit:
+                self.bet *=2
+                self.counter_profit = 0
 
 
 class MYMODEL:
@@ -32,6 +51,8 @@ class MYMODEL:
         self.iso_model = IsolationForest(contamination=0.01, random_state=42)
         self.iso_model.fit(X_train_for_iso)
 
+        self.p = Player()
+
     def make_predict(self, new_data_sample):
         self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le, threshold=0.55)
         # current_observation = self.history[-5:] if len(self.history) >= 5 else self.history
@@ -46,8 +67,10 @@ class MYMODEL:
         confidence = self.predict['confidence']
         if self.predict['label'] == actual_result:
             self.history.append(1)
+            self.p.check(True)
         else:
             self.history.append(-1)
+            self.p.check(False)
         self.predict = None
 
 
@@ -62,7 +85,11 @@ class MYMODEL:
             "stop_loss": float(self.stop_loss) if self.stop_loss  else None,
             "take_profit": float(self.take_profit) if self.take_profit  else None,
             "price": get_price(self.history),
-            "history_cumsum": np.cumsum(self.history).tolist()
+            "history_cumsum": np.cumsum(self.history).tolist(),
+            "p_bet": self.p.bet,
+            "p_counter_profit": self.p.counter_profit,
+            "p_total_profit": self.p.total_profit
+            
         }
 
     def set_toggle_position(self):
@@ -86,16 +113,23 @@ class MYMODEL:
 
 
 def PREDICT(x_pred):
+    models = _get_or_load_models()
     for model in models:
         model.make_predict(x_pred)
 def CHECK(result):
+    models = _get_or_load_models()
     for model in models:
         model.check(result)
 def SET_POSITON(index):
+    models = _get_or_load_models()
+
     models[index].set_toggle_position()
 
 
 def GET_ALL_INFO():
+    models = _get_or_load_models()
+
+
     data = []
     for model in models:
         data.append(model.get_info())
@@ -142,7 +176,13 @@ def LOAD():
                 )
         )
 
-
+    print("🚀 Model đã được khởi tạo lần đầu tiên và duy nhất!")
     return models
 
-models = LOAD()
+models = None
+def _get_or_load_models():
+    """Hàm nội bộ giúp kiểm tra và giữ duy nhất 1 instance của models"""
+    global models
+    if models is None:
+        models = LOAD() # Chỉ chạy đúng 1 lần duy nhất trong toàn bộ vòng đời app
+    return models

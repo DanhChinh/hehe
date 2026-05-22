@@ -103,7 +103,7 @@ DOM_connectPyserver.onclick = (e) => {
       const predict = d.predict;
       // const position = d.position;
       const is_good = d.is_good;
-      const confidence = d.confidence;
+      const confidence = d.p_bet;
       if (is_good && volume) {
 
         if (predict == 1) {
@@ -189,6 +189,12 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                             <th>Take Profit</th>
                             <th>Volume</th>
                             <th>Action</th>
+
+                            <th>base</th>
+                            <th>counter</th>
+                            <th>total</th>
+
+
                         </tr>
                     </thead>
 
@@ -226,6 +232,11 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                               BUY
                             </button>
                           </td>
+
+                            <td></td>
+                            <td></td>
+                            <td></td>
+
                         </tr>`
 
   });
@@ -288,6 +299,11 @@ function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
       row.cells[5].innerText = d.stop_loss;
       row.cells[6].innerText = d.price;
       row.cells[7].innerText = d.take_profit;
+
+      row.cells[10].innerText = d.p_bet;
+      row.cells[11].innerText = d.p_counter_profit;
+      row.cells[12].innerText = d.p_total_profit;
+
 
 
       let btn = document.getElementById(`btn_toggle_${i}`);
