@@ -16,7 +16,7 @@ def get_price(arr):
 
 class Player:
     def __init__(self):
-        self.bet = 1
+        self.bet = 128
         self.counter_profit = 0
         self.total_profit = 0
         self.take_profit = 5
@@ -25,13 +25,13 @@ class Player:
             self.total_profit += self.bet
             self.counter_profit +=1
             if self.counter_profit == self.take_profit:
-                self.bet = 1
+                self.bet*=2
                 self.counter_profit = 0
         else:
             self.total_profit -= self.bet
             self.counter_profit -=1
             if self.counter_profit == -self.take_profit:
-                self.bet *=2
+                self.bet *=0.5
                 self.counter_profit = 0
 
 
