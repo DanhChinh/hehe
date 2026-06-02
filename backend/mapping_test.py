@@ -7,6 +7,10 @@ from xgboost import XGBClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
 
+def stop():
+    print("Đã dừng chương trình.")
+    exit()
+
 warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
 
@@ -156,7 +160,10 @@ class MetaMappingEngine:
 # =========================================================
 def analyze_multi_models(df):
     n = len(df)
-    p1, p2, p3 = df.iloc[:int(n*0.5)], df.iloc[int(n*0.5):int(n*0.8)], df.iloc[int(n*0.8):]
+    p1, p2, p3 = df.iloc[:int(n*0.7)], df.iloc[int(n*0.7):int(n*0.9)], df.iloc[int(n*0.9):]
+    print(f"Phân chia dữ liệu: Part 1 = {len(p1)} | Part 2 = {len(p2)} | Part 3 = {len(p3)}")
+    # stop()
+
 
     # Danh sách các "đấu sĩ"
     engines = [
@@ -195,6 +202,7 @@ def analyze_multi_models(df):
     plt.show()
 
 if __name__ == "__main__":
-    data = load_data()
+    data = load_data().tail(5000)
+    print(f"Tổng số phiên đã tải: {len(data)}")
     if not data.empty:
         analyze_multi_models(data)
