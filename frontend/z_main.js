@@ -14,11 +14,6 @@ const main_text = `
                         <a href="#" class="text-decoration-none">Xem tất cả</a>
                     </div>
             </div>
-
-
-
-
-
                             <div class="card-body">
                                 <canvas id="candleChart" height="120"></canvas>
                             </div>
@@ -29,8 +24,11 @@ const main_text = `
                             </div>
                             
             
-            <button id="toggleBtn" class="btn btn-danger">
+            <button id="toggleBtn" class="btn btn-outline-secondary w-25">
             TEST
+            </button>
+            <button id="toggleBtnShow" class="btn btn-outline-secondary w-25">
+            HIDDEN
             </button>
 
             <table border="1" width="100%" id="tradeTable">
@@ -187,19 +185,20 @@ drawCandleChart(_Candle);
 
 
 var isPlay = false;
+var isShow = true;
 
 const btn = document.getElementById("toggleBtn");
+const btnShow = document.getElementById("toggleBtnShow");
+const tradeTable = document.getElementById("tradeTable");
 
 btn.onclick = () => {
   isPlay = !isPlay;
-
-  if (isPlay) {
-    btn.innerText = "PLAYING";
-    btn.classList.remove("btn-danger");
-    btn.classList.add("btn-success");
-  } else {
-    btn.innerText = "TESTING";
-    btn.classList.remove("btn-success");
-    btn.classList.add("btn-danger");
-  }
+  btn.classList.toggle("btn-outline-success");
+  btn.innerText= isPlay ? "PLAYING" : "TESTING";
 };
+
+btnShow.onclick = () => {
+  isShow = !isShow;
+  tradeTable.classList.toggle("to_left");
+  btnShow.innerText = isShow ? "HIDDEN" : "SHOW";
+}

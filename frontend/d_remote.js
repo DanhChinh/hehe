@@ -101,15 +101,13 @@ DOM_connectPyserver.onclick = (e) => {
 
       let volume = +document.getElementById(`volume_${i}`).value * 1000;
       const predict = d.predict;
-      // const position = d.position;
-      const is_good = d.is_good;
-      const confidence = d.p_bet;
-      if (is_good && volume) {
+      const expected_bet = d.expected_bet;
+      if (predict && volume) {
 
         if (predict == 1) {
-          buy += volume * confidence;
+          buy += volume * expected_bet;
         } else if (predict == 2) {
-          sell += volume * confidence;
+          sell += volume * expected_bet;
         } else {
 
         }
@@ -179,22 +177,15 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
 
                     <thead class="table-light">
                         <tr>
-                            <th>Name</th>
-                            <th>Predict</th>
-                            <th>Good</th>
-                            <th>Confidence</th>
-                            <th>Position</th>
-                            <th>Stop Loss</th>
-                            <th>Price</th>
-                            <th>Take Profit</th>
+                            <th>model_name</th>
+                            <th>predict</th>
+                            <th>expected_bet</th>
+                            <th>current_position_size</th>
+                            <th>accumulated_profit</th>
+                            <th>streak_counter Loss</th>
+
                             <th>Volume</th>
                             <th>Action</th>
-
-                            <th>base</th>
-                            <th>counter</th>
-                            <th>total</th>
-
-
                         </tr>
                     </thead>
 
@@ -219,8 +210,6 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td></td>
-                            <td></td>
                             <td>
                                 <input id="volume_${i}" type="number" class="form-control form-control-sm text-center" value = "1">
                             </td>
@@ -232,11 +221,6 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                               BUY
                             </button>
                           </td>
-
-                            <td></td>
-                            <td></td>
-                            <td></td>
-
                         </tr>`
 
   });
@@ -282,29 +266,17 @@ function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
     let row = rows[i];
     if (row) {
       // Index 0: Name (Đã có lúc khởi tạo, nhưng cập nhật luôn cho chắc)
-      row.cells[0].innerText = d.name;
+      row.cells[0].innerText = d.model_name;
 
       row.cells[1].innerText = d.predict;
       row.cells[1].className = d.predict === 1 ? "text-primary" : (d.predict === 2 ? "text-danger" : "text-muted");
 
-      row.cells[2].innerText = d.is_good ? "GOOD" : "BAD";
-      row.cells[2].className = d.is_good ? "text-success fw-bold" : "text-danger fw-bold";
+      row.cells[2].innerText = d.expected_bet;
 
-      row.cells[3].innerText = (d.confidence * 100).toFixed(1) + "%";
-      row.cells[3].className = d.confidence >= 0.8 ? "text-success fw-bold" : (d.confidence >= 0.5 ? "text-warning fw-bold" : "text-danger fw-bold");
+      row.cells[3].innerText = d.current_position_size
+      row.cells[4].innerText = d.accumulated_profit;
 
-      row.cells[4].innerText = d.position;
-      row.cells[4].className = d.position === "BUY" ? "text-primary fw-semibold" : (d.position === "SELL" ? "text-danger fw-semibold" : "text-muted fw-semibold");
-
-      row.cells[5].innerText = d.stop_loss;
-      row.cells[6].innerText = d.price;
-      row.cells[7].innerText = d.take_profit;
-
-      row.cells[10].innerText = d.p_bet;
-      row.cells[11].innerText = d.p_counter_profit;
-      row.cells[12].innerText = d.p_total_profit;
-
-
+      row.cells[5].innerText = d.streak_counter;
 
       let btn = document.getElementById(`btn_toggle_${i}`);
       btn.innerText = d.position === "BUY" ? "SELL" : "BUY";
@@ -325,7 +297,7 @@ function capNhatMap(data) {
   data.forEach((d, i) => {
     drawLineChart(
       document.getElementById(`hsFix_${i}`),
-      d.history_cumsum,
+      d.fixed_equity_curve,
       d.name
     )
   });

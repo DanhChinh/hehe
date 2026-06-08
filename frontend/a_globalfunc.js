@@ -192,5 +192,5 @@ const formatNumber = (amount, locale = 'vi-VN') => {
     style: 'decimal',
     minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
     maximumFractionDigits: 2  // Số chữ số thập phân tối đa
-  }).format(amount);
+  }).format(amount/1000);
 };

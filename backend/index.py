@@ -2,8 +2,8 @@ from flask import Flask, jsonify, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import os, json
-from mmodel2 import *
-from handle_db import handle_progress
+from mmodel import *
+from handle_db import handle_progress 
 app = Flask(
     __name__,
     template_folder="../",
@@ -20,6 +20,7 @@ def handle_predict(msg):
     print(f"_______________{msg.get('sid')}__________________")
     progress = msg.get('progress')
     x_pred = handle_progress(progress, isEnd=False)
+    print("x_pred:", x_pred)
     PREDICT(x_pred)
     emit('info', 
         {

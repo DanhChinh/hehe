@@ -7,7 +7,7 @@ function sendMessageToGame(b, sid, eid) {
   socket.send(message);
 }
 var MESSAGE_WS = {
-  url: "wss://mynylifes.hytsocesk.com/websocket_live",
+  url: "wss://mynisketgw.hytsocesk.com/websocket",
   login: (accessToken) => [
     1,
     "MiniGame2",

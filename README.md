@@ -1,7 +1,5 @@
 # hehe 
-    This is a sample HTML document. It contains a simple structure with a head and body section. 
-    The head includes metadata and the title of the document, while the body contains the content that will be displayed on the webpage.
-    lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    dự án gồm 2 phần chính: 
+    backend: sử dụng python để làm máy chủ xử lý, gửr, nhận dữ liệu tới phần backend
+    frontend: hiện thị giao diện, nhận, gửi dữ liệu tới backend và 1 máy chủ khác 
+    ngoài ra còn 1 file autocommit.bat để commit code lên github 1 cách nhanh chóng
