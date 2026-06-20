@@ -34,18 +34,20 @@ const main_text = `
             <table border="1" width="100%" id="tradeTable">
             <thead>
             <tr>
-            <th>Mã</th>
-            <th>Mua</th>
-            <th>Khớp</th>
-            <th>Bán</th>
-            <th>Khớp</th>
-            <th>Thị trường</th>
-            <th>Lãi</th>
-            <th>Tổng</th>
+            <th>Id</th>
+            <th>Buy</th>
+            <th>Match</th>
+            <th>Sell</th>
+            <th>Match</th>
+            <th>Market</th>
+            <th>Sessionp</th>
+            <th>Netp</th>
             </tr>
             </thead>
             <tbody></tbody>
             </table>
+
+            <span class="badge bg-primary" id=mgs_As_gold>0</span>
             
 
 
@@ -110,26 +112,33 @@ function buildCandles(arr) {
 
   return candles;
 }
-Chart
+
+// Chart
 let candleChart;
 let _Candle = [];
 
 function drawCandleChart(dataArr) {
   const candles = buildCandles(dataArr);
-
   const candlesSlice = candles.slice(-10);
 
   const labels = candlesSlice.map((_, i) => `${i + 1}`);
-
-  // ✅ TẤT CẢ GIÁ TRỊ DƯƠNG
   const values = candlesSlice.map(c => c.length);
-
   const colors = candlesSlice.map(c =>
     c.type === 'up' ? '#212121' : '#a29bfe'
   );
 
-  if (candleChart) candleChart.destroy();
+  // 🚀 TỐI ƯU: Nếu chart đã tồn tại, chỉ cập nhật data và render lại
+  if (candleChart) {
+    candleChart.data.labels = labels;
+    candleChart.data.datasets[0].data = values;
+    candleChart.data.datasets[0].backgroundColor = colors;
+    
+    // 'none' giúp cập nhật ngay lập tức, không tốn CPU chạy hiệu ứng co giãn (animation)
+    candleChart.update('none'); 
+    return;
+  }
 
+  // Khởi tạo lần đầu tiên nếu chưa có chart
   candleChart = new Chart(
     document.getElementById('candleChart'),
     {
@@ -141,8 +150,6 @@ function drawCandleChart(dataArr) {
             label: 'Candlestick Strength',
             data: values,
             backgroundColor: colors,
-
-            // optional styling
             borderRadius: 4,
             categoryPercentage: 1.0,
             barPercentage: 1.0
@@ -156,15 +163,11 @@ function drawCandleChart(dataArr) {
         },
         scales: {
           x: {
-            grid: {
-              display: false
-            }
+            grid: { display: false }
           },
           y: {
             beginAtZero: true,
-            grid: {
-              color: '#eee'
-            }
+            grid: { color: '#eee' }
           }
         }
       }

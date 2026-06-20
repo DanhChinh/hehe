@@ -29,7 +29,7 @@ def handle_progress(progress, isEnd = True):
     progress_arr = json.loads(progress)
     if isEnd and len(progress_arr) < 49 and len(progress_arr) > 63:
         return None
-    sublist = progress_arr[30:34]
+    sublist = progress_arr[25:29]
     data = []
     bc2 = []
     v2 = []
@@ -45,7 +45,9 @@ def handle_progress(progress, isEnd = True):
     bc1 = tinh_trung_binh_lam_tron_bac_thu_2(bc1)
     v2 = tinh_trung_binh_lam_tron_bac_thu_2(v2)//1000000
     v1 = tinh_trung_binh_lam_tron_bac_thu_2(v1)//1000000
-    return [bc2, bc1, v2, v1]
+    if bc1 and bc2 and v1 and v2:
+        return [round(bc1/(bc1+bc2), 2), round(v1/(v1+v2), 2)]
+    return None
 
 def update_local_db():
     """Vòng lặp lấy toàn bộ dữ liệu từ API cho đến khi hết sạch (Hỗ trợ Dynamic Columns)"""

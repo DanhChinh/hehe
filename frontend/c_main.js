@@ -3,8 +3,10 @@ function sendMessageToGame(b, sid, eid) {
     return 0;
   }
 
-  let message = JSON.stringify(MESSAGE_WS.bet(b, sid, eid));
+  let message = JSON.stringify(MESSAGE_WS.bet(b, sid, eid))
+  addMessage(b, eid)
   socket.send(message);
+  // console.log(message)
 }
 var MESSAGE_WS = {
   url: "wss://mynisketgw.hytsocesk.com/websocket",
@@ -83,7 +85,7 @@ function socket_connect() {
 
         record.progress.push(JSON.parse(JSON.stringify(mgs.bs)));
 
-        if (record.progress.length === 35) {
+        if (record.progress.length === 30) {
           progress35 = JSON.stringify(record.progress)
           socket_io.emit("predict", {
             'sid': record.sid,
@@ -101,7 +103,7 @@ function socket_connect() {
         record.d3 = mgs.d3;
         sendDataToThuhuyenFun(JSON.parse(JSON.stringify(record)));
         let rs = mgs.d1 + mgs.d2 + mgs.d3;
-        TradeTable.close(record.sid, `${rs > 10 ? 'len' : 'xuong'}`);
+        TradeTable.close(record.sid, `${rs > 10 ? '↑' : '⇩'}`);
         
         addCandleValue(rs > 10 ? 1 : -1)
 
@@ -131,6 +133,7 @@ function socket_connect() {
       }
 
       if (mgs.cmd === 100) {
+        mgs_As_gold = mgs.As.gold;
         addMessage(JSON.stringify(`${mgs.dn}: ${mgs.As.gold}`), "Hserver")
         return;
       }

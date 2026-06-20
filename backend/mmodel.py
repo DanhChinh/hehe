@@ -5,39 +5,127 @@ from collections import Counter
 from handle_db import load_data_from_pickle as make_data
 
 
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+    classification_report
+)
+
+def print_model_info(model, X, y, title=None):
+    """
+    In thông tin đánh giá model.
+
+    Parameters
+    ----------
+    model : sklearn model đã fit
+    X     : dữ liệu đầu vào
+    y     : nhãn thực tế
+    title : tên model (optional)
+    """
+
+    y_pred = model.predict(X)
+
+    print("=" * 60)
+
+    if title:
+        print(f"MODEL: {title}")
+    else:
+        print(f"MODEL: {model.__class__.__name__}")
+
+    print("=" * 60)
+
+    print(f"Accuracy : {accuracy_score(y, y_pred):.4f}")
+    print(f"Precision: {precision_score(y, y_pred, average='weighted', zero_division=0):.4f}")
+    print(f"Recall   : {recall_score(y, y_pred, average='weighted', zero_division=0):.4f}")
+    print(f"F1 Score : {f1_score(y, y_pred, average='weighted', zero_division=0):.4f}")
+
+    print("\nConfusion Matrix:")
+    print(confusion_matrix(y, y_pred))
+
+    print("\nClassification Report:")
+    print(classification_report(y, y_pred, zero_division=0))
+
+    print("=" * 60)
+####
+
+def calc_total_money(start_money, rounds, repeat_each_round):
+    return repeat_each_round * start_money * (2**rounds - 1)
+
+def calc_start_money(total_money, rounds=5, repeat_each_round=5):
+    return round(total_money / (repeat_each_round * (2**rounds - 1)), 2)
+
 # Biến toàn cục lưu trữ trạng thái của các mô hình (Global Session Cache)
 _GLOBAL_MODELS = None  
 
 
+# class MoneyManager:
+#     """
+#     Bộ quản lý vốn và kích thước vị thế (Anti-Martingale / Streak-based Scaling).
+#     Tự động tăng quy mô vị thế khi đạt chuỗi thắng và giảm quy mô vị thế khi gặp chuỗi thua.
+#     """
+#     def __init__(self, streak_threshold=5):
+#         self.position_size = 1    # Khối lượng vào lệnh hiện tại (bet)
+#         self.streak_counter = 0                    # Bộ đếm chuỗi hiệu suất (counter_profit)
+#         self.accumulated_profit = 155              # Tổng lợi nhuận tích lũy (total_profit)
+#         self.streak_threshold = streak_threshold    # Ngưỡng dịch chuyển khối lượng (take_profit)
+
+#     def update_performance(self, is_win):
+#         """Cập nhật trạng thái tài sản và tính toán lại quy mô vị thế cho phiên sau"""
+#         if is_win:
+#             self.accumulated_profit += self.position_size
+#             self.streak_counter += 1
+#             if self.streak_counter == self.streak_threshold:
+#                 self.position_size = calc_start_money(self.accumulated_profit)
+        
+#                 self.streak_counter = 0
+#         else:
+#             self.accumulated_profit -= self.position_size
+#             self.streak_counter -= 1
+#             if self.streak_counter == -self.streak_threshold:
+#                 self.position_size *= 2        
+#                 self.streak_counter = 0
 class MoneyManager:
     """
-    Bộ quản lý vốn và kích thước vị thế (Anti-Martingale / Streak-based Scaling).
-    Tự động tăng quy mô vị thế khi đạt chuỗi thắng và giảm quy mô vị thế khi gặp chuỗi thua.
+    Bộ quản lý vốn theo chiến thuật D'Alembert cải tiến dựa trên Chuỗi (Streak-based).
+    Tự động GIẢM quy mô vị thế khi đạt chuỗi THẮNG và TĂNG quy mô vị thế khi gặp chuỗi THUA.
     """
-    def __init__(self, streak_threshold=5):
-        self.position_size = 1    # Khối lượng vào lệnh hiện tại (bet)
+    def __init__(self, streak_threshold=5, base_size=1.0):
+        self.base_size = float(base_size)          # Khối lượng cơ sở tối thiểu (đơn vị tăng/giảm)
+        self.position_size = float(base_size)      # Khối lượng vào lệnh hiện tại (bet)
         self.streak_counter = 0                    # Bộ đếm chuỗi hiệu suất (counter_profit)
-        self.accumulated_profit = 0.0              # Tổng lợi nhuận tích lũy (total_profit)
+        self.accumulated_profit = 0.0            # Tổng lợi nhuận tích lũy (total_profit)
         self.streak_threshold = streak_threshold    # Ngưỡng dịch chuyển khối lượng (take_profit)
 
     def update_performance(self, is_win):
-        """Cập nhật trạng thái tài sản và tính toán lại quy mô vị thế cho phiên sau"""
+        """Cập nhật trạng thái tài sản và tính toán lại quy mô vị thế theo D'Alembert dựa trên Streak"""
+        
+        # Làm tròn lợi nhuận về 2 chữ số thập phân để tránh lỗi sai số floating-point
         if is_win:
-            self.accumulated_profit += self.position_size
+            self.accumulated_profit = round(self.accumulated_profit + self.position_size, 2)
             self.streak_counter += 1
+            
+            # Nếu chạm ngưỡng chuỗi THẮNG liên tiếp -> GIẢM mức cược theo D'Alembert
             if self.streak_counter == self.streak_threshold:
-                self.position_size = 1          # Khuếch đại vốn khi thị trường thuận lợi
-                self.streak_counter = 0
+                # Giảm đi 1 lượng bằng base_size, nhưng không được thấp hơn base_size
+                self.position_size = max(self.base_size, round(self.position_size - self.base_size, 2))
+                self.streak_counter = 0  # Reset chuỗi
         else:
-            self.accumulated_profit -= self.position_size
+            self.accumulated_profit = round(self.accumulated_profit - self.position_size, 2)
             self.streak_counter -= 1
+            
+            # Nếu chạm ngưỡng chuỗi THUA liên tiếp -> TĂNG mức cược theo D'Alembert để gỡ
             if self.streak_counter == -self.streak_threshold:
-                self.position_size *= 2         # Phòng vệ, giảm một nửa khối lượng khi chuỗi thua kéo dài
-                self.streak_counter = 0
+                # Tăng tuyến tính thêm 1 lượng bằng base_size
+                self.position_size = round(self.position_size + self.base_size, 2)
+                self.streak_counter = 0  # Reset chuỗi
 
 
 class TradingModel:
     def __init__(self, model_name, base_model, ncc_threshold=0.5, vote_window=3):
+        print(model_name)
         self.model_name = model_name
         self.base_model = base_model
         
@@ -60,7 +148,7 @@ class TradingModel:
         self.short_equity_curve = np.cumsum(self.raw_history)
         
         # Đường cong vốn thực tế dựa trên số tiền tài sản (Lưu lịch sử từ MoneyManager)
-        self.fixed_equity_curve = [0.0]
+        self.fixed_equity_curve = []
         
         # Các phân đoạn hiệu suất liên tục ở quá khứ (Part 2)
         self.long_segments = []
@@ -71,6 +159,8 @@ class TradingModel:
         
         pred_long = self.base_model.predict(data_long)
         match_long = np.where(pred_long == label_long, 1, -1)
+
+        # print_model_info(self.base_model, data_long, label_long, title=self.model_name)
         
         self.long_segments = []
         if len(sid_long) > 0:
@@ -86,7 +176,7 @@ class TradingModel:
                 self.long_segments.append(np.cumsum(current_seg))
 
     def make_predict(self, x_new):
-        if x_new is None:
+        if x_new is None:# or self.money_manager.accumulated_profit <= 0:
             self.fixed_prediction = None
             self.expected_bet = 0.0
             self.raw_prediction = None
@@ -151,7 +241,7 @@ class TradingModel:
             "predict": int(self.fixed_prediction) if self.fixed_prediction is not None else None,
             "expected_bet": float(self.expected_bet),
             "current_position_size": float(self.money_manager.position_size),
-            "accumulated_profit": float(self.money_manager.accumulated_profit),
+            "accumulated_profit": int(self.money_manager.accumulated_profit),
             "streak_counter": int(self.money_manager.streak_counter),
             "fixed_equity_curve": [float(x) for x in self.fixed_equity_curve]
         }
@@ -206,34 +296,86 @@ def _get_or_load_models():
     global _GLOBAL_MODELS
     if _GLOBAL_MODELS is None:
         from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-        from sklearn.ensemble import AdaBoostClassifier
-        from sklearn.neighbors import KNeighborsClassifier
         from sklearn.neural_network import MLPClassifier
+        from sklearn.ensemble import (
+            RandomForestClassifier,
+            ExtraTreesClassifier
+        )
+        from sklearn.neighbors import KNeighborsClassifier
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.tree import DecisionTreeClassifier
 
         models_config = {
-            "LDA": LinearDiscriminantAnalysis(),
-            "MLP_Network": MLPClassifier(hidden_layer_sizes=(100,), max_iter=500),
-            "AdaBoost": AdaBoostClassifier(n_estimators=100),
-            "K_Nearest_Neighbors": KNeighborsClassifier(n_neighbors=5)
-        }
-        
-        # Nạp dữ liệu gốc từ hàm make_data() của bạn
-        df, data, label = make_data()  
-        sid = df['sid'].values
-        
-        # Loại bỏ 30 mẫu cuối cùng để dùng làm dữ liệu chạy Live từng bước ở môi trường thực tế bên ngoài
-        data_remain = data[:-30]
-        label_remain = label[:-30]
-        sid_remain = sid[:-30]
-        
-        train_ratio = 0.7
-        split_idx = int(len(label_remain) * train_ratio)
 
-        data_train, label_train = data_remain[:split_idx], label_remain[:split_idx]
-        data_long, label_long, sid_long = data_remain[split_idx:], label_remain[split_idx:], sid_remain[split_idx:]
+            # 1
+            "LDA": LinearDiscriminantAnalysis(),
+
+            # 
+        
+            # 4
+            "KNN": KNeighborsClassifier(
+                n_neighbors=15,
+                weights="distance"
+            ),
+
+            # 5
+            "DecisionTree": DecisionTreeClassifier(
+                max_depth=5,
+                min_samples_leaf=20,
+                random_state=42
+            ),
+
+            # 6
+            "RandomForest": RandomForestClassifier(
+                n_estimators=200,
+                max_depth=5,
+                min_samples_leaf=20,
+                max_features="sqrt",
+                random_state=42,
+                n_jobs=-1
+            ),
+
+            # 7
+            "ExtraTrees": ExtraTreesClassifier(
+                n_estimators=200,
+                max_depth=5,
+                min_samples_leaf=20,
+                random_state=42,
+                n_jobs=-1
+            ),
+            # 11 (nếu muốn thay thế model khác)
+            "MLP": MLPClassifier(
+                hidden_layer_sizes=(32, 16),
+                alpha=0.01,          # regularization
+                max_iter=500,
+                early_stopping=True,
+                validation_fraction=0.1,
+                random_state=42
+            )
+        }
+        # Nạp dữ liệu gốc từ hàm make_data() của bạn
+        df, dataall, labelall = make_data()
+        lendic = len(models_config)
+
+        dataall = np.array_split(dataall, lendic) 
+        labelall = np.array_split(labelall, lendic) 
+        
+        sid = df['sid'].values
+        sidall = np.array_split(sid, lendic)
 
         _GLOBAL_MODELS = []
-        for name, algorithm in models_config.items():
+
+        for i, (name, algorithm) in enumerate(models_config.items()):
+            data = dataall[i]
+            label = labelall[i]
+            sid = sidall[i]
+            
+            train_ratio = 0.7
+            split_idx = int(len(label) * train_ratio)
+
+            data_train, label_train = data[:split_idx], label[:split_idx]
+            data_long, label_long, sid_long = data[split_idx:], label[split_idx:], sid[split_idx:]
+
             model = TradingModel(model_name=name, base_model=algorithm)
             model.initialize_pipeline(data_train, label_train, data_long, label_long, sid_long)
             _GLOBAL_MODELS.append(model)
@@ -287,6 +429,25 @@ def GET_ALL_INFO():
                     json.dumps(v)
                 except TypeError:
                     print(f"👉 Lỗi ở field: {k}, type = {type(v)}")
+    obj_mean = {
+            "model_name": "Mean",
+            "predict": None,
+            "expected_bet": None,
+            "current_position_size": None,
+            "accumulated_profit": 0,
+            "streak_counter": None,
+            "fixed_equity_curve": []
+    }
+    for key in ["accumulated_profit", "fixed_equity_curve"]:
+        # Chuyển tất cả giá trị của key này thành một mảng numpy để tính toán
+        values = np.array([obj[key] for obj in data])
+        
+        # axis=0 giúp tính trung bình theo chiều dọc (cho cả số và mảng)
+        avg_value = np.mean(values, axis=0)
+        
+        # Chuyển ngược từ numpy array về list/float thuần của Python nếu cần
+        obj_mean[key] = avg_value.tolist() if isinstance(data[0][key], list) else float(avg_value)
+    data.append(obj_mean)
     return data
 
 print("⏳ Đang khởi động ứng dụng và huấn luyện hệ thống mô hình nền...")
@@ -298,3 +459,7 @@ print("✅ Hệ thống đã sẵn sàng nhận dữ liệu realtime!")
 
 # Từ lúc này, mỗi khi gọi PREDICT(x_pred) ở các phiên tiếp theo, 
 # tốc độ phản hồi sẽ gần như ngay lập tức (< 0.01 giây) vì mô hình đã nằm sẵn trên RAM.
+
+
+
+

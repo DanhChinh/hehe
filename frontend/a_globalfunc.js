@@ -36,8 +36,6 @@ function setBarValue(value){
 
 
 
-
-
 function lerpColor(c1, c2, t) {
   const a = c1.match(/\w\w/g).map(x => parseInt(x, 16));
   const b = c2.match(/\w\w/g).map(x => parseInt(x, 16));
@@ -111,11 +109,14 @@ const TradeTable = {
     */
 
 
-    if (thiTruong === "len") {
+    if (thiTruong === "↑") {
       t.profit = 0.97*t.matchBuy - t.matchSell;
     } else {
       t.profit = 0.97*t.matchSell-t.matchBuy;
     }
+
+    (isPlay ? mgs_As_gold += t.profit:null)
+
     this.total += t.profit;
     t.total = this.total;
     this.render();
@@ -191,6 +192,8 @@ const formatNumber = (amount, locale = 'vi-VN') => {
   return new Intl.NumberFormat(locale, {
     style: 'decimal',
     minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
-    maximumFractionDigits: 2  // Số chữ số thập phân tối đa
+    maximumFractionDigits: 0  // Số chữ số thập phân tối đa
   }).format(amount/1000);
 };
+
+var mgs_As_gold = 0;

@@ -114,7 +114,7 @@ DOM_connectPyserver.onclick = (e) => {
 
       }
     })
-    if (buy == sell) {
+    if (Math.floor(buy) === Math.floor(sell)) {
       return
     }
     if (buy > sell) {
@@ -291,6 +291,8 @@ function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
 
     }
   });
+
+  document.getElementById('mgs_As_gold').innerText = formatNumber(mgs_As_gold)
 }
 
 function capNhatMap(data) {
@@ -298,7 +300,7 @@ function capNhatMap(data) {
     drawLineChart(
       document.getElementById(`hsFix_${i}`),
       d.fixed_equity_curve,
-      d.name
+      d.model_name
     )
   });
 }
