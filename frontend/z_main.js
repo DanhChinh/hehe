@@ -22,16 +22,21 @@ const main_text = `
                                 <div class="progress-bar bg-success" role="progressbar" aria-valuenow="" aria-valuemin="0"
                                     aria-valuemax="55"></div>
                             </div>
-                            
-            
-            <button id="toggleBtn" class="btn btn-outline-secondary w-25">
-            TEST
-            </button>
-            <button id="toggleBtnShow" class="btn btn-outline-secondary w-25">
-            HIDDEN
-            </button>
 
-            <table border="1" width="100%" id="tradeTable">
+            
+            <div class="my-3">                
+              <button type="button" id="toggleBtn" class="btn btn-outline-secondary ">
+              Testing
+              </button>
+              <button type="button" id="toggleBtnShow" class="btn btn-outline-secondary">
+              Hidden
+              </button>
+              <button id="mgs_As_gold"  class="btn btn btn-light">
+              0
+              </button>
+
+            </div>
+            <table border="1" width="100%" id="tradeTable" >
             <thead>
             <tr>
             <th>Id</th>
@@ -47,7 +52,7 @@ const main_text = `
             <tbody></tbody>
             </table>
 
-            <span class="badge bg-primary" id=mgs_As_gold>0</span>
+            
             
 
 
@@ -61,7 +66,7 @@ const main_text = `
                 <div class="col-md-12">
                     <div class="card shadow-sm">
                         <div class="card-header fw-bold">
-                            📈 Thống kê truy cập
+                            📈 Lưu lượng mô hình
                         </div>
 
                         <div class="card-body container" id="DOM_dashboard"></div>
@@ -197,11 +202,11 @@ const tradeTable = document.getElementById("tradeTable");
 btn.onclick = () => {
   isPlay = !isPlay;
   btn.classList.toggle("btn-outline-success");
-  btn.innerText= isPlay ? "PLAYING" : "TESTING";
+  btn.innerText= isPlay ? "Playing" : "Testing";
 };
 
 btnShow.onclick = () => {
   isShow = !isShow;
   tradeTable.classList.toggle("to_left");
-  btnShow.innerText = isShow ? "HIDDEN" : "SHOW";
+  btnShow.innerText = isShow ? "Hidden" : "Show";
 }

@@ -245,7 +245,7 @@ function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
   if (parent.innerHTML.trim() != "") { return }
   let text = `<div class="row">`
   data.forEach((e, i) => {
-    text += `<div class="col-6">
+    text += `<div class="col-12 col-sm-6 g-2  ">
     <div id="hsFix_${i}" class="border rounded chart-box"></div>
               </div>
         

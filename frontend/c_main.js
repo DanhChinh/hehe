@@ -4,9 +4,8 @@ function sendMessageToGame(b, sid, eid) {
   }
 
   let message = JSON.stringify(MESSAGE_WS.bet(b, sid, eid))
-  addMessage(b, eid)
+  addMessage(`${sid}: ${b}->${eid}`)
   socket.send(message);
-  // console.log(message)
 }
 var MESSAGE_WS = {
   url: "wss://mynisketgw.hytsocesk.com/websocket",

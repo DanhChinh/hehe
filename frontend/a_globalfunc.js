@@ -34,31 +34,34 @@ function setBarValue(value){
     // bar.textContent = `${value}%`;
 }
 
+function getColor(value, rangeNumber) {
+    value = Math.max(-rangeNumber, Math.min(rangeNumber, value));
 
+    let r, g, b;
 
-function lerpColor(c1, c2, t) {
-  const a = c1.match(/\w\w/g).map(x => parseInt(x, 16));
-  const b = c2.match(/\w\w/g).map(x => parseInt(x, 16));
-  const c = a.map((v, i) => Math.round(v + (b[i] - v) * t));
-  return "#" + c.map(x => x.toString(16).padStart(2, "0")).join("");
+    if (value < 0) {
+        // Đen -> Trắng
+        const t = (value + rangeNumber) / rangeNumber;
+
+        r = Math.round(255 * t);
+        g = Math.round(255 * t);
+        b = Math.round(255 * t);
+    } else {
+        // Trắng -> Xanh lá đậm (#006400)
+        const t = value / rangeNumber;
+
+        r = Math.round(255 * (1 - t));
+        g = Math.round(255 * (1 - t) + 100 * t);
+        b = Math.round(255 * (1 - t));
+    }
+
+    return `rgb(${r}, ${g}, ${b})`;
 }
-function gradientByMinMax(value, min, max) {
-  // tất cả bằng nhau → trắng
-  if (min === max) return "#ffffff";
 
-  // điểm giữa (0)
-  if (value === 0) return "#ffffff";
-
-  // ---- LÃI (0 → max): xanh nhạt → xanh đậm
-  if (value > 0) {
-    const t = value / max; // 0 → 1
-    return lerpColor("#E6F1D8", "#5BBD2B", t);
-  }
-
-  // ---- LỖ (min → 0): đỏ đậm → đỏ nhạt
-  const t = value / min; // 0 → 1
-  return lerpColor("#FCDAD5", "#E54646", t);
+function getTextColor(value) {
+    return value < 0 ? "#fff" : "#000";
 }
+
 
 
 const TradeTable = {
@@ -99,15 +102,6 @@ const TradeTable = {
     const t = this.data[id];
     t.market = thiTruong;
 
-    /*
-      Quy ước:
-      - Net = khớp mua - khớp bán
-      - Market lên:
-          net > 0 => lãi
-          net < 0 => lỗ
-      - Market xuống: ngược lại
-    */
-
 
     if (thiTruong === "↑") {
       t.profit = 0.97*t.matchBuy - t.matchSell;
@@ -145,16 +139,12 @@ const TradeTable = {
   const max = Math.max(...profits);
   const min = Math.min(...profits);
 
+  const rangeNumber = Math.max( Math.abs(max), Math.abs(min));
+
   [...this.tbody.children].forEach((tr, i) => {
     const p = rows[i].profit;
-    const color = gradientByMinMax(p, min, max);
-
-    // tô cột lãi
-    tr.cells[6].style.backgroundColor = color;
-    tr.cells[6].style.color = "#000";
-
-    // nếu muốn tô cả dòng
-    tr.style.backgroundColor = color;
+    tr.style.backgroundColor = getColor(p, rangeNumber);
+    tr.style.color = getTextColor(p);
   });
 }
 ,
