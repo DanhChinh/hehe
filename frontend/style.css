@@ -1,39 +1,312 @@
+/* ==========================================
+   1. THIẾT LẬP CHUNG & BỐ CỤC KHÔNG GIAN
+   ========================================== */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-
-.h300px {
-  height: 350px;
-
+html, body {
+  overflow-x: hidden; /* SỬA LỖI: Triệt tiêu hoàn toàn thanh cuộn ngang thừa */
+  width: 100%;
 }
+
+body {
+  /* Tích hợp ảnh nền cho bản sáng kết hợp lớp phủ mịn màng (Overlay) */
+  background-image: linear-gradient(rgba(248, 250, 252, 0.90), rgba(248, 250, 252, 0.94)), 
+                    url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1920');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Khóa cố định ảnh nền khi cuộn trang */
+  background-repeat: no-repeat;
+  
+  color: #1e293b; /* Chữ xám than đậm tương phản cao */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Khung bọc nội dung chính để tách biệt hoàn toàn với Navbar và Footer */
+.main-wrapper {
+  padding: 32px 0; 
+  min-height: calc(100vh - 70px - 320px); /* Đẩy footer luôn nằm sát đáy trang */
+  width: 100%;
+}
+
+/* Đảm bảo canvas biểu đồ hiển thị khít và sắc nét */
+canvas {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+}
+
 .chart-box {
   height: 350px;
-  min-height: 300px;
-}
-  .progress-bar {
-    transition: width 1.2s ease;
-  }
-
-
-
-.buy { color: #16a34a; font-weight: bold; }
-.sell { color: #dc2626; font-weight: bold; }
-
-.up { color: #16a34a; }
-.down { color: #dc2626; }
-
-.profit { color: #16a34a; font-weight: bold; }
-.loss { color: #dc2626; font-weight: bold; }
-
-canvas {
   width: 100%;
-  height: 100%;
 }
 
-.to_left{
+.progress-bar {
+  transition: width 0.6s ease;
+}
+
+/* Màu sắc tín hiệu tài chính tối ưu cho nền sáng */
+.buy, .up, .profit { color: #16a34a !important; font-weight: bold; }   /* Xanh lá chuẩn */
+.sell, .down, .loss { color: #dc2626 !important; font-weight: bold; }  /* Đỏ chuẩn */
+
+.to_left {
   transform: translateX(-120%);
+  transition: transform 0.3s ease;
 }
 
+
+/* ==========================================
+   2. CẤU TRÚC KHỐI CHÍNH (CARD & SEPARATION)
+   ========================================== */
+.has-close-btn {
+  position: relative !important;
+  background-color: #ffffff !important; /* Khối màu trắng sạch sẽ */
+  border: 1px solid #e2e8f0 !important;   /* Viền xám mảnh tinh tế */
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.06) !important; /* Đổ bóng tách khối nhẹ nhàng */
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden; /* Bắt buộc để mảng màu tam giác vát góc không tràn ra ngoài */
+}
+
+/* Tiêu đề của các Card */
+.card-header {
+  background-color: #f1f5f9 !important; /* Nền header hơi xám nhẹ để phân tách khối */
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  padding: 12px 16px !important;
+  font-size: 14px;
+  padding-right: 40px !important; /* Tránh chữ tiêu đề đè vào tam giác đóng */
+}
+
+.card-footer {
+  background-color: transparent !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 10px 16px !important;
+}
+
+.card-footer a {
+  color: #0284c7 !important; /* Màu xanh dương chuyên nghiệp cho liên kết */
+  font-weight: 500;
+  font-size: 13px;
+}
+
+/* Tùy chỉnh danh sách tin nhắn bên trong Card */
+.list-group-item {
+  background-color: transparent !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+  font-size: 13px;
+}
+
+
+/* ==========================================
+   3. ĐỊNH DẠNG CÁC BẢNG SỐ LIỆU (TRADE TABLES)
+   ========================================== */
+table#tradeTable, table#Trading_Dashboard {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+table#tradeTable th, table#Trading_Dashboard th {
+  background-color: #f1f5f9 !important;
+  color: #64748b !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 12px 8px;
+  border-bottom: 2px solid #cbd5e1 !important;
+  text-align: center;
+}
+
+table#tradeTable td, table#Trading_Dashboard td {
+  padding: 10px 8px;
+  background-color: #ffffff !important;
+  color: #334155 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-size: 12px;
+  font-family: 'Courier New', Courier, monospace; /* Giúp các con số thẳng hàng tuyệt đối */
+  text-align: center;
+}
+
+/* Highlight nhẹ khi di chuột qua các dòng trong bảng */
+table#tradeTable tbody tr:hover td, table#Trading_Dashboard tbody tr:hover td {
+  background-color: #f8fafc !important;
+}
+
+/* Các thành phần tương tác bên trong bảng */
+.table-input {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  border-radius: 4px !important;
+  text-align: center;
+  font-weight: 600;
+}
+.table-input:focus {
+  border-color: #0284c7 !important;
+  box-shadow: none !important;
+}
+
+.btn-table-action {
+  background-color: #16a34a !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 11px !important;
+  letter-spacing: 0.5px;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 5px 12px !important;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+.btn-table-action:hover {
+  background-color: #15803d !important;
+  transform: translateY(-1px);
+}
+
+
+/* ==========================================
+   4. THIẾT LẬP TAM GIÁC GÓC (ĐÃ XÓA SẠCH CHỮ X)
+   ========================================== */
+.global-close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28px;  
+  height: 28px; 
+  /* Tạo hình tam giác phẳng cắt góc nghiêng 45 độ màu xám dịu */
+  background: linear-gradient(45deg, transparent 50%, #cbd5e1 50%) !important;
+  cursor: pointer;
+  z-index: 99;
+  user-select: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Khóa chặn tuyệt đối, loại bỏ hoàn toàn text lọt vào từ CSS */
+.global-close-btn::before,
+.global-close-btn::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Hover: Đổi mảng màu sang màu đỏ rực báo đóng */
+.global-close-btn:hover {
+  background: linear-gradient(45deg, transparent 50%, #ef4444 50%) !important;
+}
+
+
+/* ==========================================
+   5. TRẠNG THÁI KHI BỊ ẨN (CONTENT BLINDED)
+   ========================================== */
+.has-close-btn.content-blinded {
+  background-color: #e2e8f0 !important; /* Đổi thành khối xám nhạt hẳn khi ẩn */
+  border-color: #cbd5e1 !important;
+  min-height: 44px !important;
+  height: 44px !important; /* Thu gọn chiều cao đồng đều */
+}
+
+/* Vô hiệu hóa hiệu ứng viền chạy khi đã ẩn */
+.has-close-btn.content-blinded::before,
+.has-close-btn.content-blinded::after {
+  display: none !important;
+}
+
+/* Che nội dung */
+.has-close-btn.content-blinded > *:not(.global-close-btn) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Khi đang ẩn: Đổi mảng màu tam giác sang màu xanh lá báo mở */
+.has-close-btn.content-blinded .global-close-btn {
+  background: linear-gradient(45deg, transparent 50%, #22c55e 50%) !important;
+}
+
+.has-close-btn.content-blinded .global-close-btn:hover {
+  background: linear-gradient(45deg, transparent 50%, #16a34a 50%) !important;
+}
+
+
+/* ==========================================
+   6. CÁC TIỆN ÍCH KÉO THẢ & BORDER LOOP
+   ========================================== */
+.is-draggable { cursor: move !important; user-select: none; touch-action: none; }
+.dont_touch_parent { display: flex; position: fixed; bottom: 20px; left: 20px; gap: 12px; z-index: 9999; }
+
+.dont_touch {
+  width: 90px;
+  height: 40px; 
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
+}
+
+.bg_red { background-color: #dc2626 !important; }
+.bg_blue { background-color: #2563eb !important; }
+
+@property --gradient-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.border-loop { position: relative; z-index: 11; border-radius: 8px; }
+
+.border-loop::before {
+  content: ''; position: absolute; inset: -2px; border-radius: inherit;
+  /* Chuyển vệt sáng sang màu xanh cyan nổi bật trên nền sáng */
+  background: conic-gradient(from var(--gradient-angle), transparent 50%, #06b6d4 100%);
+  animation: rotateBorderAngle 2s linear infinite; z-index: -1;
+}
+.border-loop::after { content: ''; position: absolute; inset: 0; background: inherit; border-radius: inherit; z-index: -1; }
+.border-loop span { position: relative; z-index: 2; }
+@keyframes rotateBorderAngle { 0% { --gradient-angle: 0deg; } 100% { --gradient-angle: 360deg; } }
+
+
+/* ==========================================
+   7. ĐỒNG BỘ THANH NAVBAR (TÁCH BIỆT PHÍA TRÊN)
+   ========================================== */
+.navbar-custom {
+  background-color: #ffffff !important; 
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03) !important; /* Đổ bóng nhẹ tách biệt với phần body */
+}
+
+.navbar-custom .nav-link { color: #475569 !important; font-size: 14px; font-weight: 500; transition: color 0.2s ease; }
+.navbar-custom .nav-link:hover, .navbar-custom .nav-link.active { color: #0284c7 !important; }
+.navbar-custom .dropdown-menu { background-color: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; margin-top: 8px !important; }
+.navbar-custom .dropdown-item { color: #334155 !important; font-size: 13px; padding: 8px 16px; }
+.navbar-custom .dropdown-item:hover { background-color: #f1f5f9 !important; color: #0284c7 !important; }
+.navbar-search { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; border-radius: 6px !important; font-size: 13px !important; }
+.navbar-search:focus { border-color: #0284c7 !important; box-shadow: none !important; }
+.navbar-search::placeholder { color: #94a3b8; }
+.btn-nav-primary { background-color: #0284c7 !important; color: #ffffff !important; font-weight: 600; font-size: 13px; border-radius: 6px !important; border: none !important; padding: 6px 16px !important; }
+.btn-nav-primary:hover { background-color: #0369a1 !important; }
+.btn-nav-secondary { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; color: #334155 !important; font-weight: 500; font-size: 13px; border-radius: 6px !important; padding: 6px 16px !important; }
+.btn-nav-secondary:hover { background-color: #e2e8f0 !important; color: #0f172a !important; }
+
+
+/* ==========================================
+   8. ĐỒNG BỘ CHÂN TRANG (TÁCH BIỆT PHÍA DƯỚI)
+   ========================================== */
+.footer-custom {
+  background-color: #ffffff !important; 
+  border-top: 1px solid #e2e8f0 !important; 
+  font-size: 14px;
+  box-shadow: 0 -4px 15px rgba(15, 23, 42, 0.03) !important; /* Đổ bóng ngược lên để phân tách rõ ràng */
+}
+
+.footer-link { color: #475569 !important; transition: color 0.2s ease-in-out; }
+.footer-link:hover { color: #0284c7 !important; }
+.footer-icon { color: #64748b !important; font-size: 1.2rem; transition: all 0.2s ease-in-out; }
+.footer-icon:hover { color: #0284c7 !important; transform: translateY(-2px); }
+.footer-divider { border-color: #e2e8f0 !important; opacity: 1; }
+.fs-7 { font-size: 12px !important; }

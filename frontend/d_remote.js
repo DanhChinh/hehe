@@ -163,69 +163,60 @@ function columnAverages(A) {
 
 function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
   if (parent.innerHTML.trim() != "") { return }
-  let headText = `    <div class="container mt-4">
-        <div class="card shadow-sm">
+  let headText = `
+    <div class="card shadow-sm has-close-btn">
 
-            <!-- Header -->
-            <div class="card-header bg-dark text-white">
-                <h5 class="mb-0">Trading Dashboard</h5>
-            </div>
-
-            <!-- Table -->
-            <div class="table-responsive">
-                <table id="Trading_Dashboard" class="table table-bordered table-hover align-middle mb-0 text-center">
-
-                    <thead class="table-light">
-                        <tr>
-                            <th>model_name</th>
-                            <th>predict</th>
-                            <th>expected_bet</th>
-                            <th>current_position_size</th>
-                            <th>accumulated_profit</th>
-                            <th>streak_counter Loss</th>
-
-                            <th>Volume</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tableBody">
-                        <!-- Row mẫu -->`
-
-  let footText = `</tbody>
-
-                </table>
-            </div>
-
+        <div class="card-header">
+            <h5 class="mb-0 fw-bold">📈 Trading Dashboard</h5>
         </div>
-    </div>`
-  let mainText = ``
-  data.forEach((d, i) => {
 
+        <div class="table-responsive">
+            <table id="Trading_Dashboard" class="table table-sm table-dark table-borderless align-middle mb-0 text-center">
+                <thead>
+                    <tr>
+                        <th>model_name</th>
+                        <th>predict</th>
+                        <th>expected_bet</th>
+                        <th>current_position_size</th>
+                        <th>accumulated_profit</th>
+                        <th>streak_counter Loss</th>
+                        <th style="width: 100px;">Volume</th>
+                        <th style="width: 100px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">`
+
+let footText = `
+                </tbody>
+            </table>
+        </div>
+    </div>`;
+
+let mainText = ``;
+data.forEach((d, i) => {
+    // Để màu chữ của các số liệu tự động nhảy xanh/đỏ theo logic dữ liệu của bạn, 
+    // sau này bạn có thể chèn các class class="buy" hoặc class="sell" vào các thẻ td số đó.
     mainText += `                        
-                        <tr>
-                            <td>${d.name}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <input id="volume_${i}" type="number" class="form-control form-control-sm text-center" value = "1">
-                            </td>
-                            <td>
-                              <button id="btn_toggle_${i}"
-                                class="btn btn-sm btn-success"
-                                data-index="${i}"
-                                    data-name="${d.name}">
-                              BUY
-                            </button>
-                          </td>
-                        </tr>`
+        <tr>
+            <td class="fw-bold text-start ps-3">${d.name}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td class="profit">-</td> <td class="loss">-</td>   <td>
+                <input id="volume_${i}" type="number" class="form-control form-control-sm table-input" value="1">
+            </td>
+            <td>
+                <button id="btn_toggle_${i}"
+                        class="btn btn-sm btn-table-action"
+                        data-index="${i}"
+                        data-name="${d.name}">
+                    BUY
+                </button>
+            </td>
+        </tr>`;
+});
 
-  });
-
-  parent.innerHTML = headText + mainText + footText;
+parent.innerHTML = headText + mainText + footText;
 
   document.querySelectorAll("[id^=btn_toggle_]").forEach(btn => {
     btn.onclick = () => {
@@ -243,18 +234,19 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
 
 function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
   if (parent.innerHTML.trim() != "") { return }
-  let text = `<div class="row">`
+  let text = `<div class="row g-3">` // Sử dụng g-3 thống nhất khoảng cách Bootstrap
   data.forEach((e, i) => {
-    text += `<div class="col-12 col-sm-6 g-2  ">
-    <div id="hsFix_${i}" class="border rounded chart-box"></div>
-              </div>
-        
-        `
+    // Đã thay đổi cấu trúc bọc: Tận dụng cơ chế card.has-close-btn
+    text += `
+      <div class="col-12 col-md-6">
+        <div class="card h-100 has-close-btn">
+          <div id="hsFix_${i}" class="chart-box"></div>
+        </div>
+      </div>`;
   })
   text += `</div>`;
   parent.innerHTML = text;
 }
-
 function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
   if (!table) return;
 

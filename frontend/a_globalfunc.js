@@ -187,3 +187,91 @@ const formatNumber = (amount, locale = 'vi-VN') => {
 };
 
 var mgs_As_gold = 0;
+
+
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+    
+    // ==========================================
+    // KHỐI 1: XỬ LÝ NÚT X (ẨN/HIỆN CHUNG)
+    // ==========================================
+    const closeBtnDivs = document.querySelectorAll('.has-close-btn');
+    closeBtnDivs.forEach(div => {
+      // Tự động tạo nút X
+      const closeBtn = document.createElement('span');
+      closeBtn.className = 'global-close-btn';
+      closeBtn.innerHTML = '';
+      div.appendChild(closeBtn);
+
+      // Click nút X để toggle ẩn/hiện
+      closeBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Ngăn chặn sự kiện lan ra ngoài
+        div.classList.toggle('content-blinded');
+      });
+    });
+
+
+    // ==========================================
+    // KHỐI 2: XỬ LÝ KÉO THẢ ĐỘC LẬP (.is-draggable)
+    // ==========================================
+    const draggableDivs = document.querySelectorAll('.is-draggable');
+    draggableDivs.forEach(div => {
+      let isDragging = false;
+      let offsetX, offsetY;
+
+      const startDrag = (e) => {
+        // NẾU CLICK TRÚNG NÚT X THÌ HỦY LỆNH KÉO (Quan trọng để không bị xung đột)
+        if (e.target.classList.contains('global-close-btn')) return;
+
+        isDragging = true;
+
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+        const rect = div.getBoundingClientRect();
+        offsetX = clientX - rect.left;
+        offsetY = clientY - rect.top;
+
+        // Chuyển vị trí sang fixed để di chuyển tự do trên màn hình
+        div.style.position = 'fixed';
+        div.style.margin = '0';
+        div.style.left = `${rect.left}px`;
+        div.style.top = `${rect.top}px`;
+      };
+
+      const doDrag = (e) => {
+        if (!isDragging) return;
+        
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+        let newLeft = clientX - offsetX;
+        let newTop = clientY - offsetY;
+
+        // Giới hạn trong viền màn hình
+        if (newLeft < 0) newLeft = 0;
+        if (newTop < 0) newTop = 0;
+        if (newLeft + div.offsetWidth > window.innerWidth) newLeft = window.innerWidth - div.offsetWidth;
+        if (newTop + div.offsetHeight > window.innerHeight) newTop = window.innerHeight - div.offsetHeight;
+
+        div.style.left = `${newLeft}px`;
+        div.style.top = `${newTop}px`;
+      };
+
+      const stopDrag = () => {
+        isDragging = false;
+      };
+
+      // Đăng ký sự kiện Máy tính (Mouse)
+      div.addEventListener('mousedown', startDrag);
+      document.addEventListener('mousemove', doDrag);
+      document.addEventListener('mouseup', stopDrag);
+
+      // Đăng ký sự kiện Điện thoại (Touch)
+      div.addEventListener('touchstart', startDrag, { passive: true });
+      document.addEventListener('touchmove', doDrag, { passive: false });
+      document.addEventListener('touchend', stopDrag);
+    });
+
+  });

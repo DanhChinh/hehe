@@ -446,8 +446,8 @@ def GET_ALL_INFO():
         avg_value = np.mean(values, axis=0)
         
         # Chuyển ngược từ numpy array về list/float thuần của Python nếu cần
-        obj_mean[key] = avg_value.tolist() if isinstance(data[0][key], list) else float(avg_value)
-    data.append(obj_mean)
+        obj_mean[key] = avg_value.tolist() if isinstance(data[0][key], list) else round(float(avg_value), 2)
+    data.insert(0, obj_mean)
     return data
 
 print("⏳ Đang khởi động ứng dụng và huấn luyện hệ thống mô hình nền...")

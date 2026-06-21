@@ -1,86 +1,82 @@
 const main_text = `
     <div class="row g-4">
 
-        <!-- ================= MESSAGES ================= -->
-        <div class="col-lg-3">
-            <div class="card shadow-sm" style="height:160px">
-                <div class="card-header fw-bold">
-                    💬 Tin nhắn mới
-                </div>
-
-                <ul class="list-group list-group-flush" id="chat-container">
-
-                    <div class="card-footer text-center">
-                        <a href="#" class="text-decoration-none">Xem tất cả</a>
-                    </div>
+    <div class="col-lg-3 d-flex flex-column gap-2">
+        
+        <div class="card shadow-sm has-close-btn" style="min-height: 160px;">
+            <div class="card-header fw-bold">
+                💬 Tin nhắn mới
             </div>
-                            <div class="card-body">
-                                <canvas id="candleChart" height="120"></canvas>
-                            </div>
-
-                            <div class="progress col-md-12" style="height: 3px; margin:10px; width: 97%">
-                                <div class="progress-bar bg-success" role="progressbar" aria-valuenow="" aria-valuemin="0"
-                                    aria-valuemax="55"></div>
-                            </div>
-
-            
-            <div class="my-3">                
-              <button type="button" id="toggleBtn" class="btn btn-outline-secondary ">
-              Testing
-              </button>
-              <button type="button" id="toggleBtnShow" class="btn btn-outline-secondary">
-              Hidden
-              </button>
-              <button id="mgs_As_gold"  class="btn btn btn-light">
-              0
-              </button>
-
+            <ul class="list-group list-group-flush flex-grow-1" id="chat-container">
+                </ul>
+            <div class="card-footer text-center">
+                <a href="#" class="text-decoration-none">Xem tất cả</a>
             </div>
-            <table border="1" width="100%" id="tradeTable" >
-            <thead>
-            <tr>
-            <th>Id</th>
-            <th>Buy</th>
-            <th>Match</th>
-            <th>Sell</th>
-            <th>Match</th>
-            <th>Market</th>
-            <th>Sessionp</th>
-            <th>Netp</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-            </table>
+        </div>
 
-            
-            
-
-
+        <div class="card has-close-btn p-2">
+            <div class="card-body p-0">
+                <canvas id="candleChart" height="120"></canvas>
+            </div>
+            <div class="progress w-100" style="height: 4px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
         </div>
 
 
-
-
-        <!-- ================= CHARTS ================= -->
-        <div class="col-lg-9">
-                <div class="col-md-12">
-                    <div class="card shadow-sm">
-                        <div class="card-header fw-bold">
-                            📈 Lưu lượng mô hình
-                        </div>
-
-                        <div class="card-body container" id="DOM_dashboard"></div>
-                        <div class="card-body container" id="DOM_map"></div>
-                    </div>
-                </div>
+        <div class="card p-3 has-close-btn">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <button type="button" id="toggleBtn" class="btn btn-sm btn-outline-secondary px-3">
+                    Testing
+                </button>
+                <button id="mgs_As_gold" class="btn btn-sm btn-warning fw-bold text-dark px-3">
+                    0
+                </button>
+            </div>
         </div>
+
+        <div class="card has-close-btn p-0"> 
+            <div class="table-responsive">
+                <table id="tradeTable" class="table table-sm table-dark table-borderless m-0">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Buy</th>
+                            <th>Match</th>
+                            <th>Sell</th>
+                            <th>Match</th>
+                            <th>Market</th>
+                            <th>Sessionp</th>
+                            <th>Netp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dont_touch_parent">
+            <div class="dont_touch border-loop is-draggable bg_red">
+                <span>DYOR</span>
+            </div>
+            <div class="dont_touch border-loop is-draggable bg_blue">
+                <span>Volatile</span>
+            </div>
+        </div>
+
     </div>
 
+
+    <div class="col-lg-9">
+        <div class="container-fluid p-0 mb-3" id="DOM_dashboard"></div>
+        <div class="container-fluid p-0" id="DOM_map"></div>
+    </div>
+    
+</div>
 `
 
 document.getElementsByTagName('main')[0].innerHTML = main_text;
-
-
 
 
 
@@ -193,20 +189,12 @@ drawCandleChart(_Candle);
 
 
 var isPlay = false;
-var isShow = true;
+
 
 const btn = document.getElementById("toggleBtn");
-const btnShow = document.getElementById("toggleBtnShow");
-const tradeTable = document.getElementById("tradeTable");
-
 btn.onclick = () => {
   isPlay = !isPlay;
   btn.classList.toggle("btn-outline-success");
   btn.innerText= isPlay ? "Playing" : "Testing";
 };
 
-btnShow.onclick = () => {
-  isShow = !isShow;
-  tradeTable.classList.toggle("to_left");
-  btnShow.innerText = isShow ? "Hidden" : "Show";
-}
