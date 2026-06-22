@@ -34,7 +34,7 @@ function setBarValue(value){
     // bar.textContent = `${value}%`;
 }
 
-function getColor(value, rangeNumber) {
+function getBgColor(value, rangeNumber) {
     value = Math.max(-rangeNumber, Math.min(rangeNumber, value));
 
     let r, g, b;
@@ -143,8 +143,8 @@ const TradeTable = {
 
   [...this.tbody.children].forEach((tr, i) => {
     const p = rows[i].profit;
-    tr.style.backgroundColor = getColor(p, rangeNumber);
-    tr.style.color = getTextColor(p);
+    tr.style.setProperty('background-color', getBgColor(p, rangeNumber), 'important');
+    tr.style.setProperty('color', getTextColor(p), 'important');
   });
 }
 ,
@@ -172,8 +172,8 @@ const TradeTable = {
         this.tbody.appendChild(tr);
       });
 
-    // document.getElementById("totalProfit").textContent = this.total;
     this.updateColors()
+
   }
 };
 

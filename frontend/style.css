@@ -34,7 +34,7 @@ body {
 
 /* Đảm bảo canvas biểu đồ hiển thị khít và sắc nét */
 canvas {
-  width: 100% !important;
+  width: auto;
   height: auto !important;
   display: block;
 }
@@ -112,7 +112,7 @@ table#tradeTable, table#Trading_Dashboard {
 }
 
 table#tradeTable th, table#Trading_Dashboard th {
-  background-color: #f1f5f9 !important;
+  /* background-color: #e3eaf1 !important; */
   color: #64748b !important;
   font-weight: 600;
   text-transform: uppercase;
@@ -123,18 +123,24 @@ table#tradeTable th, table#Trading_Dashboard th {
   text-align: center;
 }
 
+/* Đã sửa: Để nền trong suốt giúp ăn khớp mã đổi màu của JS (tr.style.backgroundColor) */
 table#tradeTable td, table#Trading_Dashboard td {
   padding: 10px 8px;
-  background-color: #ffffff !important;
-  color: #334155 !important;
+  background-color: transparent; /* Loại bỏ lớp phủ đặc để lộ màu của TR */
   border-bottom: 1px solid #e2e8f0 !important;
   font-size: 12px;
-  font-family: 'Courier New', Courier, monospace; /* Giúp các con số thẳng hàng tuyệt đối */
+  font-family: 'Courier New', Courier, monospace;
   text-align: center;
 }
 
+/* Định dạng trạng thái màu nền mặc định cho hàng khi JS chưa can thiệp */
+table#tradeTable tbody tr, table#Trading_Dashboard tbody tr {
+  background-color: #ffffff;
+  color: #334155;
+}
+
 /* Highlight nhẹ khi di chuột qua các dòng trong bảng */
-table#tradeTable tbody tr:hover td, table#Trading_Dashboard tbody tr:hover td {
+table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
   background-color: #f8fafc !important;
 }
 

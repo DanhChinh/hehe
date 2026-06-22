@@ -171,7 +171,7 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
         </div>
 
         <div class="table-responsive">
-            <table id="Trading_Dashboard" class="table table-sm table-dark table-borderless align-middle mb-0 text-center">
+            <table id="Trading_Dashboard" class="table table-sm table-borderless align-middle mb-0 text-center">
                 <thead>
                     <tr>
                         <th>model_name</th>
@@ -179,7 +179,7 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
                         <th>expected_bet</th>
                         <th>current_position_size</th>
                         <th>accumulated_profit</th>
-                        <th>streak_counter Loss</th>
+                        <th>streak_counter</th>
                         <th style="width: 100px;">Volume</th>
                         <th style="width: 100px;">Action</th>
                     </tr>
@@ -202,7 +202,9 @@ data.forEach((d, i) => {
             <td>-</td>
             <td>-</td>
             <td>-</td>
-            <td class="profit">-</td> <td class="loss">-</td>   <td>
+            <td>-</td> 
+            <td>-</td>   
+            <td>
                 <input id="volume_${i}" type="number" class="form-control form-control-sm table-input" value="1">
             </td>
             <td>
@@ -234,13 +236,13 @@ parent.innerHTML = headText + mainText + footText;
 
 function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
   if (parent.innerHTML.trim() != "") { return }
-  let text = `<div class="row g-3">` // Sử dụng g-3 thống nhất khoảng cách Bootstrap
+  let text = `<div class="row g-2">` // Sử dụng g-3 thống nhất khoảng cách Bootstrap
   data.forEach((e, i) => {
     // Đã thay đổi cấu trúc bọc: Tận dụng cơ chế card.has-close-btn
     text += `
-      <div class="col-12 col-md-6">
-        <div class="card h-100 has-close-btn">
-          <div id="hsFix_${i}" class="chart-box"></div>
+      <div class="col-12 col-md-6 ">
+        <div class="card h-100 ">
+          <div id="hsFix_${i}" class="chart-box w-100"></div>
         </div>
       </div>`;
   })

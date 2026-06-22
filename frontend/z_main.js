@@ -37,7 +37,7 @@ const main_text = `
 
         <div class="card has-close-btn p-0"> 
             <div class="table-responsive">
-                <table id="tradeTable" class="table table-sm table-dark table-borderless m-0">
+                <table id="tradeTable" class="table table-sm table-borderless m-0">
                     <thead>
                         <tr>
                             <th>Id</th>

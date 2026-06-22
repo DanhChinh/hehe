@@ -102,7 +102,7 @@ function socket_connect() {
         record.d3 = mgs.d3;
         sendDataToThuhuyenFun(JSON.parse(JSON.stringify(record)));
         let rs = mgs.d1 + mgs.d2 + mgs.d3;
-        TradeTable.close(record.sid, `${rs > 10 ? '↑' : '⇩'}`);
+        TradeTable.close(record.sid, `${rs > 10 ? '↑' : '⇩⇩'}`);
         
         addCandleValue(rs > 10 ? 1 : -1)
 
