@@ -132,7 +132,14 @@ function socket_connect() {
       }
 
       if (mgs.cmd === 100) {
-        mgs_As_gold = mgs.As.gold;
+        meanTradingState.mgs_As_gold = mgs.As.gold;
+
+        const mgsGoldElem = document.getElementById('mgs_As_gold');
+
+if (mgsGoldElem) {
+    mgsGoldElem.innerText = formatNumber(meanTradingState.mgs_As_gold);
+}
+
         addMessage(JSON.stringify(`${mgs.dn}: ${mgs.As.gold}`), "Hserver")
         return;
       }

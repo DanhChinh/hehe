@@ -21,7 +21,7 @@ body {
   background-attachment: fixed; /* Khóa cố định ảnh nền khi cuộn trang */
   background-repeat: no-repeat;
   
-  color: #1e293b; /* Chữ xám than đậm tương phản cao */
+  /* color: #1e293b; */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
@@ -49,8 +49,8 @@ canvas {
 }
 
 /* Màu sắc tín hiệu tài chính tối ưu cho nền sáng */
-.buy, .up, .profit { color: #16a34a !important; font-weight: bold; }   /* Xanh lá chuẩn */
-.sell, .down, .loss { color: #dc2626 !important; font-weight: bold; }  /* Đỏ chuẩn */
+.buy, .up, .profit { color: #16a34a !important; font-weight: bold; }   
+.sell, .down, .loss { color: #dc2626 !important; font-weight: bold; } 
 
 
 
@@ -128,13 +128,13 @@ table#tradeTable td, table#Trading_Dashboard td {
   font-size: 12px;
   font-family: 'Courier New', Courier, monospace;
   text-align: center;
+  /* 🌟 THÊM 2 DÒNG NÀY ĐỂ VÔ HIỆU HÓA BOOTSTRAP BIẾN */
+  --bs-table-color: inherit !important; /* Ép biến chữ của Bootstrap tuân thủ màu kế thừa */
+  color: inherit !important;
 }
 
 /* Định dạng trạng thái màu nền mặc định cho hàng khi JS chưa can thiệp */
-table#tradeTable tbody tr, table#Trading_Dashboard tbody tr {
-  background-color: #ffffff;
-  color: #334155;
-}
+
 
 /* Highlight nhẹ khi di chuột qua các dòng trong bảng */
 table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {

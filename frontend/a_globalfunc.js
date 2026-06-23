@@ -34,7 +34,7 @@ function setBarValue(value){
     // bar.textContent = `${value}%`;
 }
 
-function getBgColor(value, rangeNumber) {
+function getColors(value, rangeNumber) {
     value = Math.max(-rangeNumber, Math.min(rangeNumber, value));
 
     let r, g, b;
@@ -42,24 +42,30 @@ function getBgColor(value, rangeNumber) {
     if (value < 0) {
         // Đen -> Trắng
         const t = (value + rangeNumber) / rangeNumber;
-
         r = Math.round(255 * t);
         g = Math.round(255 * t);
         b = Math.round(255 * t);
     } else {
         // Trắng -> Xanh lá đậm (#006400)
         const t = value / rangeNumber;
-
         r = Math.round(255 * (1 - t));
-        g = Math.round(255 * (1 - t) + 100 * t);
+        g = Math.round(255 * (1 - t) + 100 * t); // 100 ứng với 64 trong hệ Hex (0x64 = 100)
         b = Math.round(255 * (1 - t));
     }
 
-    return `rgb(${r}, ${g}, ${b})`;
-}
+    const bgColor = `rgb(${r}, ${g}, ${b})`;
 
-function getTextColor(value) {
-    return value < 0 ? "#fff" : "#000";
+    // Sử dụng công thức chuẩn HSP để tính độ sáng trực quan của màu sắc
+    const brightness = Math.sqrt(
+        0.299 * (r * r) +
+        0.587 * (g * g) +
+        0.114 * (b * b)
+    );
+
+    // Nếu độ sáng > 127.5 là nền sáng -> chữ đen, ngược lại nền tối -> chữ trắng
+    const textColor = brightness > 127.5 ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
+
+    return { bgColor, textColor };
 }
 
 
@@ -109,7 +115,8 @@ const TradeTable = {
       t.profit = 0.97*t.matchSell-t.matchBuy;
     }
 
-    (isPlay ? mgs_As_gold += t.profit:null)
+    (meanTradingState.isPlay ? meanTradingState.mgs_As_gold += t.profit:null)
+    document.getElementById('mgs_As_gold').innerText = formatNumber(meanTradingState.mgs_As_gold)
 
     this.total += t.profit;
     t.total = this.total;
@@ -140,11 +147,14 @@ const TradeTable = {
   const min = Math.min(...profits);
 
   const rangeNumber = Math.max( Math.abs(max), Math.abs(min));
-
+  
   [...this.tbody.children].forEach((tr, i) => {
     const p = rows[i].profit;
-    tr.style.setProperty('background-color', getBgColor(p, rangeNumber), 'important');
-    tr.style.setProperty('color', getTextColor(p), 'important');
+    const { bgColor, textColor } = getColors(p, rangeNumber);
+    tr.style.setProperty('background-color', bgColor, 'important');
+    tr.style.setProperty('color', textColor, 'important');
+    tr.style.setProperty('--bs-table-color', textColor, 'important');
+
   });
 }
 ,
@@ -185,9 +195,6 @@ const formatNumber = (amount, locale = 'vi-VN') => {
     maximumFractionDigits: 2  // Số chữ số thập phân tối đa
   }).format(amount/1000);
 };
-
-// 1. Khai báo biến lưu trữ giá trị tiền ban đầu
-var mgs_As_gold = 0; 
 
 
 

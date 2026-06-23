@@ -176,13 +176,3 @@ drawCandleChart(_Candle);
 
 
 
-var isPlay = false;
-
-
-const btn = document.getElementById("toggleBtn");
-btn.onclick = () => {
-  isPlay = !isPlay;
-  btn.classList.toggle("btn-outline-success");
-  btn.innerText= isPlay ? "Playing" : "Testing";
-};
-

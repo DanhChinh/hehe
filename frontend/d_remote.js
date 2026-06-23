@@ -12,7 +12,8 @@ let lastPredict = 0;
 // --- CẤU HÌNH TRẠNG THÁI KHỞI TẠO MẶC ĐỊNH ---
 let meanTradingState = {
   isPlay: false,
-  playHistory: []
+  playHistory: [],
+  mgs_As_gold: 0
 };
 
 async function loadAccessToken() {
@@ -135,7 +136,7 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
   let mainText = "";
   data.forEach((d) => {
     if (d.is_main) {
-      mainText += `<tr class="table-active border-bottom border-secondary table-warning"><td class="fw-bold text-start ps-3 text-dark">⭐ MÁY TRADING TỔNG (MEAN)</td><td id="mean-predict" class="fw-bold">-</td><td>-</td><td>-</td><td id="mean-profit" class="fw-bold">-</td><td>-</td><td><span class="badge bg-danger">LIVE ACCOUNT</span></td></tr>`;
+      mainText += `<tr class="table-active border-bottom border-secondary table-warning"><td class="fw-bold text-start ps-3 text-dark">⭐ MEAN</td><td id="mean-predict" class="fw-bold">-</td><td>-</td><td>-</td><td id="mean-profit" class="fw-bold">-</td><td>-</td><td><span class="badge bg-danger">LIVE ACCOUNT</span></td></tr>`;
     } else {
       mainText += `<tr><td class="fw-bold text-start ps-3 text-muted">${d.model_name}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td><span class="badge bg-secondary">CALCULATOR</span></td></tr>`;
     }
@@ -144,21 +145,6 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
 }
 
 function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
-  function batSuKienInputGold() {
-    const goldInput = document.getElementById("mgs_As_gold");
-    if (goldInput) {
-      // Lắng nghe mỗi khi bạn gõ phím thay đổi số
-      goldInput.addEventListener("input", (e) => {
-        // Ép kiểu về số thực (float) hoặc số nguyên (int) và gán vào biến toàn cục
-        mgs_As_gold = parseFloat(e.target.value) || 0;
-
-        console.log("Biến var mgs_As_gold đã cập nhật thành:", mgs_As_gold);
-
-        // Bạn có thể kích hoạt vẽ lại đồ thị hoặc tính toán lại Vol tại đây nếu cần:
-        // if (lastSavedCurve.length > 0) kichHoatVeLaiThuCong(lastPredict);
-      });
-    }
-  }
   if (parent.innerHTML.trim() != "") return;
   let text = `<div class="row g-2">`;
   let baseChartCount = 0;
@@ -169,10 +155,10 @@ function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
         <div class="col-12 mb-3">
           <div class="main-trading-card p-3 bg-dark text-white rounded">
             <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                <h4 class="mb-0 fw-bold text-warning">📊 BIỂU ĐỒ TRADING TỔNG CHÍNH</h4>
+                <h4 class="mb-0 fw-bold text-warning">📊 BIỂU ĐỒ TRADING TỔNG</h4>
                 <div class="controls d-flex align-items-center gap-2 flex-wrap">
-                    <label class="mb-0 small text-white-50">As: <input type="number" id="mgs_As_gold" value="0" min="0" class="form-control form-control-sm d-inline-block bg-secondary text-white border-0 text-center" style="width: 55px;"></label>
-                    <label class="mb-0 small text-white-50">Vol: <input type="number" id="global-volume" value="1" min="1" class="form-control form-control-sm d-inline-block bg-secondary text-white border-0 text-center" style="width: 55px;"></label>
+                    <label class="mb-0 text-warning small fw-bold">As: <span id="mgs_As_gold">0</span> </label>
+                    <label class="mb-0 text-info small fw-bold">Vol: <input type="number" id="global-volume" value="1" min="1" class="form-control form-control-sm d-inline-block bg-secondary text-white border-0 text-center" style="width: 55px;"></label>
                     <label class="mb-0 text-success small fw-bold">Mốc TP: <input type="number" id="manual-tp" value="15" class="form-control form-control-sm d-inline-block bg-secondary text-white border-0 text-center" style="width: 85px;"></label>
                     <label class="mb-0 text-danger small fw-bold">Mốc SL: <input type="number" id="manual-sl" value="-15" class="form-control form-control-sm d-inline-block bg-secondary text-white border-0 text-center" style="width: 85px;"></label>
                     <div class="form-check form-switch mb-0 ms-2">
