@@ -181,12 +181,13 @@ const TradeTable = {
 const formatNumber = (amount, locale = 'vi-VN') => {
   return new Intl.NumberFormat(locale, {
     style: 'decimal',
-    minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
-    maximumFractionDigits: 0  // Số chữ số thập phân tối đa
+    minimumFractionDigits: 2, // Số chữ số thập phân tối thiểu
+    maximumFractionDigits: 2  // Số chữ số thập phân tối đa
   }).format(amount/1000);
 };
 
-var mgs_As_gold = 0;
+// 1. Khai báo biến lưu trữ giá trị tiền ban đầu
+var mgs_As_gold = 0; 
 
 
 

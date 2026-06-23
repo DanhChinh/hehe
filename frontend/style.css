@@ -52,10 +52,7 @@ canvas {
 .buy, .up, .profit { color: #16a34a !important; font-weight: bold; }   /* Xanh lá chuẩn */
 .sell, .down, .loss { color: #dc2626 !important; font-weight: bold; }  /* Đỏ chuẩn */
 
-.to_left {
-  transform: translateX(-120%);
-  transition: transform 0.3s ease;
-}
+
 
 
 /* ==========================================
@@ -316,3 +313,6 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
 .footer-icon:hover { color: #0284c7 !important; transform: translateY(-2px); }
 .footer-divider { border-color: #e2e8f0 !important; opacity: 1; }
 .fs-7 { font-size: 12px !important; }
+
+
+/* + */

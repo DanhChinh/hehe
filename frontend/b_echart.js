@@ -1,103 +1,102 @@
-﻿function drawLineChart(chartDom, dataArray, modelName, maPeriod = 5) {
-    if (!Array.isArray(dataArray)) {
-        console.error("dataArray phải là một mảng!");
-        return;
-    }
+﻿/**
+ * HÀM VẼ ĐỒ THỊ CHÍNH (OBJ_MEAN) - Hỗ trợ chẻ màu đoạn và vẽ TP/SL cố định
+ */
+function drawMain(chartDom, dataArray, tradingParams) {
+    if (!chartDom || !dataArray || dataArray.length === 0) return;
+    
+    let chart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
+    const { isPlay, signal, manualTP, manualSL, playHistory } = tradingParams;
 
-    // Hàm tính toán Moving Average
-    const calculateMA = (data, period) => {
-        let result = [];
-        for (let i = 0; i < data.length; i++) {
-            if (i < period - 1) {
-                result.push('-'); 
-                continue;
+    // 1. Thuật toán phân đoạn màu sắc dựa theo mảng lịch sử playHistory
+    let piecesData = [];
+    if (playHistory && playHistory.length > 0) {
+        let startIdx = 0;
+        let currentStatus = playHistory[0];
+
+        for (let i = 1; i < playHistory.length; i++) {
+            if (playHistory[i] !== currentStatus) {
+                piecesData.push({
+                    gt: startIdx,
+                    lte: i,
+                    color: currentStatus ? '#a855f7' : '#4b5563' // True -> Tím, False -> Xám
+                });
+                startIdx = i;
+                currentStatus = playHistory[i];
             }
-            let sum = 0;
-            for (let j = 0; j < period; j++) {
-                sum += data[i - j];
-            }
-            result.push(parseFloat((sum / period).toFixed(2)));
         }
-        return result;
-    };
-
-    let chart = echarts.getInstanceByDom(chartDom);
-    if (!chart) {
-        chart = echarts.init(chartDom);
+        piecesData.push({ gt: startIdx, lte: playHistory.length, color: currentStatus ? '#a855f7' : '#4b5563' });
     }
 
-    const maData = calculateMA(dataArray, maPeriod);
+    // 2. Thiết lập đường biên TP/SL cố định (Cấu hình màu sắc tương phản rõ nét)
+    const markLinesData = [];
+    const tpColor = isPlay ? '#22c55e' : 'rgba(34, 197, 94, 0.4)';  // Xanh lá đậm / Xanh lá mờ
+    const slColor = isPlay ? '#ef4444' : 'rgba(239, 68, 68, 0.4)';   // Đỏ đậm / Đỏ mờ
+    const suffix = isPlay ? '(LIVE)' : '(PREVIEW)';
+
+    if (manualTP !== undefined && manualTP !== null && !isNaN(manualTP)) {
+        markLinesData.push({ 
+            yAxis: manualTP, 
+            name: 'TP', 
+            lineStyle: { color: tpColor, type: 'dashed', width: isPlay ? 2 : 1.2 }, 
+            label: { formatter: `TP ${suffix}: {c}`, position: 'end', color: tpColor, backgroundColor: '#1e1e24', padding: [2, 4], borderRadius: 3 } 
+        });
+    }
+
+    if (manualSL !== undefined && manualSL !== null && !isNaN(manualSL)) {
+        markLinesData.push({ 
+            yAxis: manualSL, 
+            name: 'SL', 
+            lineStyle: { color: slColor, type: 'dashed', width: isPlay ? 2 : 1.2 }, 
+            label: { formatter: `SL ${suffix}: {c}`, position: 'end', color: slColor, backgroundColor: '#1e1e24', padding: [2, 4], borderRadius: 3 } 
+        });
+    }
+
+    let statusColor = isPlay ? (signal === 'BUY' ? '#22c55e' : signal === 'SELL' ? '#ef4444' : '#9ca3af') : '#ef4444';
+    let statusText = isPlay ? `Hệ thống: LIVE RUNNING | Mục tiêu TP: ${manualTP} | Rủi ro SL: ${manualSL}` : `Hệ thống: STANDBY SHUTDOWN (Dừng đẩy lệnh)`;
 
     const option = {
-        // Cấu hình màu chữ tổng thể của biểu đồ tiệp với theme Dark Mode
-        textStyle: {
-            color: '#9ca3af',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        title: {
+            text: "ĐƯỜNG CONG TÀI SẢN TỔNG HỆ THỐNG (OBJ_MEAN)",
+            subtext: statusText,
+            textStyle: { color: '#f3f4f6', fontSize: 14 },
+            subtextStyle: { color: statusColor, fontSize: 12, fontWeight: 'bold' },
+            top: 5, left: 10
         },
-        title: { 
-            text: modelName,
-            textStyle: { color: '#40c714', fontSize: 14, fontWeight: '600' },
-            top: 10,
-            left: 15
+        tooltip: { trigger: 'axis', backgroundColor: '#1f2937', borderColor: '#374151', textStyle: { color: '#fff' } },
+        grid: { left: '4%', right: '18%', bottom: '5%', top: '70', containLabel: true },
+        xAxis: { type: 'category', data: dataArray.map((_, i) => i), axisLine: { lineStyle: { color: '#374151' } } },
+        yAxis: { 
+            type: 'value', 
+            scale: true, // Tự động co dãn biên độ theo dữ liệu tài sản thực tế xung quanh mốc nhỏ (~15)
+            splitLine: { lineStyle: { color: '#1f2937' } } 
         },
-        tooltip: {
-            trigger: 'axis',
-            backgroundColor: '#1f2937', // Nền tooltip tối đồng bộ
-            borderColor: '#374151',
-            textStyle: { color: '#f1f5f9' },
-            axisPointer: { lineStyle: { color: '#4b5563', type: 'dashed' } }
+        visualMap: {
+            show: false,
+            type: 'piecewise',
+            dimension: 0, 
+            pieces: piecesData.length > 0 ? piecesData : [{ gt: 0, color: '#4b5563' }] 
         },
-        legend: {
-            data: ['Value', `MA${maPeriod}`],
-            textStyle: { color: '#9ca3af' },
-            top: 10,
-            right: 40 // Tránh đè lên nút vát góc ở đỉnh phải card
-        },
-        grid: {
-            left: '4%',
-            right: '4%',
-            bottom: '5%',
-            top: '65',
-            containLabel: true
-        },
-        xAxis: {
-            type: 'category',
-            data: dataArray.map((_, i) => i),
-            axisLine: { lineStyle: { color: '#1f2937' } }, // Đường trục x chìm
-            axisLabel: { color: '#9ca3af' }
-        },
-        yAxis: {
-            type: 'value',
-            scale: true, // Tự động căn chỉnh khoảng giá trị Y cho sát dữ liệu
-            axisLabel: { color: '#9ca3af' },
-            splitLine: { lineStyle: { color: '#1f2937' } } // Đường lưới ngang mịn ẩn nhẹ
-        },
-        series: [
-            {
-                name: 'Value',
-                type: 'line',
-                data: dataArray,
-                smooth: 0.2, 
-                symbol: 'none',
-                lineStyle: { width: 2, color: '#38bdf8', opacity: 0.8 }, // Đường giá xanh Neon chủ đạo
-                areaStyle: {
-                    // Đổ bóng vùng gradient mịn phía dưới đường giá
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: 'rgba(56, 189, 248, 0.2)' },
-                        { offset: 1, color: 'rgba(56, 189, 248, 0)' }
-                    ])
-                }
-            },
-            {
-                name: `MA${maPeriod}`,
-                type: 'line',
-                data: maData,
-                smooth: 0.2,
-                symbol: 'none', 
-                lineStyle: { width: 1.5, color: '#f59e0b' } // Đường MA cam vàng tài chính rõ ràng
-            }
-        ]
+        series: [{
+            name: 'Vốn Tổng', type: 'line', data: dataArray, smooth: 0.1, symbol: 'none',
+            lineStyle: { width: 3 }, 
+            markLine: { symbol: ['none', 'none'], data: markLinesData }
+        }]
     };
     chart.setOption(option);
 }
 
+/**
+ * HÀM VẼ ĐỒ THỊ PHỤ (MODEL BASE CHÌM)
+ */
+function drawBaseChart(chartDom, dataArray, modelName) {
+    if (!chartDom || !dataArray || dataArray.length === 0) return;
+    let chart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
+    const option = {
+        title: { text: `${modelName} (Nền tảng tính toán)`, textStyle: { color: '#9ca3af', fontSize: 11 }, top: 5, left: 10 },
+        grid: { left: '4%', right: '4%', bottom: '5%', top: '40', containLabel: true },
+        xAxis: { type: 'category', data: dataArray.map((_, i) => i), axisLabel: { show: false } },
+        yAxis: { type: 'value', scale: true, splitLine: { lineStyle: { color: '#1f2937' } } },
+        series: [{ data: dataArray, type: 'line', smooth: 0.1, symbol: 'none', lineStyle: { color: '#4b5563', width: 1.2 } }]
+    };
+    chart.setOption(option);
+}

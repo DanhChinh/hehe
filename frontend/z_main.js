@@ -23,18 +23,6 @@ const main_text = `
             </div>
         </div>
 
-
-        <div class="card p-3 has-close-btn">
-            <div class="d-flex justify-content-between align-items-center w-100">
-                <button type="button" id="toggleBtn" class="btn btn-sm btn-outline-secondary px-3">
-                    Testing
-                </button>
-                <button id="mgs_As_gold" class="btn btn-sm btn-warning fw-bold text-dark px-3">
-                    0
-                </button>
-            </div>
-        </div>
-
         <div class="card has-close-btn p-0"> 
             <div class="table-responsive">
                 <table id="tradeTable" class="table table-sm table-borderless m-0">
