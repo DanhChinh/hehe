@@ -45,7 +45,7 @@ def handle_setPosition(msg):
 
 
 @socketio.on('connect')
-def handle_connect():
+def handle_connect(auth=None):
     print('✅ Client connected')
     # FIND_BEST_MATCHS()
     emit("info", {'data': GET_ALL_INFO()})

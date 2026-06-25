@@ -72,7 +72,6 @@ class TradingModel:
         self.raw_prediction = None
         self.fixed_prediction = None
         self.expected_bet = 0.0           # Khối lượng vào lệnh kỳ vọng cho phiên hiện tại
-        self.position_enabled = True       # Trạng thái kích hoạt bộ lọc thủ công
         
         # Khởi tạo bộ quản lý vốn độc lập cho từng mô hình
         self.money_manager = MoneyManager()
@@ -134,9 +133,6 @@ class TradingModel:
         else:
             self.fixed_prediction = self.raw_prediction
             
-        # Bộ chặn thủ công (nếu vị thế bị tắt)
-        if not self.position_enabled:
-            self.fixed_prediction = None
 
         # TÍNH TOÁN MỨC KỲ VỌNG VÀO LỆNH CHO PHIÊN NÀY
         if self.fixed_prediction is None:
@@ -164,10 +160,7 @@ class TradingModel:
         self.fixed_equity_curve.append(float(self.money_manager.accumulated_profit))
 
     def set_toggle_position(self):
-        """Đảo trạng thái cho phép/chặn mô hình vào lệnh thủ công"""
-        self.position_enabled = not self.position_enabled
-        print(f"🔄 [{self.model_name}] Position Toggle: {self.position_enabled}")
-
+        pass
     def get_info(self):
         """Trả về dữ liệu tổng hợp trạng thái phiên (Đảm bảo 100% JSON Serializable)"""
         return {

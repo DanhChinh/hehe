@@ -61,6 +61,9 @@ DOM_connectPyserver.onclick = (e) => {
   socket_io.on('info', (msg) => {
     let sid = msg.sid;
     let data = msg.data;
+    console.log()
+    console.log(sid)
+    console.log(data)
 
     // Khởi tạo giao diện (Chỉ vẽ khung HTML nếu chưa tồn tại)
     khoiTaoBang(data);
@@ -132,7 +135,7 @@ function roundToThousand(num) { return Math.round(num / 1000) * 1000; }
 
 function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
   if (parent.innerHTML.trim() != "") return;
-  let headText = `<div class="card shadow-sm"><div class="table-responsive"><table id="Trading_Dashboard" class="table table-sm table-borderless align-middle mb-0 text-center"><thead><tr><th>model_name</th><th>predict</th><th>expected_bet</th><th>current_position_size</th><th>accumulated_profit</th><th>streak_counter</th><th style="width: 150px;">Role Status</th></tr></thead><tbody id="tableBody">`;
+  let headText = `<div class="card shadow-sm has-close-btn"><div class="table-responsive"><table id="Trading_Dashboard" class="table table-sm table-borderless align-middle mb-0 text-center"><thead><tr><th>model_name</th><th>predict</th><th>expected_bet</th><th>current_position_size</th><th>accumulated_profit</th><th>streak_counter</th><th style="width: 150px;">Role Status</th></tr></thead><tbody id="tableBody">`;
   let mainText = "";
   data.forEach((d) => {
     if (d.is_main) {

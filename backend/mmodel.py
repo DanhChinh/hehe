@@ -55,30 +55,29 @@ class TradingModel:
         # Cấu hình kiểm soát nhiễu NCC
         self.ncc_threshold = ncc_threshold
         self.vote_window = vote_window
-        self.raw_trend_history = []
         
-        # Trạng thái dự đoán và quản lý lệnh phiên hiện tại
+        # Lịch sử dự đoán (Trạng thái tạm thời theo phiên)
+        self.raw_trend_history = []
         self.raw_prediction = None
         self.fixed_prediction = None
-        self.expected_bet = 0.0           # Khối lượng vào lệnh kỳ vọng cho phiên hiện tại
-        self.position_enabled = True       # Trạng thái kích hoạt bộ lọc thủ công
-        
-        # Thống kê chi tiết số lần đúng / sai của mô hình thực tế (Đã nắn)
-        self.total_trades = 0             # Tổng số phiên thực tế có vào lệnh
-        self.total_wins = 0               # Tổng số lần dự đoán ĐÚNG
-        self.total_losses = 0             # Tổng số lần dự đoán SAI
+        self.expected_bet = 0.0           
+
+        # Thống kê chi tiết số lần đúng / sai của mô hình thực tế (Phục vụ đánh giá)
+        self.total_trades = 0             
+        self.total_wins = 0               
+        self.total_losses = 0             
         
         # Khởi tạo bộ quản lý vốn độc lập cho từng mô hình
         self.money_manager = MoneyManager()
         
-        # Đường cong hiệu suất thô (15 phiên gần nhất) làm mẫu trượt NCC
+        # Đường cong hiệu suất thô ngắn hạn làm mẫu trượt NCC
         self.raw_history = [0]
         self.short_equity_curve = np.cumsum(self.raw_history)
         
-        # Đường cong vốn thực tế dựa trên số tiền tài sản (Lưu lịch sử từ MoneyManager)
-        self.fixed_equity_curve = []
+        # Đường cong vốn thực tế dựa trên số tiền tài sản
+        self.fixed_equity_curve = [0.0] # Khởi tạo điểm bắt đầu bằng 0
         
-        # Các phân đoạn hiệu suất liên tục ở quá khứ (Part 2)
+        # Các phân đoạn hiệu suất liên tục ở quá khứ (Phục vụ dự đoán)
         self.long_segments = []
 
     def initialize_pipeline(self, data_train, label_train, data_long, label_long, sid_long):
@@ -103,6 +102,9 @@ class TradingModel:
                     current_seg = [match_long[i]]
             if len(current_seg) >= 15:
                 self.long_segments.append(np.cumsum(current_seg))
+                
+        # Khởi động lại đồ thị vốn khớp với trạng thái ban đầu sau khi train mới
+        self.fixed_equity_curve = [float(self.money_manager.accumulated_profit)]
 
     def make_predict(self, x_new):
         if x_new is None or self.base_model is None:
@@ -128,12 +130,8 @@ class TradingModel:
             self.fixed_prediction = None  
         else:
             self.fixed_prediction = self.raw_prediction
-            
-        # Bộ chặn thủ công (nếu vị thế bị tắt)
-        if not self.position_enabled:
-            self.fixed_prediction = None
 
-        # TÍNH TOÁN MỨC KỲ VỌNG VÀO LỆNH CHO PHIÊN NÀY
+        # Tính toán mức kỳ vọng vào lệnh cho phiên này
         if self.fixed_prediction is None:
             self.expected_bet = 0.0  
         else:
@@ -152,21 +150,20 @@ class TradingModel:
         if self.fixed_prediction is not None:
             is_win = (self.fixed_prediction == actual_label)
             
-            # CẬP NHẬT BỘ ĐẾM THỐNG KÊ CHI TIẾT
+            # Cập nhật bộ đếm thống kê chi tiết
             self.total_trades += 1
             if is_win:
                 self.total_wins += 1
             else:
                 self.total_losses += 1
                 
-            self.money_manager.update_performance(is_win)
+            self.money_manager.update_performance(is_win) 
             
+        # FIXED: Đi ngang hoặc biến động đều được lưu trọn vẹn theo từng phiên toàn cục
         self.fixed_equity_curve.append(float(self.money_manager.accumulated_profit))
 
     def set_toggle_position(self):
-        """Đảo trạng thái cho phép/chặn mô hình vào lệnh thủ công"""
-        self.position_enabled = not self.position_enabled
-        print(f"🔄 [{self.model_name}] Position Toggle: {self.position_enabled}")
+        pass
 
     def get_info(self, origin_idx=None):
         """Trả về dữ liệu tổng hợp trạng thái phiên kèm chỉ mục gốc trên RAM"""
@@ -176,7 +173,7 @@ class TradingModel:
             "predict": int(self.fixed_prediction) if self.fixed_prediction is not None else None,
             "expected_bet": float(self.expected_bet),
             "current_position_size": float(self.money_manager.position_size),
-            "accumulated_profit": int(self.money_manager.accumulated_profit),
+            "accumulated_profit": float(self.money_manager.accumulated_profit),
             "streak_counter": int(self.money_manager.streak_counter),
             "total_trades": int(self.total_trades),
             "total_wins": int(self.total_wins),
@@ -184,11 +181,11 @@ class TradingModel:
             "win_rate_percent": round(win_rate, 2),
             "fixed_equity_curve": [float(x) for x in self.fixed_equity_curve],
             "is_main": False,
-            "original_index": origin_idx  # Số hiệu ghế gốc trên RAM phục vụ tương tác Front-end
+            "original_index": origin_idx  
         }
 
     # =========================================================================
-    # ĐỒNG BỘ ĐỌC/LƯU CẶP FILE GÓI MÔ HÌNH (STATE JSON + ALGORITHM PKL)
+    # ĐỒNG BỘ ĐỌC/LƯU: ĐÃ SỬA ĐỂ LƯU THÊM MẢNG ĐỒ THỊ
     # =========================================================================
     def save_model_package(self, folder_path="saved_models"):
         """Lưu đồng thời file trạng thái JSON và file thuật toán học máy PKL"""
@@ -201,6 +198,7 @@ class TradingModel:
         
         win_rate = (self.total_wins / self.total_trades * 100) if self.total_trades > 0 else 0.0
         
+        # Đóng gói dữ liệu (FIXED: Đã bổ sung fixed_equity_curve vào stats)
         state_data = {
             "model_name": self.model_name,
             "stats": {
@@ -208,11 +206,12 @@ class TradingModel:
                 "total_wins": self.total_wins,
                 "total_losses": self.total_losses,
                 "win_rate_percent": round(win_rate, 2),
-                "accumulated_profit": float(self.money_manager.accumulated_profit)
+                "accumulated_profit": float(self.money_manager.accumulated_profit),
+                "fixed_equity_curve": [float(x) for x in self.fixed_equity_curve]
             },
-            "config": {"ncc_threshold": self.ncc_threshold, "vote_window": self.vote_window, "position_enabled": self.position_enabled},
-            "history": {"raw_history": self.raw_history, "raw_trend_history": self.raw_trend_history, "fixed_equity_curve": [float(x) for x in self.fixed_equity_curve], "long_segments": [seg.tolist() for seg in self.long_segments]},
-            "money_manager": {"position_size": float(self.money_manager.position_size), "streak_counter": int(self.money_manager.streak_counter)}
+            "history": {
+                "long_segments": [seg.tolist() for seg in self.long_segments] 
+            }
         }
         
         with open(json_path, 'w', encoding='utf-8') as f:
@@ -221,10 +220,10 @@ class TradingModel:
         if self.base_model is not None:
             with open(pkl_path, 'wb') as f:
                 pickle.dump(self.base_model, f)
-        print(f"💾 Saved package for [{self.model_name}]")
+        print(f"💾 Saved core package for [{self.model_name}]")
 
     def load_model_package(self, folder_path="saved_models"):
-        """Khôi phục lại toàn bộ dữ liệu thống kê trạng thái và base_model từ folder"""
+        """Khôi phục các tham số đã lưu từ tệp tin"""
         clean_name = self.model_name.replace(' ', '_').lower()
         json_path = os.path.join(folder_path, f"{clean_name}_state.json")
         pkl_path = os.path.join(folder_path, f"{clean_name}_base.pkl")
@@ -235,22 +234,35 @@ class TradingModel:
         with open(json_path, 'r', encoding='utf-8') as f:
             state_data = json.load(f)
             
+        # 1. Cài đặt các giá trị cốt lõi được khôi phục từ tệp tin
         self.model_name = state_data["model_name"]
-        self.ncc_threshold = state_data["config"]["ncc_threshold"]
-        self.vote_window = state_data["config"]["vote_window"]
-        self.position_enabled = state_data["config"]["position_enabled"]
         self.total_trades = state_data["stats"]["total_trades"]
         self.total_wins = state_data["stats"]["total_wins"]
         self.total_losses = state_data["stats"]["total_losses"]
-        self.raw_history = state_data["history"]["raw_history"]
-        self.raw_trend_history = state_data["history"]["raw_trend_history"]
-        self.short_equity_curve = np.cumsum(self.raw_history)
-        self.fixed_equity_curve = state_data["history"]["fixed_equity_curve"]
         self.long_segments = [np.array(seg) for seg in state_data["history"]["long_segments"]]
-        self.money_manager.position_size = state_data["money_manager"]["position_size"]
-        self.money_manager.streak_counter = state_data["money_manager"]["streak_counter"]
         self.money_manager.accumulated_profit = state_data["stats"]["accumulated_profit"]
         
+        # FIXED: Khôi phục trọn vẹn biểu đồ lịch sử đi ngang từ file JSON nếu tồn tại
+        if "fixed_equity_curve" in state_data["stats"]:
+            self.fixed_equity_curve = [float(x) for x in state_data["stats"]["fixed_equity_curve"]]
+        else:
+            self.fixed_equity_curve = [float(self.money_manager.accumulated_profit)]
+        
+        # 2. Thiết lập MẶC ĐỊNH hoàn toàn và đồng bộ hóa cấu trúc mảng
+        self.ncc_threshold = 0.5
+        self.vote_window = 3
+        self.raw_trend_history = []
+        self.raw_prediction = None
+        self.fixed_prediction = None
+        self.expected_bet = 0.0
+        
+        self.raw_history = [0]
+        self.short_equity_curve = np.cumsum(self.raw_history)
+        
+        self.money_manager.position_size = float(self.money_manager.base_size)
+        self.money_manager.streak_counter = 0
+        
+        # FIXED: Xóa bỏ khối mở file ghi 'wb' thừa gây lỗi xóa nội dung mô hình cũ
         if os.path.exists(pkl_path):
             with open(pkl_path, 'rb') as f:
                 self.base_model = pickle.load(f)
@@ -298,20 +310,17 @@ def evaluate_and_decide_model(model_name, folder_path="saved_models", min_trades
     trades = data["stats"]["total_trades"]
     win_rate = data["stats"]["win_rate_percent"]
     profit = data["stats"]["accumulated_profit"]
-    
-    if trades < min_trades: 
-        return "LOAD"  # Chưa đủ số phiên kiểm tra, tiếp tục giữ lại chạy
-    if win_rate < min_win_rate or profit < 0: 
-        return "REBUILD"  # Thua lỗ hoặc tỷ lệ thắng dưới chuẩn -> Ép làm mới toàn bộ
-        
-    return "LOAD"
 
+    # Đánh giá điều kiện đạt tiêu chuẩn hiệu suất
+    if trades >= min_trades and win_rate >= min_win_rate and profit > 0:
+        return "LOAD"
+    return "REBUILD"
+    
 
 # =========================================================================
 # HỆ THỐNG ĐIỀU PHỐI ĐƠN LUỒNG MỖI PHIÊN (SESSION OPERATIONS)
 # =========================================================================
 def _get_or_load_models():
-    """Hàm quản lý bộ nhớ: Đảm bảo thứ tự mô hình trên RAM luôn cố định để không lỗi index"""
     global _GLOBAL_MODELS
     if _GLOBAL_MODELS is None:
         from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -351,7 +360,7 @@ def _get_or_load_models():
             model = TradingModel(model_name=name)
             if decision == "LOAD":
                 model.load_model_package()
-                print(f"📂 [SUCCESS] Loaded stored weights for model: {name}")
+                print(f"📂 [SUCCESS] Loaded stored weights & historical curves for: {name}")
             else:
                 print(f"🚀 [REBUILD] Training new model pipeline for: {name}")
                 model.base_model = algorithm
@@ -364,22 +373,19 @@ def _get_or_load_models():
 
 
 def PREDICT(x_pred):
-    """Gọi ở ĐẦU PHIÊN: Dự đoán tín hiệu"""
     models = _get_or_load_models()
     for model in models: 
         model.make_predict(x_pred)
 
 
 def CHECK(result):
-    """Gọi ở CUỐI PHIÊN: Cập nhật kết quả phiên, đồng thời ghi lại lịch sử vào file lưu trữ luôn"""
     models = _get_or_load_models()
     for model in models: 
         model.check(result)
-        model.save_model_package() # Tự động đồng bộ ra file sau mỗi phiên trade thực tế
+        model.save_model_package() 
 
 
 def SET_POSITION(original_index):
-    """Bật/Tắt vị thế chính xác dựa trên chỉ mục gốc (An toàn tuyệt đối)"""
     models = _get_or_load_models()
     if 0 <= original_index < len(models): 
         models[original_index].set_toggle_position()
@@ -388,21 +394,13 @@ def SET_POSITION(original_index):
 
 
 def GET_ALL_INFO():
-    """
-    Trả về dữ liệu thô cố định chỉ mục trên RAM.
-    obj_mean chỉ tính toán trung bình đơn giản. Toàn bộ logic trade đẩy cho Frontend.
-    """
     models = _get_or_load_models()
     data = []
     
-    # 1. Thu thập dữ liệu thuần theo đúng thứ tự index trên RAM
     for i, model in enumerate(models):
         info = model.get_info(origin_idx=i)
-        # Bổ sung trạng thái kích hoạt thực tế từ RAM
-        info["position_enabled"] = model.position_enabled 
         data.append(info)
 
-    # 2. Tính toán mô hình trung bình ("Mean") đơn giản như lúc đầu
     obj_mean = {
         "model_name": "Mean", 
         "predict": None, 
@@ -412,16 +410,30 @@ def GET_ALL_INFO():
         "streak_counter": None, 
         "fixed_equity_curve": [], 
         "is_main": True,
-        "original_index": -1,
-        "position_enabled": True # Trạng thái toggle riêng của Mean sẽ do frontend quản lý lưu trữ (localStorage)
+        "original_index": -1
     }
     
-    for key in ["accumulated_profit", "fixed_equity_curve"]:
-        values = np.array([obj[key] for obj in data])
-        avg_value = np.mean(values, axis=0)
-        obj_mean[key] = avg_value.tolist() if isinstance(data[0][key], list) else round(float(avg_value), 2)
+    if data:
+        # Tính trung bình số thực đơn lẻ
+        profits = [obj["accumulated_profit"] for obj in data]
+        obj_mean["accumulated_profit"] = round(float(np.mean(profits)), 2)
+        
+        # FIXED: Tính trung bình an toàn tuyệt đối, loại bỏ padding c[-1] lỗi thời gian
+        curves = [obj["fixed_equity_curve"] for obj in data if len(obj["fixed_equity_curve"]) > 0]
+        max_len = max(len(c) for c in curves) if curves else 0
+        
+        avg_curve = []
+        for step in range(max_len):
+            step_values = []
+            for c in curves:
+                # Chỉ tính toán các mô hình thực sự có dữ liệu tại thời điểm (step) đó
+                if step < len(c):
+                    step_values.append(c[step])
+            if step_values:
+                avg_curve.append(round(float(np.mean(step_values)), 2))
+            
+        obj_mean["fixed_equity_curve"] = avg_curve
     
-    # Chèn dòng Mean vào đầu mảng để Frontend dễ bóc tách
     data.insert(0, obj_mean)
     return data
 

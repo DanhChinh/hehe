@@ -71,7 +71,7 @@ function getColors(value, rangeNumber) {
 
 
 const TradeTable = {
-  maxRows: 25,
+  maxRows: 10,
   data: {},
   tbody: document.querySelector("#tradeTable tbody"),
   total:0,
@@ -160,13 +160,11 @@ const TradeTable = {
 ,
 
   // 🖌 Render bảng
-  render() {
+render() {
     this.tbody.innerHTML = "";
 
     Object.values(this.data)
       .slice(-this.maxRows)
-
-      //style="color:${t.profit >= 0 ? 'green' : 'red'}"
       .forEach(t => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -176,14 +174,13 @@ const TradeTable = {
           <td>${formatNumber(t.sell)}</td>
           <td>${formatNumber(t.matchSell)}</td>
           <td>${t.market}</td>
-          <td >${formatNumber(t.profit)}</td>
-          <td >${formatNumber(t.total)}</td>
+          <td>${formatNumber(t.profit)}</td>
+          <td>${formatNumber(t.total)}</td>
         `;
         this.tbody.appendChild(tr);
       });
 
-    this.updateColors()
-
+    this.updateColors();
   }
 };
 
