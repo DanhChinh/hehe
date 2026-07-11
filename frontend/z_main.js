@@ -1,14 +1,14 @@
 const main_text = `
 <div class="row g-4">
 
-    <div class="col-lg-9">
+    <div class="col-lg-8">
         <div class="container-fluid p-0 mb-3" id="DOM_dashboard"></div>
         <div class="container-fluid p-0" id="DOM_map"></div>
     </div>
 
 
 
-    <div class="col-lg-3 d-flex flex-column gap-2">
+    <div class="col-lg-4 d-flex flex-column gap-2">
         
         <div class="card shadow-sm has-close-btn" style="min-height: 160px;">
             <div class="card-header fw-bold">

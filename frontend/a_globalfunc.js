@@ -188,8 +188,8 @@ render() {
 const formatNumber = (amount, locale = 'vi-VN') => {
   return new Intl.NumberFormat(locale, {
     style: 'decimal',
-    minimumFractionDigits: 2, // Số chữ số thập phân tối thiểu
-    maximumFractionDigits: 2  // Số chữ số thập phân tối đa
+    minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
+    maximumFractionDigits: 1  // Số chữ số thập phân tối đa
   }).format(amount/1000);
 };
 

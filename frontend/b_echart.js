@@ -83,6 +83,10 @@ function drawMain(chartDom, dataArray, tradingParams) {
         }]
     };
     chart.setOption(option);
+    if (!chartDom.dataset.resizeAttached) {
+        window.addEventListener('resize', () => chart.resize());
+        chartDom.dataset.resizeAttached = "true"; // Đánh dấu tránh trùng lặp sự kiện
+    }
 }
 
 /**
@@ -99,4 +103,8 @@ function drawBaseChart(chartDom, dataArray, modelName) {
         series: [{ data: dataArray, type: 'line', smooth: 0.1, symbol: 'none', lineStyle: { color: '#4b5563', width: 1.2 } }]
     };
     chart.setOption(option);
+    if (!chartDom.dataset.resizeAttached) {
+        window.addEventListener('resize', () => chart.resize());
+        chartDom.dataset.resizeAttached = "true";
+    }
 }

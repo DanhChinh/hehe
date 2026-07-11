@@ -74,7 +74,7 @@ canvas {
   border-bottom: 1px solid #e2e8f0 !important;
   color: #0f172a !important;
   padding: 12px 16px !important;
-  font-size: 14px;
+  font-size: 18px;
   padding-right: 40px !important; /* Tránh chữ tiêu đề đè vào tam giác đóng */
 }
 
@@ -87,7 +87,7 @@ canvas {
 .card-footer a {
   color: #0284c7 !important; /* Màu xanh dương chuyên nghiệp cho liên kết */
   font-weight: 500;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 /* Tùy chỉnh danh sách tin nhắn bên trong Card */
@@ -95,7 +95,7 @@ canvas {
   background-color: transparent !important;
   border-color: #e2e8f0 !important;
   color: #334155 !important;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 
@@ -113,7 +113,7 @@ table#tradeTable th, table#Trading_Dashboard th {
   color: #64748b !important;
   font-weight: 600;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.5px;
   padding: 12px 8px;
   border-bottom: 2px solid #cbd5e1 !important;
@@ -125,7 +125,7 @@ table#tradeTable td, table#Trading_Dashboard td {
   padding: 10px 8px;
   background-color: transparent; /* Loại bỏ lớp phủ đặc để lộ màu của TR */
   border-bottom: 1px solid #e2e8f0 !important;
-  font-size: 12px;
+  font-size: 15px;
   font-family: 'Courier New', Courier, monospace;
   text-align: center;
   /* 🌟 THÊM 2 DÒNG NÀY ĐỂ VÔ HIỆU HÓA BOOTSTRAP BIẾN */
@@ -159,7 +159,7 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
   background-color: #16a34a !important;
   color: #ffffff !important;
   font-weight: 700;
-  font-size: 11px !important;
+  font-size: 14px !important;
   letter-spacing: 0.5px;
   border: none !important;
   border-radius: 4px !important;
@@ -250,7 +250,7 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
   justify-content: center;
   align-items: center;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 15px;
   border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
 }
@@ -283,17 +283,17 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
   box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03) !important; /* Đổ bóng nhẹ tách biệt với phần body */
 }
 
-.navbar-custom .nav-link { color: #475569 !important; font-size: 14px; font-weight: 500; transition: color 0.2s ease; }
+.navbar-custom .nav-link { color: #475569 !important; font-size: 18px; font-weight: 500; transition: color 0.2s ease; }
 .navbar-custom .nav-link:hover, .navbar-custom .nav-link.active { color: #0284c7 !important; }
 .navbar-custom .dropdown-menu { background-color: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; margin-top: 8px !important; }
-.navbar-custom .dropdown-item { color: #334155 !important; font-size: 13px; padding: 8px 16px; }
+.navbar-custom .dropdown-item { color: #334155 !important; font-size: 16px; padding: 8px 16px; }
 .navbar-custom .dropdown-item:hover { background-color: #f1f5f9 !important; color: #0284c7 !important; }
-.navbar-search { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; border-radius: 6px !important; font-size: 13px !important; }
+.navbar-search { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; border-radius: 6px !important; font-size: 16px !important; }
 .navbar-search:focus { border-color: #0284c7 !important; box-shadow: none !important; }
 .navbar-search::placeholder { color: #94a3b8; }
-.btn-nav-primary { background-color: #0284c7 !important; color: #ffffff !important; font-weight: 600; font-size: 13px; border-radius: 6px !important; border: none !important; padding: 6px 16px !important; }
+.btn-nav-primary { background-color: #0284c7 !important; color: #ffffff !important; font-weight: 600; font-size: 16px; border-radius: 6px !important; border: none !important; padding: 6px 16px !important; }
 .btn-nav-primary:hover { background-color: #0369a1 !important; }
-.btn-nav-secondary { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; color: #334155 !important; font-weight: 500; font-size: 13px; border-radius: 6px !important; padding: 6px 16px !important; }
+.btn-nav-secondary { background-color: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; color: #334155 !important; font-weight: 500; font-size: 16px; border-radius: 6px !important; padding: 6px 16px !important; }
 .btn-nav-secondary:hover { background-color: #e2e8f0 !important; color: #0f172a !important; }
 
 
@@ -303,7 +303,7 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
 .footer-custom {
   background-color: #ffffff !important; 
   border-top: 1px solid #e2e8f0 !important; 
-  font-size: 14px;
+  font-size: 18px;
   box-shadow: 0 -4px 15px rgba(15, 23, 42, 0.03) !important; /* Đổ bóng ngược lên để phân tách rõ ràng */
 }
 
@@ -312,7 +312,7 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
 .footer-icon { color: #64748b !important; font-size: 1.2rem; transition: all 0.2s ease-in-out; }
 .footer-icon:hover { color: #0284c7 !important; transform: translateY(-2px); }
 .footer-divider { border-color: #e2e8f0 !important; opacity: 1; }
-.fs-7 { font-size: 12px !important; }
+.fs-7 { font-size: 15px !important; }
 
 
 /* + */

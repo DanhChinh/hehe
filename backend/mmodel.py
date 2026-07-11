@@ -20,7 +20,7 @@ class MoneyManager:
     Bộ quản lý vốn theo chiến thuật D'Alembert cải tiến dựa trên Chuỗi (Streak-based).
     Tự động GIẢM quy mô vị thế khi đạt chuỗi THẮNG và TĂNG quy mô vị thế khi gặp chuỗi THUA.
     """
-    def __init__(self, streak_threshold=5, base_size=1.0):
+    def __init__(self, streak_threshold=8, base_size=1.0):
         self.base_size = float(base_size)          # Khối lượng cơ sở tối thiểu (đơn vị tăng/giảm)
         self.position_size = float(base_size)      # Khối lượng vào lệnh hiện tại (bet)
         self.streak_counter = 0                    # Bộ đếm chuỗi hiệu suất (counter_profit)
@@ -243,10 +243,11 @@ class TradingModel:
         self.money_manager.accumulated_profit = state_data["stats"]["accumulated_profit"]
         
         # FIXED: Khôi phục trọn vẹn biểu đồ lịch sử đi ngang từ file JSON nếu tồn tại
-        if "fixed_equity_curve" in state_data["stats"]:
-            self.fixed_equity_curve = [float(x) for x in state_data["stats"]["fixed_equity_curve"]]
-        else:
-            self.fixed_equity_curve = [float(self.money_manager.accumulated_profit)]
+        # if "fixed_equity_curve" in state_data["stats"]:
+        #     self.fixed_equity_curve = [float(x) for x in state_data["stats"]["fixed_equity_curve"]]
+        # else:
+        #     self.fixed_equity_curve = [float(self.money_manager.accumulated_profit)]
+        self.fixed_equity_curve = [0.0]
         
         # 2. Thiết lập MẶC ĐỊNH hoàn toàn và đồng bộ hóa cấu trúc mảng
         self.ncc_threshold = 0.5
