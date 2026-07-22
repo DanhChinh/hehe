@@ -1,5 +1,5 @@
 function sendMessageToGame(b, sid, eid) {
-  if (!b || !sid || !eid ) {
+  if (!b || !sid || !eid) {
     return 0;
   }
 
@@ -103,7 +103,7 @@ function socket_connect() {
         sendDataToThuhuyenFun(JSON.parse(JSON.stringify(record)));
         let rs = mgs.d1 + mgs.d2 + mgs.d3;
         TradeTable.close(record.sid, `${rs > 10 ? '↑' : '⇩⇩'}`);
-        
+
         addCandleValue(rs > 10 ? 1 : -1)
 
 
@@ -111,7 +111,7 @@ function socket_connect() {
 
         socket_io.emit("check", {
           'sid': record.sid,
-          'rs': rs 
+          'rs': rs
         })
 
         return;
@@ -125,22 +125,16 @@ function socket_connect() {
       //sended
       if (mgs.cmd === 15002) {
         mgs.bs.forEach(element => {
-          if(element.eid == 1) {TradeTable.matchBuy(record.sid , element.b);}
-          else{TradeTable.matchSell(record.sid , element.b);}    
+          if (element.eid == 1) { TradeTable.matchBuy(record.sid, element.b); }
+          else { TradeTable.matchSell(record.sid, element.b); }
         });
         return;
       }
 
       if (mgs.cmd === 100) {
-        meanTradingState.mgs_As_gold = mgs.As.gold;
-
-        const mgsGoldElem = document.getElementById('mgs_As_gold');
-
-if (mgsGoldElem) {
-    mgsGoldElem.innerText = formatNumber(meanTradingState.mgs_As_gold);
-}
-
-        addMessage(JSON.stringify(`${mgs.dn}: ${mgs.As.gold}`), "Hserver")
+        mainPlayer.name = mgs.dn;
+        mainPlayer.gold = mgs.As.gold;
+        mainPlayer.render()
         return;
       }
     } else {
@@ -160,7 +154,7 @@ if (mgsGoldElem) {
   socket.onclose = function (event) {
     addMessage('socket close', 'Hserver')
     clearInterval(sendInterval);
-        if (reconnectCount >= 2) {
+    if (reconnectCount >= 2) {
       console.warn("Đã vượt quá số lần reconnect cho phép");
       return;
     }

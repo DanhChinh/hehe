@@ -43,8 +43,8 @@ class TradingModel:
             "name": str(self.name),
             "predict": self.predict,
             "history":self.history,
-            "money":self.money,
-            "bet":self.bet,
+            "money":round(self.money, 2),
+            "bet":round(self.bet, 4),
             "status":self.status
 
         }
@@ -78,3 +78,18 @@ class TradingModelManager:
             data.append(model.get_info())
         return data
 
+# --- CÁCH KHẮC PHỤC DÙNG SINGLETON SAFE-THREAD ---
+from threading import Lock
+_tmm_instance = None
+_tmm_lock = Lock()
+
+
+def get_tmm_instance():
+    """Hàm lấy instance duy nhất của TradingModelManager (Thread-safe)"""
+    global _tmm_instance
+    if _tmm_instance is None:
+        with _tmm_lock:
+            # Double-check locking để tránh tạo 2 instance cùng lúc
+            if _tmm_instance is None:
+                _tmm_instance = TradingModelManager()
+    return _tmm_instance

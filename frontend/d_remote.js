@@ -10,11 +10,59 @@ let lastSavedCurve = [];
 let lastPredict = 0;
 
 // --- CẤU HÌNH TRẠNG THÁI KHỞI TẠO MẶC ĐỊNH ---
-let meanTradingState = {
+let mainPlayer = {
+  name: "",
+  gold: 0,
+  change: 0,
+  x_change: 1000,
   isPlay: true,
   playHistory: [],
-  mgs_As_gold: 0
+
+  // 1. Khởi tạo các sự kiện lắng nghe (Event Listeners)
+  initEvents: function() {
+    const inputXChange = document.getElementById("player-x_change");
+    const btnPlay = document.getElementById("btn-is-play");
+
+    // Ràng buộc chiều HTML -> JS cho x_change
+    inputXChange.addEventListener("input", (e) => {
+      this.x_change = Number(e.target.value);
+      // Bạn có thể log ra để kiểm tra: console.log("x_change updated:", this.x_change);
+    });
+
+    // Ràng buộc chiều HTML -> JS cho isPlay (khi click nút)
+    btnPlay.addEventListener("click", () => {
+      this.isPlay = !this.isPlay; // Đảo trạng thái true/false
+      this.render(); // Render lại để giao diện đổi màu/chữ nút bấm
+    });
+  },
+
+  // 2. Render dữ liệu từ JS -> HTML
+  render: function() {
+    document.getElementById("player-name").innerText = this.name;
+    document.getElementById("player-gold").innerText = this.gold.toLocaleString();
+    document.getElementById("player-change").innerText = this.change.toLocaleString();
+
+    // Gán giá trị x_change vào ô input
+    document.getElementById("player-x_change").value = this.x_change;
+
+    // Cập nhật trạng thái nút bấm
+    let btnPlay = document.getElementById("btn-is-play");
+    if (!this.isPlay) {
+      btnPlay.innerText = "▶ Play";
+      btnPlay.className = "btn btn-danger w-100 fw-bold";
+    } else {
+      btnPlay.innerText = "⏸ Playing";
+      btnPlay.className = "btn btn-success w-100 fw-bold";
+    }
+  }
 };
+
+// --- CHẠY CHƯƠNG TRÌNH ---
+// Gắn các sự kiện lắng nghe trước
+mainPlayer.initEvents();
+
+// Lần đầu hiển thị dữ liệu ra giao diện
+mainPlayer.render();
 
 async function loadAccessToken() {
   try {
@@ -71,17 +119,17 @@ DOM_connectPyserver.onclick = (e) => {
     // Đọc trạng thái nút bấm isPlay trực tiếp từ Switch trên giao diện
     const meanPlayCheckbox = document.getElementById("mean-is-play");
     if (meanPlayCheckbox) {
-      meanTradingState.isPlay = meanPlayCheckbox.checked;
+      mainPlayer.isPlay = meanPlayCheckbox.checked;
     }
 
     // --- LOGIC TỰ ĐỘNG NGẮT (CHECK VA CHẠM KHI CÓ DỮ LIỆU MỚI TỪ PYTHON) ---
-    if (meanTradingState.isPlay && data[0]) {
+    if (mainPlayer.isPlay && data[0]) {
       const tpPrice = parseFloat(document.getElementById("manual-tp")?.value) || 999999;
       const slPrice = parseFloat(document.getElementById("manual-sl")?.value) || -999999;
       const latestEquity = data[0].fixed_equity_curve?.slice(-1)[0] ?? data[0].accumulated_profit;
 
       if (latestEquity >= tpPrice || latestEquity <= slPrice) {
-        meanTradingState.isPlay = false;
+        mainPlayer.isPlay = false;
         if (meanPlayCheckbox) meanPlayCheckbox.checked = false;
 
         const label = document.getElementById("mean-is-play-label");
@@ -94,8 +142,8 @@ DOM_connectPyserver.onclick = (e) => {
 
     // Đồng bộ mảng lịch sử trạng thái chạy phục vụ ECharts chẻ đoạn màu
     const currentCurveLength = data[0]?.fixed_equity_curve?.length || 0;
-    while (meanTradingState.playHistory.length < currentCurveLength) {
-      meanTradingState.playHistory.push(meanTradingState.isPlay);
+    while (mainPlayer.playHistory.length < currentCurveLength) {
+      mainPlayer.playHistory.push(mainPlayer.isPlay);
     }
 
     // Cập nhật dữ liệu lên bảng và kích hoạt luồng vẽ lại toàn bộ đồ thị
@@ -103,18 +151,16 @@ DOM_connectPyserver.onclick = (e) => {
     capNhatMap(data);
     // if (!sid) return
 
-    if (!sid || !meanTradingState.isPlay) return;
+    if (!sid || !mainPlayer.isPlay) return;
 
     // --- LOGIC TÍNH TOÁN KHỐI LƯỢNG VÀ ĐẨY LỆNH VÀO GAME ---
     let buy_value = 0;
     let sell_value = 0;
-    // let globalVolElement = document.getElementById("global-volume");
-    // let volume = globalVolElement ? (+globalVolElement.value * 1000) : 1000;
 
     data.forEach((d) => {
       if(d.status === 0) return;
-      if (d.predict == 1) buy_value += 1000 * d.bet;
-      else  sell_value += 1000 * d.bet;
+      if (d.predict == 1) buy_value += mainPlayer.x_change * d.bet;
+      else  sell_value += mainPlayer.x_change * d.bet;
     });
     console.log(data)
     let money = roundToThousand(Math.abs(buy_value - sell_value))
@@ -205,7 +251,7 @@ function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
         element.addEventListener(element.type === 'checkbox' ? 'change' : 'input', () => {
           const meanPlayCheckbox = document.getElementById("mean-is-play");
           if (meanPlayCheckbox) {
-            meanTradingState.isPlay = meanPlayCheckbox.checked;
+            mainPlayer.isPlay = meanPlayCheckbox.checked;
           }
           if (lastSavedCurve && lastSavedCurve.length > 0) {
             kichHoatVeLaiThuCong(lastPredict);
@@ -277,7 +323,7 @@ function kichHoatVeLaiThuCong(currentPredict = 0) {
   const meanDom = document.getElementById('main-chart-dom');
   if (!meanDom || !lastSavedCurve || lastSavedCurve.length === 0) return;
 
-  const isPlayChecked = meanTradingState.isPlay;
+  const isPlayChecked = mainPlayer.isPlay;
   const tpVal = parseFloat(document.getElementById('manual-tp')?.value);
   const slVal = parseFloat(document.getElementById('manual-sl')?.value);
 
@@ -292,7 +338,7 @@ function kichHoatVeLaiThuCong(currentPredict = 0) {
     manualTP: isNaN(tpVal) ? null : tpVal,
     manualSL: isNaN(slVal) ? null : slVal,
     signal: currentPredict === 1 ? 'BUY' : currentPredict === 2 ? 'SELL' : 'HOLD',
-    playHistory: meanTradingState.playHistory
+    playHistory: mainPlayer.playHistory
   };
 
   // Đẩy tham số sang hàm cấu hình của ECharts

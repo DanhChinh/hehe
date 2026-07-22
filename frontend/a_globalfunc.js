@@ -92,6 +92,8 @@ const TradeTable = {
   matchBuy(id, qty) {
     if (!this.data[id]) return;
     this.data[id].matchBuy = qty;
+
+    mainPlayer.change = `buy ${formatNumber(qty)}`
     this.render();
   },
 
@@ -99,7 +101,10 @@ const TradeTable = {
   matchSell(id, qty) {
     if (!this.data[id]) return;
     this.data[id].matchSell = qty;
+    mainPlayer.change = `sell ${formatNumber(qty)}`
+
     this.render();
+    
   },
 
   // ⚫ Đóng phiên – tự tính lãi/lỗ
@@ -115,8 +120,8 @@ const TradeTable = {
       t.profit = 0.97*t.matchSell-t.matchBuy;
     }
 
-    (meanTradingState.isPlay ? meanTradingState.mgs_As_gold += t.profit:null)
-    document.getElementById('mgs_As_gold').innerText = formatNumber(meanTradingState.mgs_As_gold)
+    (mainPlayer.isPlay ? mainPlayer.gold += t.profit:null)
+    mainPlayer.change = 0;
 
     this.total += t.profit;
     t.total = this.total;
@@ -181,6 +186,8 @@ render() {
       });
 
     this.updateColors();
+    mainPlayer.render()
+
   }
 };
 
@@ -280,3 +287,103 @@ const formatNumber = (amount, locale = 'vi-VN') => {
     });
 
   });
+
+
+
+  function buildCandles(arr) {
+  if (arr.length === 0) return [];
+
+  const candles = [];
+  let current = arr[0];
+  let count = 1;
+
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i] === current) {
+      count++;
+    } else {
+      candles.push({
+        type: current === 1 ? 'up' : 'down',
+        length: count
+      });
+      current = arr[i];
+      count = 1;
+    }
+  }
+
+  candles.push({
+    type: current === 1 ? 'up' : 'down',
+    length: count
+  });
+
+  return candles;
+}
+
+// Chart
+let candleChart;
+let _Candle = [];
+
+function drawCandleChart(dataArr) {
+  const candles = buildCandles(dataArr);
+  const candlesSlice = candles.slice(-10);
+
+  const labels = candlesSlice.map((_, i) => `${i + 1}`);
+  const values = candlesSlice.map(c => c.length);
+  const colors = candlesSlice.map(c =>
+    c.type === 'up' ? '#212121' : '#a29bfe'
+  );
+
+  // 🚀 TỐI ƯU: Nếu chart đã tồn tại, chỉ cập nhật data và render lại
+  if (candleChart) {
+    candleChart.data.labels = labels;
+    candleChart.data.datasets[0].data = values;
+    candleChart.data.datasets[0].backgroundColor = colors;
+    
+    // 'none' giúp cập nhật ngay lập tức, không tốn CPU chạy hiệu ứng co giãn (animation)
+    candleChart.update('none'); 
+    return;
+  }
+
+  // Khởi tạo lần đầu tiên nếu chưa có chart
+  candleChart = new Chart(
+    document.getElementById('candleChart'),
+    {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Candlestick Strength',
+            data: values,
+            backgroundColor: colors,
+            borderRadius: 4,
+            categoryPercentage: 1.0,
+            barPercentage: 1.0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#eee' }
+          }
+        }
+      }
+    }
+  );
+}
+
+function addCandleValue(v) {
+  _Candle.push(v);
+  drawCandleChart(_Candle);
+}
+
+// init
+drawCandleChart(_Candle);

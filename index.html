@@ -20,16 +20,223 @@
 <body>
 
 
-  <header></header>
-  <main class="main-wrapper"></main>
-  <footer></footer>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top shadow-sm">
+      <div class="container">
+
+        <a class="navbar-brand fw-bold text-white fs-5" href="#">
+          MyWebsite
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Trang chủ</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Giới thiệu</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                Dịch vụ
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark shadow">
+                <li><a class="dropdown-item" href="#">Web Development</a></li>
+                <li><a class="dropdown-item" href="#">AI & ML</a></li>
+                <li><a class="dropdown-item" href="#">Mobile App</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Liên hệ</a>
+            </li>
+          </ul>
+
+          <form class="position-relative me-3 d-none d-lg-block" style="width: 280px;">
+            <input id="DOM_accessToken" type="search" class="form-control form-control-sm navbar-search"
+              placeholder="Tìm kiếm...">
+            <button type="submit"
+              class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent text-muted">
+              <i class="bi bi-search"></i>
+            </button>
+          </form>
+
+          <div class="d-flex gap-2">
+            <a id="DOM_isConnectGame" href="#" class="btn btn-sm btn-nav-secondary">Đăng nhập</a>
+            <a id="DOM_connectPyserver" href="#" class="btn btn-sm btn-nav-primary">Đăng ký</a>
+          </div>
+
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main class="main-wrapper">
+    <div class="row g-4">
+
+      <div class="col-lg-8">
+        <div class="container-fluid p-0 mb-3" id="DOM_dashboard"></div>
+        <div class="container-fluid p-0" id="DOM_map"></div>
+      </div>
+
+
+
+      <div class="col-lg-4 d-flex flex-column gap-2">
+
+        <div class="card shadow-sm has-close-btn" style="min-height: 160px;">
+          <div class="card-header fw-bold">
+            👨‍💻 Thông tin
+          </div>
+
+          <div class="card-body">
+            <!-- Hiển thị Name, Gold, Change -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted fw-bold">Name:</span>
+              <span id="player-name" class="fw-semibold">--</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted fw-bold">Gold:</span>
+              <span id="player-gold" class="fw-semibold text-warning">0</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-muted fw-bold">Change:</span>
+              <span id="player-change" class="fw-semibold text-success">0</span>
+            </div>
+
+            <hr class="my-3">
+
+            <!-- Value (Bet) & Button isPlay -->
+            <div class="row g-2 align-items-center mb-3">
+              <div class="col-auto">
+                <label for="player-xchange" class="col-form-label text-muted fw-bold">Value:</label>
+              </div>
+              <div class="col">
+                <input type="number" id="player-x_change" class="form-control" value="1000">
+              </div>
+            </div>
+
+            <button id="btn-is-play" type="button" class="btn btn-success w-100 fw-bold">
+              ⏸ Playing
+            </button>
+          </div>
+        </div>
+        <div class="card shadow-sm has-close-btn" style="min-height: 160px;">
+          <div class="card-header fw-bold">
+            💬 Tin nhắn mới
+          </div>
+          <ul class="list-group list-group-flush flex-grow-1" id="chat-container">
+          </ul>
+          <div class="card-footer text-center">
+            <a href="#" class="text-decoration-none">Xem tất cả</a>
+          </div>
+        </div>
+        <div class="card has-close-btn p-2">
+          <div class="card-body p-0">
+            <canvas id="candleChart" height="120"></canvas>
+          </div>
+          <div class="progress w-100" style="height: 4px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: 75%;" aria-valuenow="75"
+              aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+
+        <div class="card has-close-btn p-0">
+          <div class="table-responsive">
+            <table id="tradeTable" class="table table-sm table-borderless m-0">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Buy</th>
+                  <th>Match</th>
+                  <th>Sell</th>
+                  <th>Match</th>
+                  <th>Market</th>
+                  <th>Sessionp</th>
+                  <th>Netp</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="dont_touch_parent">
+          <div class="dont_touch border-loop is-draggable bg_red">
+            <span>DYOR</span>
+          </div>
+          <div class="dont_touch border-loop is-draggable bg_blue">
+            <span>Volatile</span>
+          </div>
+        </div>
+
+      </div>
 
 
 
 
-  <script src="./frontend/z_header.js"></script>
-  <script src="./frontend/z_main.js"></script>
-  <script src="./frontend/z_footer.js"></script>
+    </div>
+  </main>
+  <footer class="footer-custom pt-5 pb-4">
+    <div class="container">
+      <div class="row">
+
+        <div class="col-md-4 mb-4">
+          <h5 class="fw-bold text-white mb-3">MyWebsite</h5>
+          <p class="text-muted fs-6">
+            Nền tảng chia sẻ kiến thức công nghệ, lập trình và AI.
+          </p>
+        </div>
+
+        <div class="col-md-2 mb-4">
+          <h6 class="fw-bold text-white mb-3">Liên kết</h6>
+          <ul class="list-unstyled d-flex flex-column gap-2">
+            <li><a href="#" class="footer-link text-decoration-none">Trang chủ</a></li>
+            <li><a href="#" class="footer-link text-decoration-none">Giới thiệu</a></li>
+            <li><a href="#" class="footer-link text-decoration-none">Dịch vụ</a></li>
+            <li><a href="#" class="footer-link text-decoration-none">Liên hệ</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-3 mb-4">
+          <h6 class="fw-bold text-white mb-3">Hỗ trợ</h6>
+          <ul class="list-unstyled d-flex flex-column gap-2">
+            <li><a href="#" class="footer-link text-decoration-none">FAQ</a></li>
+            <li><a href="#" class="footer-link text-decoration-none">Chính sách bảo mật</a></li>
+            <li><a href="#" class="footer-link text-decoration-none">Điều khoản dịch vụ</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-3 mb-4">
+          <h6 class="fw-bold text-white mb-3">Liên hệ</h6>
+          <p class="text-muted mb-2">📍 Việt Nam</p>
+          <p class="text-muted mb-2">📧 contact@email.com</p>
+          <p class="text-muted">📞 0123 456 789</p>
+
+          <div class="d-flex gap-3 mt-3">
+            <a href="#" class="footer-icon"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="footer-icon"><i class="bi bi-github"></i></a>
+            <a href="#" class="footer-icon"><i class="bi bi-youtube"></i></a>
+          </div>
+        </div>
+
+      </div>
+
+      <hr class="footer-divider my-4">
+
+      <div class="text-center text-muted fs-7">
+        © 2026 MyWebsite. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+
+
+
   <script src="./frontend/a_globalfunc.js"></script>
   <script src="./frontend/b_echart.js"></script>
   <script src="./frontend/c_main.js"></script>

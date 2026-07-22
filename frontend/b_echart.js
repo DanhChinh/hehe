@@ -96,7 +96,7 @@ function drawBaseChart(chartDom, dataArray, modelName) {
     if (!chartDom || !dataArray || dataArray.length === 0) return;
     let chart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
     const option = {
-        title: { text: `${modelName} (Nền tảng tính toán)`, textStyle: { color: '#9ca3af', fontSize: 11 }, top: 5, left: 10 },
+        title: { text: `${modelName}`, textStyle: { color: '#9ca3af', fontSize: 11 }, top: 5, left: 10 },
         grid: { left: '4%', right: '4%', bottom: '5%', top: '40', containLabel: true },
         xAxis: { type: 'category', data: dataArray.map((_, i) => i), axisLabel: { show: false } },
         yAxis: { type: 'value', scale: true, splitLine: { lineStyle: { color: '#1f2937' } } },
