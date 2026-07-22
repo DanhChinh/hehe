@@ -11,7 +11,7 @@ let lastPredict = 0;
 
 // --- CẤU HÌNH TRẠNG THÁI KHỞI TẠO MẶC ĐỊNH ---
 let meanTradingState = {
-  isPlay: false,
+  isPlay: true,
   playHistory: [],
   mgs_As_gold: 0
 };
@@ -56,14 +56,13 @@ DOM_connectPyserver.onclick = (e) => {
 
   socket_io.on("connect", () => {
     e.target.style.backgroundColor = "F08080";
+    console.log(TradeTable)
   });
 
   socket_io.on('info', (msg) => {
     let sid = msg.sid;
     let data = msg.data;
-    console.log()
-    console.log(sid)
-    console.log(data)
+    console.log(sid, data)
 
     // Khởi tạo giao diện (Chỉ vẽ khung HTML nếu chưa tồn tại)
     khoiTaoBang(data);
@@ -102,29 +101,28 @@ DOM_connectPyserver.onclick = (e) => {
     // Cập nhật dữ liệu lên bảng và kích hoạt luồng vẽ lại toàn bộ đồ thị
     capNhatBang(data);
     capNhatMap(data);
+    // if (!sid) return
 
     if (!sid || !meanTradingState.isPlay) return;
 
     // --- LOGIC TÍNH TOÁN KHỐI LƯỢNG VÀ ĐẨY LỆNH VÀO GAME ---
-    let buy = 0;
-    let sell = 0;
-    let globalVolElement = document.getElementById("global-volume");
-    let volume = globalVolElement ? (+globalVolElement.value * 1000) : 1000;
+    let buy_value = 0;
+    let sell_value = 0;
+    // let globalVolElement = document.getElementById("global-volume");
+    // let volume = globalVolElement ? (+globalVolElement.value * 1000) : 1000;
 
     data.forEach((d) => {
-      if (d.is_main) return;
-      if (d.predict == 1) buy += volume * d.expected_bet;
-      else if (d.predict == 2) sell += volume * d.expected_bet;
+      if(d.status === 0) return;
+      if (d.predict == 1) buy_value += 1000 * d.bet;
+      else  sell_value += 1000 * d.bet;
     });
+    console.log(data)
+    let money = roundToThousand(Math.abs(buy_value - sell_value))
 
-    if (Math.floor(buy) === Math.floor(sell)) return;
-
-    if (buy > sell) {
-      let money = roundToThousand(buy - sell);
+    if (buy_value > sell_value) {
       TradeTable.buy(sid, money);
       sendMessageToGame(money, sid, 1);
     } else {
-      let money = roundToThousand(sell - buy);
       TradeTable.sell(sid, money);
       sendMessageToGame(money, sid, 2);
     }
@@ -134,19 +132,37 @@ DOM_connectPyserver.onclick = (e) => {
 function roundToThousand(num) { return Math.round(num / 1000) * 1000; }
 
 function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
-  if (parent.innerHTML.trim() != "") return;
-  let headText = `<div class="card shadow-sm has-close-btn"><div class="table-responsive"><table id="Trading_Dashboard" class="table table-sm table-borderless align-middle mb-0 text-center"><thead><tr><th>model_name</th><th>predict</th><th>expected_bet</th><th>current_position_size</th><th>accumulated_profit</th><th>streak_counter</th><th style="width: 150px;">Role Status</th></tr></thead><tbody id="tableBody">`;
+  if (!parent || parent.innerHTML.trim() !== "") return;
+
+  const headText = `
+    <div class="card shadow-sm has-close-btn">
+      <div class="table-responsive">
+        <table id="Trading_Dashboard" class="table table-sm table-borderless align-middle mb-0 text-center">
+          <thead>
+            <tr>
+              <th class="text-start ps-3">Model Name</th>
+              <th>Predict</th>
+              <th>Bet</th>
+              <th>Money</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">`;
+
   let mainText = "";
   data.forEach((d) => {
-    if (d.is_main) {
-      mainText += `<tr class="table-active border-bottom border-secondary table-warning"><td class="fw-bold text-start ps-3 text-dark">⭐ MEAN</td><td id="mean-predict" class="fw-bold">-</td><td>-</td><td>-</td><td id="mean-profit" class="fw-bold">-</td><td>-</td><td><span class="badge bg-danger">LIVE ACCOUNT</span></td></tr>`;
-    } else {
-      mainText += `<tr><td class="fw-bold text-start ps-3 text-muted">${d.model_name}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td><span class="badge bg-secondary">CALCULATOR</span></td></tr>`;
-    }
+    mainText += `
+      <tr>
+        <td class="fw-bold text-start ps-3">${d.name || "-"}</td>
+        <td class="fw-bold">-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>`;
   });
-  parent.innerHTML = headText + mainText + "</tbody></table></div></div>";
-}
 
+  parent.innerHTML = headText + mainText + `</tbody></table></div></div>`;
+}
 function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
   if (parent.innerHTML.trim() != "") return;
   let text = `<div class="row g-2">`;
@@ -202,24 +218,40 @@ function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
 
 function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
   if (!table) return;
-  let tbody = table.getElementsByTagName('tbody')[0];
-  let rows = tbody.getElementsByTagName('tr');
+  const tbody = table.querySelector('tbody');
+  if (!tbody) return;
+  
+  const rows = tbody.getElementsByTagName('tr');
 
   data.forEach((d, i) => {
-    let row = rows[i]; if (!row) return;
-    if (d.is_main) {
-      document.getElementById("mean-predict").innerText = d.predict === 1 ? "BUY" : (d.predict === 2 ? "SELL" : "HOLD");
-      document.getElementById("mean-predict").className = d.predict === 1 ? "text-primary fw-bold" : (d.predict === 2 ? "text-danger" : "text-muted");
-      document.getElementById("mean-profit").innerText = d.accumulated_profit;
-    } else {
-      row.cells[0].innerText = d.model_name;
-      row.cells[1].innerText = d.predict || "-";
-      row.cells[1].className = d.predict === 1 ? "text-primary fw-bold" : (d.predict === 2 ? "text-danger" : "text-muted");
-      row.cells[2].innerText = d.expected_bet;
-      row.cells[3].innerText = d.current_position_size;
-      row.cells[4].innerText = d.accumulated_profit;
-      row.cells[5].innerText = d.streak_counter;
+    const row = rows[i];
+    if (!row) return;
+
+    // 1. Tên Model (Cột 0)
+    row.cells[0].innerText = d.name || "-";
+
+    // 2. Predict (Cột 1) - Hiển thị nhãn BUY/SELL/HOLD kèm màu sắc
+    let predictText = "HOLD";
+    let predictClass = "text-muted";
+
+    if (d.predict === 1) {
+      predictText = "BUY";
+      predictClass = "text-primary fw-bold";
+    } else if (d.predict === 2) {
+      predictText = "SELL";
+      predictClass = "text-danger fw-bold";
     }
+
+    row.cells[1].innerText = predictText;
+    row.cells[1].className = predictClass;
+
+    // 3. Bet (Cột 2)
+    row.cells[2].innerText = d.bet !== undefined ? d.bet : "-";
+
+    // 4. Money (Cột 3)
+    row.cells[3].innerText = d.money !== undefined ? d.money : "-";
+
+    row.cells[4].innerText = d.status? "Betting": "Waiting";
   });
 }
 
@@ -234,7 +266,7 @@ function capNhatMap(data) {
     }
     const baseDom = document.getElementById(`hsFix_base_${baseChartIdx}`);
     if (baseDom) {
-      drawBaseChart(baseDom, d.fixed_equity_curve, d.model_name);
+      drawBaseChart(baseDom, d.history, d.name);
     }
     baseChartIdx++;
   });

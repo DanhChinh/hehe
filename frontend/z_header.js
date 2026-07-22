@@ -51,7 +51,9 @@ const header_text = `
       <div class="d-flex gap-2">
         <a id="DOM_isConnectGame" href="#" class="btn btn-sm btn-nav-secondary">Đăng nhập</a>
         <a id="DOM_connectPyserver" href="#" class="btn btn-sm btn-nav-primary">Đăng ký</a>
+        <a id="mgs_As_gold" href="#" class="btn btn-warning">00000</a>
       </div>
+
     </div>
   </div>
 </nav>

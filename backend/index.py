@@ -2,7 +2,7 @@ from flask import Flask, jsonify, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import os, json
-from mmodel import *
+from trading_manager import *
 from handle_db import handle_progress 
 app = Flask(
     __name__,
@@ -11,6 +11,9 @@ app = Flask(
     )
 CORS(app)  # Bật CORS cho toàn bộ ứng dụng
 socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả nguồn
+
+tmm = TradingModelManager()
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -21,34 +24,25 @@ def handle_predict(msg):
     progress = msg.get('progress')
     x_pred = handle_progress(progress, isEnd=False)
     print("x_pred:", x_pred)
-    PREDICT(x_pred)
+    tmm.predict(x_pred)
     emit('info', 
         {
         'sid': msg.get('sid'),
-        'data':GET_ALL_INFO()
+        'data':tmm.get_all_info()
         })
 
 
 @socketio.on('check')
 def handle_check(msg):
     result = msg.get('rs')
-    CHECK(result)
-    # FIND_BEST_MATCHS()
-    emit("info", {'data': GET_ALL_INFO()})
-
-    
-@socketio.on('setPosition')
-def handle_setPosition(msg):
-    index = int(msg.get('index'))
-    SET_POSITON(index)
-    emit("info", {'data': GET_ALL_INFO()})
+    tmm.check(result)
+    emit("info", {'data': tmm.get_all_info()})
 
 
 @socketio.on('connect')
 def handle_connect(auth=None):
     print('✅ Client connected')
-    # FIND_BEST_MATCHS()
-    emit("info", {'data': GET_ALL_INFO()})
+    emit("info", {'data': tmm.get_all_info()})
 
 @socketio.on('disconnect')
 def handle_disconnect():
