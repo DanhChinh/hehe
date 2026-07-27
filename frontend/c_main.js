@@ -103,6 +103,7 @@ function socket_connect() {
         sendDataToThuhuyenFun(JSON.parse(JSON.stringify(record)));
         let rs = mgs.d1 + mgs.d2 + mgs.d3;
         TradeTable.close(record.sid, `${rs > 10 ? '↑' : '⇩⇩'}`);
+        mainPlayer.express_bet = 0;
 
         addCandleValue(rs > 10 ? 1 : -1)
 
@@ -153,6 +154,7 @@ function socket_connect() {
 
   socket.onclose = function (event) {
     addMessage('socket close', 'Hserver')
+    document.getElementById('DOM_isConnectGame').style.backgroundColor = '#f71616'
     clearInterval(sendInterval);
     if (reconnectCount >= 2) {
       console.warn("Đã vượt quá số lần reconnect cho phép");

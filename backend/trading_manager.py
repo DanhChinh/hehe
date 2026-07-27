@@ -30,7 +30,7 @@ class TradingModel:
 
 
     def check(self, actual_label):
-        self.money += self.bet if (self.predict == actual_label) else - self.bet
+        self.money += self.bet*0.97 if (self.predict == actual_label) else - self.bet
         self.history.append(self.money)
 
         self.predict = None
@@ -76,6 +76,47 @@ class TradingModelManager:
         data = []
         for model in self.models:
             data.append(model.get_info())
+
+        total_models = len(data)
+
+        # 1. Tính toán Vote cho Predict và Bet
+        total_bet_buy = sum(d.get("bet", 0) for d in data if d.get("predict") == 1)
+        total_bet_sell = sum(d.get("bet", 0) for d in data if d.get("predict") == 2)
+
+        if total_bet_buy > total_bet_sell:
+            mean_predict = 1
+            mean_bet = total_bet_buy - total_bet_sell
+        elif total_bet_sell > total_bet_buy:
+            mean_predict = 2
+            mean_bet = total_bet_sell - total_bet_buy
+        else:
+            mean_predict = 0  # HOẶC None (Trạng thái HOLD / Hòa cược)
+            mean_bet = 0
+
+        # 2. Tính trung bình cộng Money và Status
+        mean_money = sum(d.get("money", 0) for d in data) / total_models
+        mean_status = sum(d.get("status", 0) for d in data) / total_models
+
+        # 3. Tính trung bình từng phần tử trong History (nếu các model có lịch sử cùng độ dài)
+        mean_history = []
+        if any(d.get("history") for d in data):
+            # Lấy độ dài history nhỏ nhất để tránh lỗi lệch index
+            min_len = min(len(d.get("history", [])) for d in data)
+            for idx in range(min_len):
+                avg_val = sum(d["history"][idx] for d in data) / total_models
+                mean_history.append(avg_val)
+
+        obj_mean = {
+            "name": "⭐ MEAN", 
+            "predict": mean_predict, 
+            "history": mean_history, 
+            "money": round(mean_money, 2), 
+            "bet": round(mean_bet, 2),
+            "status": round(mean_status, 2),
+            "is_main": True
+        }
+
+        data.insert(0, obj_mean)
         return data
 
 # --- CÁCH KHẮC PHỤC DÙNG SINGLETON SAFE-THREAD ---

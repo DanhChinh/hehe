@@ -93,7 +93,6 @@ const TradeTable = {
     if (!this.data[id]) return;
     this.data[id].matchBuy = qty;
 
-    mainPlayer.change = `buy ${formatNumber(qty)}`
     this.render();
   },
 
@@ -101,7 +100,6 @@ const TradeTable = {
   matchSell(id, qty) {
     if (!this.data[id]) return;
     this.data[id].matchSell = qty;
-    mainPlayer.change = `sell ${formatNumber(qty)}`
 
     this.render();
     
@@ -121,7 +119,6 @@ const TradeTable = {
     }
 
     (mainPlayer.isPlay ? mainPlayer.gold += t.profit:null)
-    mainPlayer.change = 0;
 
     this.total += t.profit;
     t.total = this.total;

@@ -180,8 +180,8 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
   position: absolute;
   top: 0;
   right: 0;
-  width: 28px;  
-  height: 28px; 
+  width: 35px;  
+  height: 35px; 
   /* Tạo hình tam giác phẳng cắt góc nghiêng 45 độ màu xám dịu */
   background: linear-gradient(45deg, transparent 50%, #cbd5e1 50%) !important;
   cursor: pointer;
@@ -207,8 +207,8 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
    5. TRẠNG THÁI KHI BỊ ẨN (CONTENT BLINDED)
    ========================================== */
 .has-close-btn.content-blinded {
-  background-color: #e2e8f0 !important; /* Đổi thành khối xám nhạt hẳn khi ẩn */
-  border-color: #cbd5e1 !important;
+  background-color: #989ca1 !important; /* Đổi thành khối xám nhạt hẳn khi ẩn */
+  border-color: #62666b !important;
   min-height: 44px !important;
   height: 44px !important; /* Thu gọn chiều cao đồng đều */
 }
@@ -240,7 +240,7 @@ table#tradeTable tbody tr:hover, table#Trading_Dashboard tbody tr:hover {
    6. CÁC TIỆN ÍCH KÉO THẢ & BORDER LOOP
    ========================================== */
 .is-draggable { cursor: move !important; user-select: none; touch-action: none; }
-.dont_touch_parent { display: flex; position: fixed; bottom: 20px; left: 20px; gap: 12px; z-index: 9999; }
+.dont_touch_parent { display: flex; position: fixed; top: 15%; left: 45%; gap: 12px; z-index: 9999; }
 
 .dont_touch {
   width: 90px;

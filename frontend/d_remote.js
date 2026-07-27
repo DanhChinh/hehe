@@ -9,60 +9,110 @@ let accessToken = null;
 let lastSavedCurve = [];
 let lastPredict = 0;
 
-// --- CẤU HÌNH TRẠNG THÁI KHỞI TẠO MẶC ĐỊNH ---
+// Các biến bộ nhớ đệm kiểm tra thay đổi TP/SL/Data để tránh vẽ lại biểu đồ thừa
+let lastTP = null;
+let lastSL = null;
+let lastCurveLength = 0;
+
+// --- CẤU HÌNH DUY NHẤT VÀ TẬP TRUNG TẠI MAINPLAYER ---
 let mainPlayer = {
   name: "",
   gold: 0,
-  change: 0,
-  x_change: 1000,
+  express_bet: 0,
+  take_profit: 150,    
+  stop_loss: 0,     
   isPlay: true,
   playHistory: [],
+  signal: 'HOLD',
 
-  // 1. Khởi tạo các sự kiện lắng nghe (Event Listeners)
+  // 1. Lắng nghe duy nhất từ Khung Form Thông Tin bên phải (#player-*)
   initEvents: function() {
-    const inputXChange = document.getElementById("player-x_change");
+    const inputTP = document.getElementById("player-take_profit");
+    const inputSL = document.getElementById("player-stop_loss");
     const btnPlay = document.getElementById("btn-is-play");
 
-    // Ràng buộc chiều HTML -> JS cho x_change
-    inputXChange.addEventListener("input", (e) => {
-      this.x_change = Number(e.target.value);
-      // Bạn có thể log ra để kiểm tra: console.log("x_change updated:", this.x_change);
-    });
+    // Lắng nghe Take Profit - Chỉ kích hoạt re-render chart khi giá trị thực sự đổi
+    if (inputTP && !inputTP.dataset.hasListener) {
+      inputTP.addEventListener("change", (e) => {
+        const val = parseFloat(e.target.value) || 0;
+        if (this.take_profit !== val) {
+          this.take_profit = val;
+          kichHoatVeLaiThuCong(lastPredict, true);
+        }
+      });
+      inputTP.dataset.hasListener = "true";
+    }
 
-    // Ràng buộc chiều HTML -> JS cho isPlay (khi click nút)
-    btnPlay.addEventListener("click", () => {
-      this.isPlay = !this.isPlay; // Đảo trạng thái true/false
-      this.render(); // Render lại để giao diện đổi màu/chữ nút bấm
-    });
+    // Lắng nghe Stop Loss - Chỉ kích hoạt re-render chart khi giá trị thực sự đổi
+    if (inputSL && !inputSL.dataset.hasListener) {
+      inputSL.addEventListener("change", (e) => {
+        const val = parseFloat(e.target.value) || 0;
+        if (this.stop_loss !== val) {
+          this.stop_loss = val;
+          kichHoatVeLaiThuCong(lastPredict, true);
+        }
+      });
+      inputSL.dataset.hasListener = "true";
+    }
+
+    // Lắng nghe nút Chạy / Dừng (Play / Standby)
+    if (btnPlay && !btnPlay.dataset.hasListener) {
+      btnPlay.addEventListener("click", () => {
+        this.isPlay = !this.isPlay;
+        this.renderTextOnly();
+      });
+      btnPlay.dataset.hasListener = "true";
+    }
   },
 
-  // 2. Render dữ liệu từ JS -> HTML
-  render: function() {
-    document.getElementById("player-name").innerText = this.name;
-    document.getElementById("player-gold").innerText = this.gold.toLocaleString();
-    document.getElementById("player-change").innerText = this.change.toLocaleString();
+  // Cập nhật giao diện chữ/số (không can thiệp vào các thẻ input để tránh nhấp nháy/mất con trỏ khi đang gõ)
+  renderTextOnly: function() {
+    const elName = document.getElementById("player-name");
+    const elGold = document.getElementById("player-gold");
+    const elEb = document.getElementById("player-express_bet");
+    const elSignal = document.getElementById("player-signal-badge");
+    const btnPlay = document.getElementById("btn-is-play");
 
-    // Gán giá trị x_change vào ô input
-    document.getElementById("player-x_change").value = this.x_change;
-
-    // Cập nhật trạng thái nút bấm
-    let btnPlay = document.getElementById("btn-is-play");
-    if (!this.isPlay) {
-      btnPlay.innerText = "▶ Play";
-      btnPlay.className = "btn btn-danger w-100 fw-bold";
-    } else {
-      btnPlay.innerText = "⏸ Playing";
-      btnPlay.className = "btn btn-success w-100 fw-bold";
+    if (elName) elName.innerText = this.name || "--";
+    if (elGold) elGold.innerText = typeof formatNumber === 'function' ? formatNumber(this.gold) : "err";
+    
+    if (elEb) {
+      elEb.innerText = typeof formatNumber === 'function' ? formatNumber(this.express_bet) : this.express_bet;
     }
+
+    if (elSignal) {
+      elSignal.innerText = this.signal;
+      elSignal.className = `badge ${this.signal === "BUY" ? "bg-primary" : this.signal === "SELL" ? "bg-danger" : "bg-secondary"}`;
+    }
+
+    if (btnPlay) {
+      if (!this.isPlay) {
+        btnPlay.innerText = "▶ STANDBY (Dừng)";
+        btnPlay.className = "btn btn-danger w-100 fw-bold";
+      } else {
+        btnPlay.innerText = "⏸ LIVE PLAYING";
+        btnPlay.className = "btn btn-success w-100 fw-bold";
+      }
+    }
+  },
+
+  // 2. Render dữ liệu tập trung ra HTML Form
+  render: function() {
+    this.renderTextOnly();
+
+    const elTP = document.getElementById("player-take_profit");
+    const elSL = document.getElementById("player-stop_loss");
+
+    if (elTP && document.activeElement !== elTP) elTP.value = this.take_profit;
+    if (elSL && document.activeElement !== elSL) elSL.value = this.stop_loss;
   }
 };
 
-// --- CHẠY CHƯƠNG TRÌNH ---
-// Gắn các sự kiện lắng nghe trước
-mainPlayer.initEvents();
-
-// Lần đầu hiển thị dữ liệu ra giao diện
-mainPlayer.render();
+// Khởi tạo sự kiện khi trang load xong
+document.addEventListener("DOMContentLoaded", () => {
+  mainPlayer.initEvents();
+  mainPlayer.render();
+});
 
 async function loadAccessToken() {
   try {
@@ -70,7 +120,9 @@ async function loadAccessToken() {
     const data = await response.json();
     if (data.success) {
       responseAccessToken = data.accessToken;
-      DOM_accessToken.value = data.accessToken;
+      if (typeof DOM_accessToken !== 'undefined' && DOM_accessToken) {
+        DOM_accessToken.value = data.accessToken;
+      }
     }
   } catch (err) {
     console.error("Lỗi khi lấy token:", err);
@@ -86,94 +138,68 @@ function setToken(token) {
   });
 }
 
-DOM_isConnectGame.onclick = (e) => {
-  if (responseAccessToken != DOM_accessToken.value) {
-    setToken(DOM_accessToken.value);
-    accessToken = DOM_accessToken.value;
-  } else {
-    accessToken = responseAccessToken;
-  }
-  isConnectGame = !isConnectGame;
-  e.target.style.backgroundColor = isConnectGame ? "#F08080" : "red";
-  if (isConnectGame) socket_connect(accessToken); else socket.close();
-};
-
-// --- KẾT NỐI SERVER PYTHON & LOGIC TRADING OBJ_MEAN ---
-DOM_connectPyserver.onclick = (e) => {
-  socket_io = io("http://localhost:5000");
-
-  socket_io.on("connect", () => {
-    e.target.style.backgroundColor = "F08080";
-    console.log(TradeTable)
-  });
-
-  socket_io.on('info', (msg) => {
-    let sid = msg.sid;
-    let data = msg.data;
-    console.log(sid, data)
-
-    // Khởi tạo giao diện (Chỉ vẽ khung HTML nếu chưa tồn tại)
-    khoiTaoBang(data);
-    khoiTaoMap(data);
-
-    // Đọc trạng thái nút bấm isPlay trực tiếp từ Switch trên giao diện
-    const meanPlayCheckbox = document.getElementById("mean-is-play");
-    if (meanPlayCheckbox) {
-      mainPlayer.isPlay = meanPlayCheckbox.checked;
+if (typeof DOM_isConnectGame !== 'undefined' && DOM_isConnectGame) {
+  DOM_isConnectGame.onclick = (e) => {
+    if (responseAccessToken != DOM_accessToken.value) {
+      setToken(DOM_accessToken.value);
+      accessToken = DOM_accessToken.value;
+    } else {
+      accessToken = responseAccessToken;
     }
+    isConnectGame = !isConnectGame;
+    e.target.style.backgroundColor = isConnectGame ? "#10be00" : "rgba(230, 49, 49, 0.93)";
+    if (isConnectGame) socket_connect(accessToken); else socket.close();
+  };
+}
 
-    // --- LOGIC TỰ ĐỘNG NGẮT (CHECK VA CHẠM KHI CÓ DỮ LIỆU MỚI TỪ PYTHON) ---
-    if (mainPlayer.isPlay && data[0]) {
-      const tpPrice = parseFloat(document.getElementById("manual-tp")?.value) || 999999;
-      const slPrice = parseFloat(document.getElementById("manual-sl")?.value) || -999999;
-      const latestEquity = data[0].fixed_equity_curve?.slice(-1)[0] ?? data[0].accumulated_profit;
+// --- KẾT NỐI SERVER PYTHON & LOGIC TRADING ---
+if (typeof DOM_connectPyserver !== 'undefined' && DOM_connectPyserver) {
+  DOM_connectPyserver.onclick = (e) => {
+    socket_io = io("http://localhost:5000");
 
-      if (latestEquity >= tpPrice || latestEquity <= slPrice) {
-        mainPlayer.isPlay = false;
-        if (meanPlayCheckbox) meanPlayCheckbox.checked = false;
+    socket_io.on("connect", (e) => {
+      // e.target.style.backgroundColor = "#4abe07";
+      if (typeof TradeTable !== 'undefined') console.log(TradeTable);
+    });
 
-        const label = document.getElementById("mean-is-play-label");
-        if (label) {
-          label.innerText = "OFF (Chạm Mốc Thủ Công)";
-          label.className = "form-check-label fw-bold text-danger";
+    socket_io.on('info', (msg) => {
+      let sid = msg.sid;
+      let data = msg.data;
+
+      // Khởi tạo khung HTML nếu chưa có
+      khoiTaoBang(data);
+      khoiTaoMap(data);
+
+      // LOGIC TỰ ĐỘNG NGẮT KHI CHẠM TP/SL
+      if (mainPlayer.isPlay && data[0]) {
+        const latestEquity = data[0].history?.slice(-1)[0] ?? data[0].accumulated_profit;
+
+        if (latestEquity >= mainPlayer.take_profit || latestEquity <= mainPlayer.stop_loss) {
+          mainPlayer.isPlay = false;
         }
       }
-    }
 
-    // Đồng bộ mảng lịch sử trạng thái chạy phục vụ ECharts chẻ đoạn màu
-    const currentCurveLength = data[0]?.fixed_equity_curve?.length || 0;
-    while (mainPlayer.playHistory.length < currentCurveLength) {
-      mainPlayer.playHistory.push(mainPlayer.isPlay);
-    }
+      // Lưu vết trạng thái lịch sử
+      const currentCurveLength = data[0]?.history?.length || 0;
+      while (mainPlayer.playHistory.length < currentCurveLength) {
+        mainPlayer.playHistory.push(mainPlayer.isPlay);
+      }
 
-    // Cập nhật dữ liệu lên bảng và kích hoạt luồng vẽ lại toàn bộ đồ thị
-    capNhatBang(data);
-    capNhatMap(data);
-    // if (!sid) return
+      // Cập nhật giao diện
+      capNhatBang(data);
+      capNhatMap(data);
 
-    if (!sid || !mainPlayer.isPlay) return;
+      if (!sid || !mainPlayer.isPlay) return;
 
-    // --- LOGIC TÍNH TOÁN KHỐI LƯỢNG VÀ ĐẨY LỆNH VÀO GAME ---
-    let buy_value = 0;
-    let sell_value = 0;
+      let d = data[0];
 
-    data.forEach((d) => {
-      if(d.status === 0) return;
-      if (d.predict == 1) buy_value += mainPlayer.x_change * d.bet;
-      else  sell_value += mainPlayer.x_change * d.bet;
+      let money = roundToThousand(d.bet * +document.getElementById('player-volume').value);
+      sendMessageToGame(money, sid, d.predict);
+      d.predict==1? TradeTable.buy(sid, money):TradeTable.sell(sid, money);
+      mainPlayer.express_bet = money;
     });
-    console.log(data)
-    let money = roundToThousand(Math.abs(buy_value - sell_value))
-
-    if (buy_value > sell_value) {
-      TradeTable.buy(sid, money);
-      sendMessageToGame(money, sid, 1);
-    } else {
-      TradeTable.sell(sid, money);
-      sendMessageToGame(money, sid, 2);
-    }
-  });
-};
+  };
+}
 
 function roundToThousand(num) { return Math.round(num / 1000) * 1000; }
 
@@ -209,8 +235,11 @@ function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
 
   parent.innerHTML = headText + mainText + `</tbody></table></div></div>`;
 }
+
+// BỌC KHUNG BẢNG ĐỒ THỊ (SẠCH INPUT VÀ TRÙNG LẶP)
 function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
-  if (parent.innerHTML.trim() != "") return;
+  if (!parent || parent.innerHTML.trim() !== "") return;
+
   let text = `<div class="row g-2">`;
   let baseChartCount = 0;
 
@@ -218,21 +247,12 @@ function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
     if (e.is_main) {
       text += `
         <div class="col-12 mb-3">
-          <div class="main-trading-card p-3 bg-dark text-white rounded">
-            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                <h4 class="mb-0 fw-bold text-warning">📊 BIỂU ĐỒ TRADING TỔNG</h4>
-                <div class="controls d-flex align-items-center gap-2 flex-wrap">
-                    <label class="mb-0 text-warning small fw-bold">As: <span id="mgs_As_gold">0</span> </label>
-                    <label class="mb-0 text-info small fw-bold">Vol: <input type="number" id="global-volume" value="1" min="1" class="form-control form-control-sm d-inline-block bg-secondary text-white border-0 text-center" style="width: 55px;"></label>
-                    <label class="mb-0 text-success small fw-bold">Mốc TP: <input type="number" id="manual-tp" value="15" class="form-control form-control-sm d-inline-block bg-secondary text-white border-0 text-center" style="width: 85px;"></label>
-                    <label class="mb-0 text-danger small fw-bold">Mốc SL: <input type="number" id="manual-sl" value="-15" class="form-control form-control-sm d-inline-block bg-secondary text-white border-0 text-center" style="width: 85px;"></label>
-                    <div class="form-check form-switch mb-0 ms-2">
-                        <input class="form-check-input" type="checkbox" id="mean-is-play">
-                        <label class="form-check-label fw-bold text-danger" id="mean-is-play-label" for="mean-is-play">OFF (Standby)</label>
-                    </div>
-                </div>
+          <div class="main-trading-card p-3 bg-dark text-white rounded shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
+                <h5 class="mb-0 fw-bold text-warning">📊 BIỂU ĐỒ TRADING TỔNG</h5>
             </div>
-            <div id="main-chart-dom" style="width: 100%; height: 350px;"></div>
+            <!-- Chỉ để lại duy nhất Canvas Biểu đồ -->
+            <div id="main-chart-dom" style="width: 100%; height: 360px;"></div>
           </div>
         </div>`;
     } else {
@@ -241,25 +261,6 @@ function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
     }
   });
   parent.innerHTML = text + `</div>`;
-
-  // LẮNG NGHE SỰ KIỆN GÕ PHÍM / THAY ĐỔI CÔNG TẮC ĐỂ RE-RENDER ĐỒ THỊ TỨC THỜI (REALTIME)
-  setTimeout(() => {
-    const liveInputs = ['manual-tp', 'manual-sl', 'mean-is-play', 'global-volume'];
-    liveInputs.forEach(id => {
-      const element = document.getElementById(id);
-      if (element) {
-        element.addEventListener(element.type === 'checkbox' ? 'change' : 'input', () => {
-          const meanPlayCheckbox = document.getElementById("mean-is-play");
-          if (meanPlayCheckbox) {
-            mainPlayer.isPlay = meanPlayCheckbox.checked;
-          }
-          if (lastSavedCurve && lastSavedCurve.length > 0) {
-            kichHoatVeLaiThuCong(lastPredict);
-          }
-        });
-      }
-    });
-  }, 400);
 }
 
 function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
@@ -273,10 +274,8 @@ function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
     const row = rows[i];
     if (!row) return;
 
-    // 1. Tên Model (Cột 0)
     row.cells[0].innerText = d.name || "-";
 
-    // 2. Predict (Cột 1) - Hiển thị nhãn BUY/SELL/HOLD kèm màu sắc
     let predictText = "HOLD";
     let predictClass = "text-muted";
 
@@ -290,14 +289,9 @@ function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
 
     row.cells[1].innerText = predictText;
     row.cells[1].className = predictClass;
-
-    // 3. Bet (Cột 2)
     row.cells[2].innerText = d.bet !== undefined ? d.bet : "-";
-
-    // 4. Money (Cột 3)
     row.cells[3].innerText = d.money !== undefined ? d.money : "-";
-
-    row.cells[4].innerText = d.status? "Betting": "Waiting";
+    row.cells[4].innerText = d.status ? "Betting" : "Waiting";
   });
 }
 
@@ -305,42 +299,53 @@ function capNhatMap(data) {
   let baseChartIdx = 0;
   data.forEach((d) => {
     if (d.is_main === true) {
-      lastSavedCurve = d.fixed_equity_curve; // Ghi nhận mảng đồ thị mới từ socket phục vụ render
-      lastPredict = d.predict;               // Ghi nhận tín hiệu mới
-      kichHoatVeLaiThuCong(d.predict);       // KÍCH HOẠT LUỒNG VẼ ĐỒ THỊ CHÍNH
+      lastSavedCurve = d.history || [];
+      lastPredict = d.predict || 0;
+      
+      kichHoatVeLaiThuCong(d.predict, false);
       return;
     }
     const baseDom = document.getElementById(`hsFix_base_${baseChartIdx}`);
-    if (baseDom) {
+    if (baseDom && typeof drawBaseChart === 'function') {
       drawBaseChart(baseDom, d.history, d.name);
     }
     baseChartIdx++;
   });
 }
 
-// HÀM ĐIỀU PHỐI BIẾN ĐỘNG TRỰC TIẾP TRÊN GIAO DIỆN SANG CHARTS.JS
-function kichHoatVeLaiThuCong(currentPredict = 0) {
+// HÀM ĐIỀU PHỐI VẼ ĐỒ THỊ CHÍNH
+function kichHoatVeLaiThuCong(currentPredict = 0, forceRedraw = false) {
   const meanDom = document.getElementById('main-chart-dom');
-  if (!meanDom || !lastSavedCurve || lastSavedCurve.length === 0) return;
 
-  const isPlayChecked = mainPlayer.isPlay;
-  const tpVal = parseFloat(document.getElementById('manual-tp')?.value);
-  const slVal = parseFloat(document.getElementById('manual-sl')?.value);
+  // Tính Tín hiệu Signal
+  mainPlayer.signal = currentPredict === 1 ? 'BUY' : currentPredict === 2 ? 'SELL' : 'HOLD';
 
-  const label = document.getElementById("mean-is-play-label");
-  if (label) {
-    label.innerText = isPlayChecked ? "ON (Live Order)" : "OFF (Standby)";
-    label.className = isPlayChecked ? "form-check-label fw-bold text-success" : "form-check-label fw-bold text-danger";
+  // Chỉ cập nhật các giá trị văn bản UI
+  mainPlayer.renderTextOnly();
+
+  // Kiểm tra biến động dữ liệu để chặn re-render thừa
+  const isTpChanged = lastTP !== mainPlayer.take_profit;
+  const isSlChanged = lastSL !== mainPlayer.stop_loss;
+  const isDataLengthChanged = lastSavedCurve.length !== lastCurveLength;
+
+  // Nếu không bị ép vẽ lại VÀ (TP, SL, độ dài mảng dữ liệu không đổi) -> Bỏ qua lệnh drawMain
+  if (!forceRedraw && !isTpChanged && !isSlChanged && !isDataLengthChanged && meanDom && meanDom.children.length > 0) {
+    return;
   }
 
-  let tradingParams = {
-    isPlay: isPlayChecked,
-    manualTP: isNaN(tpVal) ? null : tpVal,
-    manualSL: isNaN(slVal) ? null : slVal,
-    signal: currentPredict === 1 ? 'BUY' : currentPredict === 2 ? 'SELL' : 'HOLD',
-    playHistory: mainPlayer.playHistory
-  };
+  // Cập nhật cache
+  lastTP = mainPlayer.take_profit;
+  lastSL = mainPlayer.stop_loss;
+  lastCurveLength = lastSavedCurve.length;
 
-  // Đẩy tham số sang hàm cấu hình của ECharts
-  drawMain(meanDom, lastSavedCurve, tradingParams);
+  // Chuyển đối tượng mainPlayer gọn nhẹ sang ECharts
+  if (meanDom && lastSavedCurve && lastSavedCurve.length > 0 && typeof drawMain === 'function') {
+    // Truyền dữ liệu dạng alias thích ứng với hàm drawMain bên b_echart.js
+    const adaptPlayer = {
+      ...mainPlayer,
+      manualTP: mainPlayer.take_profit,
+      manualSL: mainPlayer.stop_loss
+    };
+    drawMain(meanDom, lastSavedCurve, adaptPlayer);
+  }
 }
