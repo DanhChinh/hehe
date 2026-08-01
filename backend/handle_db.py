@@ -10,9 +10,8 @@ ID_COL = "sid"
 
 import sys
 
-# Trỏ alias numpy._core về numpy.core để đánh lừa pickle
-sys.modules['numpy._core'] = np.core
-sys.modules['numpy._core.numeric'] = np.core.numeric
+# sys.modules['numpy._core'] = np.core
+# sys.modules['numpy._core.numeric'] = np.core.numeric
 
 def lam_tron_bac_thu_2(n):
     if n == 0:

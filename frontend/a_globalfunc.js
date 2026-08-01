@@ -1,92 +1,63 @@
 function getTimeHHMM() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
 }
 
-
-function addMessage(content = "...", from = "Player") {
-    const chatBox = document.getElementById('chat-container');
-    const msgDiv = document.createElement('div');
-    // msgDiv.className = `chat-message ${from}`;
-    msgDiv.innerHTML = `          
-        <li class="list-group-item d-flex justify-content-between">
-            <div>
-              <p class="mb-0 text-muted small"><strong>[${getTimeHHMM()} ${from}] </strong> ${content}</p>
-            </div>
-          </li>`
-    chatBox.appendChild(msgDiv);
-
-    // 👇 Giới hạn chỉ giữ lại 20 tin nhắn mới nhất
-    while (chatBox.children.length > 3) {
-        chatBox.removeChild(chatBox.firstChild);
-    }
-    chatBox.scrollTop = chatBox.scrollHeight;
+function isNumeric(str) {
+  if (typeof str !== 'string' && typeof str !== 'number') return false;
+  return !isNaN(str) && !isNaN(parseFloat(str));
 }
-
-
-function setBarValue(value){
-    value = Math.round(100*value/60, 0)
-    const bar = document.querySelector('.progress-bar');
-    bar.style.width = `${value}%`;
-    bar.setAttribute('aria-valuenow', value);
-    // bar.textContent = `${value}%`;
-}
-
 function getColors(value, rangeNumber) {
-    value = Math.max(-rangeNumber, Math.min(rangeNumber, value));
+  value = Math.max(-rangeNumber, Math.min(rangeNumber, value));
 
-    let r, g, b;
+  let r, g, b;
 
-    if (value < 0) {
-        // Đen -> Trắng
-        const t = (value + rangeNumber) / rangeNumber;
-        r = Math.round(255 * t);
-        g = Math.round(255 * t);
-        b = Math.round(255 * t);
-    } else {
-        // Trắng -> Xanh lá đậm (#006400)
-        const t = value / rangeNumber;
-        r = Math.round(255 * (1 - t));
-        g = Math.round(255 * (1 - t) + 100 * t); // 100 ứng với 64 trong hệ Hex (0x64 = 100)
-        b = Math.round(255 * (1 - t));
-    }
+  if (value < 0) {
+    // Đen -> Trắng
+    const t = (value + rangeNumber) / rangeNumber;
+    r = Math.round(255 * t);
+    g = Math.round(255 * t);
+    b = Math.round(255 * t);
+  } else {
+    // Trắng -> Xanh lá đậm (#006400)
+    const t = value / rangeNumber;
+    r = Math.round(255 * (1 - t));
+    g = Math.round(255 * (1 - t) + 100 * t); // 100 ứng với 64 trong hệ Hex (0x64 = 100)
+    b = Math.round(255 * (1 - t));
+  }
 
-    const bgColor = `rgb(${r}, ${g}, ${b})`;
+  const bgColor = `rgb(${r}, ${g}, ${b})`;
 
-    // Sử dụng công thức chuẩn HSP để tính độ sáng trực quan của màu sắc
-    const brightness = Math.sqrt(
-        0.299 * (r * r) +
-        0.587 * (g * g) +
-        0.114 * (b * b)
-    );
+  // Sử dụng công thức chuẩn HSP để tính độ sáng trực quan của màu sắc
+  const brightness = Math.sqrt(
+    0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b),
+  );
 
-    // Nếu độ sáng > 127.5 là nền sáng -> chữ đen, ngược lại nền tối -> chữ trắng
-    const textColor = brightness > 127.5 ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
+  // Nếu độ sáng > 127.5 là nền sáng -> chữ đen, ngược lại nền tối -> chữ trắng
+  const textColor = brightness > 127.5 ? "rgb(0, 0, 0)" : "rgb(255, 255, 255)";
 
-    return { bgColor, textColor };
+  return { bgColor, textColor };
 }
-
-
 
 const TradeTable = {
   maxRows: 10,
   data: {},
   tbody: document.querySelector("#tradeTable tbody"),
-  total:0,
+  total: 0,
 
   // 🟢 MUA (cộng dồn)
-    buy(id, qty) {
+  buy(id, qty) {
     this.init(id);
     this.data[id].buy += qty;
     this.render();
-    },
-    sell(id, qty) {
+  },
+  sell(id, qty) {
     this.init(id);
     this.data[id].sell += qty;
     this.render();
-    },
+  },
 
   // 🔵 Khớp mua
   matchBuy(id, qty) {
@@ -102,7 +73,6 @@ const TradeTable = {
     this.data[id].matchSell = qty;
 
     this.render();
-    
   },
 
   // ⚫ Đóng phiên – tự tính lãi/lỗ
@@ -111,14 +81,20 @@ const TradeTable = {
     const t = this.data[id];
     t.market = thiTruong;
 
-
-    if (thiTruong === "↑") {
-      t.profit = 0.97*t.matchBuy - t.matchSell;
+    if (thiTruong === 1) {
+      t.profit = 0.97 * t.matchBuy - t.matchSell;
     } else {
-      t.profit = 0.97*t.matchSell-t.matchBuy;
+      t.profit = 0.97 * t.matchSell - t.matchBuy;
     }
 
-    (mainPlayer.isPlay ? mainPlayer.gold += t.profit:null)
+
+    if(player.getProperty("_isPlay")) {
+      player.setProperty(
+        "_gold",
+        player.getProperty("_gold")+t.profit
+      )
+    }
+
 
     this.total += t.profit;
     t.total = this.total;
@@ -134,40 +110,37 @@ const TradeTable = {
         sell: 0,
         matchBuy: 0,
         matchSell: 0,
-        market: "",
+        market: 1.5,
         profit: 0,
-        total:0
+        total: 0,
       };
     }
   },
- updateColors() {
-  const rows = Object.values(this.data).slice(-this.maxRows);
-  if (!rows.length) return;
+  updateColors() {
+    const rows = Object.values(this.data).slice(-this.maxRows);
+    if (!rows.length) return;
 
-  const profits = rows.map(r => r.profit);
-  const max = Math.max(...profits);
-  const min = Math.min(...profits);
+    const profits = rows.map((r) => r.profit);
+    const max = Math.max(...profits);
+    const min = Math.min(...profits);
 
-  const rangeNumber = Math.max( Math.abs(max), Math.abs(min));
-  
-  [...this.tbody.children].forEach((tr, i) => {
-    const p = rows[i].profit;
-    const { bgColor, textColor } = getColors(p, rangeNumber);
-    tr.style.setProperty('background-color', bgColor, 'important');
-    tr.style.setProperty('color', textColor, 'important');
-    tr.style.setProperty('--bs-table-color', textColor, 'important');
+    const rangeNumber = Math.max(Math.abs(max), Math.abs(min));
 
-  });
-}
-,
-
+    [...this.tbody.children].forEach((tr, i) => {
+      const p = rows[i].profit;
+      const { bgColor, textColor } = getColors(p, rangeNumber);
+      tr.style.setProperty("background-color", bgColor, "important");
+      tr.style.setProperty("color", textColor, "important");
+      tr.style.setProperty("--bs-table-color", textColor, "important");
+    });
+  },
   // 🖌 Render bảng
-render() {
+  render() {
     this.tbody.innerHTML = "";
 
     Object.values(this.data)
       .slice(-this.maxRows)
-      .forEach(t => {
+      .forEach((t) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${t.id}</td>
@@ -183,204 +156,95 @@ render() {
       });
 
     this.updateColors();
-    mainPlayer.render()
-
-  }
+  },
 };
 
-
-const formatNumber = (amount, locale = 'vi-VN') => {
+const formatNumber = (amount, locale = "vi-VN") => {
   return new Intl.NumberFormat(locale, {
-    style: 'decimal',
+    style: "decimal",
     minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
-    maximumFractionDigits: 1  // Số chữ số thập phân tối đa
-  }).format(amount/1000);
+    maximumFractionDigits: 1, // Số chữ số thập phân tối đa
+  }).format(amount);
 };
 
 
-
-
-  document.addEventListener("DOMContentLoaded", () => {
-    
-    // ==========================================
-    // KHỐI 1: XỬ LÝ NÚT X (ẨN/HIỆN CHUNG)
-    // ==========================================
-    const closeBtnDivs = document.querySelectorAll('.has-close-btn');
-    closeBtnDivs.forEach(div => {
-      // Tự động tạo nút X
-      const closeBtn = document.createElement('span');
-      closeBtn.className = 'global-close-btn';
-      closeBtn.innerHTML = '';
-      div.appendChild(closeBtn);
-
-      // Click nút X để toggle ẩn/hiện
-      closeBtn.addEventListener('click', (event) => {
-        event.stopPropagation(); // Ngăn chặn sự kiện lan ra ngoài
-        div.classList.toggle('content-blinded');
-      });
+async function loadAccessToken() {
+  try {
+    const response = await fetch("https://cyan.io.vn/xg79/get_token.php", {
+      method: "GET",
     });
-
-
-    // ==========================================
-    // KHỐI 2: XỬ LÝ KÉO THẢ ĐỘC LẬP (.is-draggable)
-    // ==========================================
-    const draggableDivs = document.querySelectorAll('.is-draggable');
-    draggableDivs.forEach(div => {
-      let isDragging = false;
-      let offsetX, offsetY;
-
-      const startDrag = (e) => {
-        // NẾU CLICK TRÚNG NÚT X THÌ HỦY LỆNH KÉO (Quan trọng để không bị xung đột)
-        if (e.target.classList.contains('global-close-btn')) return;
-
-        isDragging = true;
-
-        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-
-        const rect = div.getBoundingClientRect();
-        offsetX = clientX - rect.left;
-        offsetY = clientY - rect.top;
-
-        // Chuyển vị trí sang fixed để di chuyển tự do trên màn hình
-        div.style.position = 'fixed';
-        div.style.margin = '0';
-        div.style.left = `${rect.left}px`;
-        div.style.top = `${rect.top}px`;
-      };
-
-      const doDrag = (e) => {
-        if (!isDragging) return;
-        
-        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-
-        let newLeft = clientX - offsetX;
-        let newTop = clientY - offsetY;
-
-        // Giới hạn trong viền màn hình
-        if (newLeft < 0) newLeft = 0;
-        if (newTop < 0) newTop = 0;
-        if (newLeft + div.offsetWidth > window.innerWidth) newLeft = window.innerWidth - div.offsetWidth;
-        if (newTop + div.offsetHeight > window.innerHeight) newTop = window.innerHeight - div.offsetHeight;
-
-        div.style.left = `${newLeft}px`;
-        div.style.top = `${newTop}px`;
-      };
-
-      const stopDrag = () => {
-        isDragging = false;
-      };
-
-      // Đăng ký sự kiện Máy tính (Mouse)
-      div.addEventListener('mousedown', startDrag);
-      document.addEventListener('mousemove', doDrag);
-      document.addEventListener('mouseup', stopDrag);
-
-      // Đăng ký sự kiện Điện thoại (Touch)
-      div.addEventListener('touchstart', startDrag, { passive: true });
-      document.addEventListener('touchmove', doDrag, { passive: false });
-      document.addEventListener('touchend', stopDrag);
-    });
-
-  });
-
-
-
-  function buildCandles(arr) {
-  if (arr.length === 0) return [];
-
-  const candles = [];
-  let current = arr[0];
-  let count = 1;
-
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] === current) {
-      count++;
-    } else {
-      candles.push({
-        type: current === 1 ? 'up' : 'down',
-        length: count
-      });
-      current = arr[i];
-      count = 1;
+    const data = await response.json();
+    if (data.success) {
+      return data.accessToken;
     }
+  } catch (err) {
+    console.error("Lỗi khi lấy token:", err);
   }
-
-  candles.push({
-    type: current === 1 ? 'up' : 'down',
-    length: count
-  });
-
-  return candles;
+  return null;
 }
 
-// Chart
-let candleChart;
-let _Candle = [];
+function setToken(token) {
+  fetch("https://cyan.io.vn/xg79/set_token.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "token=" + encodeURIComponent(token),
+  });
+}
 
-function drawCandleChart(dataArr) {
-  const candles = buildCandles(dataArr);
-  const candlesSlice = candles.slice(-10);
+var MESSAGE_WS = {
+  url: "wss://mynisketgw.hytsocesk.com/websocket",
+  login: (accessToken) => [
+    1,
+    "MiniGame2",
+    "",
+    "",
+    { agentId: "1", accessToken: accessToken, reconnect: false },
+  ],
 
-  const labels = candlesSlice.map((_, i) => `${i + 1}`);
-  const values = candlesSlice.map(c => c.length);
-  const colors = candlesSlice.map(c =>
-    c.type === 'up' ? '#212121' : '#a29bfe'
-  );
+  info: ["6", "MiniGame2", "taixiu_live_gateway_plugin", { cmd: 15000 }],
+  result: (counter) => ["7", "MiniGame2", "1", counter],
+  bet: (b, sid, eid) => [
+    "6",
+    "MiniGame2",
+    "taixiu_live_gateway_plugin",
+    { cmd: 15002, b: b, sid: sid, aid: 1, eid: eid },
+  ],
+};
 
-  // 🚀 TỐI ƯU: Nếu chart đã tồn tại, chỉ cập nhật data và render lại
-  if (candleChart) {
-    candleChart.data.labels = labels;
-    candleChart.data.datasets[0].data = values;
-    candleChart.data.datasets[0].backgroundColor = colors;
-    
-    // 'none' giúp cập nhật ngay lập tức, không tốn CPU chạy hiệu ứng co giãn (animation)
-    candleChart.update('none'); 
-    return;
-  }
+function sendMessageToGame(b, sid, eid) {
+  if (!b || !sid || !eid) return;
 
-  // Khởi tạo lần đầu tiên nếu chưa có chart
-  candleChart = new Chart(
-    document.getElementById('candleChart'),
-    {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Candlestick Strength',
-            data: values,
-            backgroundColor: colors,
-            borderRadius: 4,
-            categoryPercentage: 1.0,
-            barPercentage: 1.0
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          x: {
-            grid: { display: false }
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: '#eee' }
-          }
-        }
+  let message = JSON.stringify(MESSAGE_WS.bet(b, sid, eid));
+  system.setProperty("_messages", message);
+  system.socket.send(message);
+}
+
+function insertDatabase(record) {
+  if (record.progress.length === 0) return;
+  let data = new FormData();
+  data.append("sid", record.sid);
+  data.append("progress", JSON.stringify(record.progress));
+  data.append("d1", record.d1);
+  data.append("d2", record.d2);
+  data.append("d3", record.d3);
+  axios
+    .post("https://cyan.io.vn/xg79/post_data.php", data)
+    .then((response) => {
+      if (response.data.success) {
+        system.setProperty("_messages", `Saved successfully: ${record.sid} ${record.progress.length}`)
+      } else {
+        console.error("Lỗi: " + response.data.message);
       }
-    }
-  );
+      // console.groupEnd()
+    })
+    .catch((error) => {
+      console.error("Lỗi kết nối:", error);
+    });
 }
 
-function addCandleValue(v) {
-  _Candle.push(v);
-  drawCandleChart(_Candle);
-}
+function roundToThousand(num) { return Math.round(num / 1000) * 1000; }
 
-// init
-drawCandleChart(_Candle);
+
+
+
+

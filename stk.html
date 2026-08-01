@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Token Page</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-dark text-light d-flex justify-content-center align-items-center vh-100">
+
+  <div class="card bg-secondary p-4 shadow" style="width: 400px;">
+    <h5 class="mb-3 text-white text-center">Cập nhật Token</h5>
+    
+    <div class="mb-3">
+      <label class="form-label text-muted small mb-1">Token hiện tại trên Server:</label>
+      <div class="p-2 rounded bg-black bg-opacity-25 border border-secondary text-warning small text-break" id="currentTokenDisplay">Đang tải...</div>
+    </div>
+
+    <div class="mb-3">
+      <input type="text" id="tokenInput" class="form-control bg-dark text-light border-0" placeholder="Nhập token mới...">
+    </div>
+    
+    <button class="btn btn-success w-100 fw-bold" onclick="handleSetToken()">Gửi Token</button>
+  </div>
+
+  <script>
+    function loadAccessToken() {
+      fetch("https://cyan.io.vn/xg79/get_token.php", { method: "GET" })
+        .then(response => response.json())
+        .then(data => {
+          const displayEl = document.getElementById("currentTokenDisplay");
+          if (data.success && data.accessToken) {
+            displayEl.innerText = data.accessToken;
+          } else {
+            displayEl.innerText = "Chưa có token";
+          }
+        })
+        .catch(err => {
+          console.error("Lỗi khi lấy token:", err);
+          document.getElementById("currentTokenDisplay").innerText = "Lỗi tải token";
+        });
+    }
+
+    // Tự động gọi khi tải trang
+    loadAccessToken();
+
+    function setToken(token) {
+      fetch("https://cyan.io.vn/xg79/set_token.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "token=" + encodeURIComponent(token)
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert("Đã gửi token thành công!");
+        // Cập nhật lại thẻ hiển thị token ngay sau khi gửi thành công
+        loadAccessToken();
+      })
+      .catch(err => {
+        console.error("Lỗi khi gửi token:", err);
+        alert("Có lỗi xảy ra khi gửi token.");
+      });
+    }
+
+    function handleSetToken() {
+      const tokenValue = document.getElementById("tokenInput").value.trim();
+      if (!tokenValue) {
+        alert("Vui lòng nhập token!");
+        return;
+      }
+      setToken(tokenValue);
+    }
+  </script>
+
+</body>
+</html>

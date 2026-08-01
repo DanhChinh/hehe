@@ -1,9 +1,10 @@
-﻿<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HTML</title>
+  <title>Trading Player Dashboard</title>
 
   <link rel="icon" type="image/png" sizes="32x32" href="./frontend/increase.png">
 
@@ -13,148 +14,24 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Nhúng FontAwesome để thêm icon sinh động -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="./frontend/style.css">
+
+
 </head>
 
-<body>
+<body class="pm-body">
 
-
-  <header>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top shadow-sm">
-      <div class="container">
-
-        <a class="navbar-brand fw-bold text-white fs-5" href="#">
-          MyWebsite
-        </a>
-
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="mainNavbar">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" href="#">Trang chủ</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Giới thiệu</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                Dịch vụ
-              </a>
-              <ul class="dropdown-menu dropdown-menu-dark shadow">
-                <li><a class="dropdown-item" href="#">Web Development</a></li>
-                <li><a class="dropdown-item" href="#">AI & ML</a></li>
-                <li><a class="dropdown-item" href="#">Mobile App</a></li>
-              </ul>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Liên hệ</a>
-            </li>
-          </ul>
-
-          <form class="position-relative me-3 d-none d-lg-block" style="width: 280px;">
-            <input id="DOM_accessToken" type="search" class="form-control form-control-sm navbar-search"
-              placeholder="Tìm kiếm...">
-            <button type="submit"
-              class="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent text-muted">
-              <i class="bi bi-search"></i>
-            </button>
-          </form>
-
-          <div class="d-flex gap-2">
-            <a id="DOM_isConnectGame" href="#" class="btn btn-sm btn-nav-secondary">Đăng nhập</a>
-            <a id="DOM_connectPyserver" href="#" class="btn btn-sm btn-nav-primary">Đăng ký</a>
-          </div>
-
-        </div>
-      </div>
-    </nav>
-  </header>
-  <main class="main-wrapper">
+  <main class="main-wrapper container-fluid py-4">
     <div class="row g-4">
 
-      <div class="col-lg-8">
+      <!-- Cột bên trái: Dashboard & Map -->
+      <div class="col-lg-9">
         <div class="container-fluid p-0 mb-3" id="DOM_dashboard"></div>
         <div class="container-fluid p-0" id="DOM_map"></div>
-      </div>
-
-
-
-      <div class="col-lg-4 d-flex flex-column gap-2">
-
-        <div class="card shadow-sm has-close-btn" style="min-height: 160px;">
-          <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-            <span>👨‍💻 Thông tin Player</span>
-          </div>
-
-          <div class="card-body">
-            <!-- Hiển thị Name, Gold, express_bet -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="text-muted fw-bold">Name:</span>
-              <span id="player-name" class="fw-semibold">--</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="text-muted fw-bold">Status:</span>
-              <span id="player-signal-badge" class="fw-semibold">--</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="text-muted fw-bold">Gold:</span>
-              <span id="player-gold" class="fw-semibold">0</span>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="text-muted fw-bold">Eb:</span>
-              <span id="player-express_bet" class="fw-semibold text-success">0</span>
-            </div>
-
-            <hr class="my-3">
-
-            <!-- Value (Bet), Take Profit (TP), Stop Loss (SL) -->
-            <div class="row g-2 align-items-center mb-2">
-              <div class="col-4">
-                <label for="player-volume" class="col-form-label text-muted fw-bold small">Volume:</label>
-                <input type="number" id="player-volume" class="form-control form-control-sm" value="1000">
-              </div>
-              <div class="col-4">
-                <label for="player-take_profit" class="col-form-label text-muted fw-bold small">TP:</label>
-                <input type="number" id="player-take_profit" class="form-control form-control-sm" value="0">
-              </div>
-              <div class="col-4">
-                <label for="player-stop_loss" class="col-form-label text-muted fw-bold small">SL:</label>
-                <input type="number" id="player-stop_loss" class="form-control form-control-sm" value="0">
-              </div>
-            </div>
-
-            <!-- Nút Bật / Tắt Trạng Thái Playing -->
-            <button id="btn-is-play" type="button" class="btn btn-danger w-100 fw-bold mt-2">
-              ⏹ STANDBY (Dừng)
-            </button>
-          </div>
-        </div>
-        <div class="card shadow-sm has-close-btn" style="min-height: 160px;">
-          <div class="card-header fw-bold">
-            💬 Tin nhắn mới
-          </div>
-          <ul class="list-group list-group-flush flex-grow-1" id="chat-container">
-          </ul>
-          <div class="card-footer text-center">
-            <a href="#" class="text-decoration-none">Xem tất cả</a>
-          </div>
-        </div>
-        <div class="card has-close-btn p-2">
-          <div class="card-body p-0">
-            <canvas id="candleChart" height="120"></canvas>
-          </div>
-          <div class="progress w-100" style="height: 4px;">
-            <div class="progress-bar bg-success" role="progressbar" style="width: 75%;" aria-valuenow="75"
-              aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-        </div>
-
-        <div class="card has-close-btn p-0">
+        <div class="container-fluid p-0" id="DOM_table">
           <div class="table-responsive">
             <table id="tradeTable" class="table table-sm table-borderless m-0">
               <thead>
@@ -173,85 +50,188 @@
               </tbody>
             </table>
           </div>
-        </div>
 
-        <div class="dont_touch_parent">
-          <div class="dont_touch border-loop is-draggable bg_red">
-            <span>DYOR</span>
-          </div>
-          <div class="dont_touch border-loop is-draggable bg_blue">
-            <span>Volatile</span>
-          </div>
         </div>
-
       </div>
 
+      <!-- Cột bên phải: Tách thành 2 khối riêng biệt (Player phía trên, System phía dưới) -->
+      <div class="col-lg-3 d-flex flex-column gap-4">
+                <!-- 2. KHỐI SYSTEM (HỆ THỐNG / KẾT NỐI) -->
+        <div class="container p-0 ">
+          <div class="card pm-card p-4">
+
+            <div class="pm-header d-flex justify-content-between align-items-center">
+              <div>
+                <h4 class="fw-bold text-white m-0"><i class="fa-solid fa-server text-warning me-2"></i>System Manager
+                </h4>
+                <small class="text-muted">Quản lý kết nối & trạng thái mạng</small>
+              </div>
+              <span
+                class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
+                <i class="fa-solid fa-circle fa-2xs me-1"></i> Live
+              </span>
+            </div>
+
+            <div class="list-group list-group-flush bg-transparent">
+              <!-- Token (Ô input hiển thị/nhập token) -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-key me-2 text-warning"></i>
+                  <a href="./stk.html" target="_blank" rel="noopener noreferrer">
+                    Access Token
+                  </a>
+                </span>
+                <input type="text"
+                  class="form-control form-control-sm bg-dark text-light fw-bold border-secondary text-end w-50"
+                  data-prop="_token" oninput="handleInputChange(this)" placeholder="Nhập token...">
+              </div>
+
+                            <!-- Python Server -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-brain me-2 text-info"></i>Python Server</span>
+                <label class="pm-switch mb-0">
+                  <input type="checkbox" data-prop="_isPythonConnected" onchange="handleToggleChange(this)">
+                  <span class="pm-slider"></span>
+                </label>
+              </div>
+
+              <!-- Game Server -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-gamepad me-2 text-warning"></i>Game Server</span>
+                <label class="pm-switch mb-0">
+                  <input type="checkbox" data-prop="_isGameConnected" onchange="handleToggleChange(this)">
+                  <span class="pm-slider"></span>
+                </label>
+              </div>
+
+              <!-- Response Count -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-bolt me-2 text-warning"></i>Phản hồi
+                  (_responseCount)</span>
+                <span class="badge bg-warning text-dark fw-bold fs-6" data-prop="_responseCount">0</span>
+              </div>
+
+              <!-- Tin nhắn hệ thống -->
+              <div class="list-group-item pm-item py-3 px-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-secondary"><i class="fa-solid fa-comments me-2"></i>Tin nhắn (_messages)</span>
+                </div>
+                <div
+                  class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-white small"
+                  data-prop="_messages" style="max-height: 90px; overflow-y: auto;">
+                  Chưa có tin nhắn
+                </div>
+              </div>
+
+              <!-- Lich su hệ thống -->
+              <div class="list-group-item pm-item py-3 px-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-secondary"><i class="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử
+                    (_history)</span>
+                </div>
+                <div
+                  class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-white small"
+                  data-prop="_history" style="max-height: 90px; overflow-y: auto;">
+                  Chưa có lich su
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
 
 
+        <!-- 1. KHỐI PLAYER (NGƯỜI CHƠI) -->
+        <div class="container p-0">
+          <div class="card pm-card p-4">
+
+            <div class="pm-header d-flex justify-content-between align-items-center">
+              <div>
+                <h4 class="fw-bold text-white m-0"><i class="fa-solid fa-user-shield text-info me-2"></i>Player Info
+                </h4>
+                <small class="text-muted">Thông tin tài khoản & chiến lược</small>
+              </div>
+              <span
+                class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill">
+                <i class="fa-solid fa-user fa-2xs me-1"></i> User
+              </span>
+            </div>
+
+            <div class="list-group list-group-flush bg-transparent">
+              <!-- Tên người chơi -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-user me-2"></i>Tên người chơi</span>
+                <span class="text-white fw-bold" data-prop="_name">--</span>
+              </div>
+
+              <!-- Số vàng -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-coins me-2 text-warning"></i>Số vàng</span>
+                <span class="text-warning fw-bold fs-5" data-prop="_gold">0</span>
+              </div>
+
+              <!-- Tín hiệu -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-signal me-2"></i>Tín hiệu (_signal)</span>
+                <span class="pm-badge-signal" data-prop="_signal">HOLD</span>
+              </div>
+
+              <!-- Khoi luong -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-arrow-up-wide-short me-2 text-success"></i>Khối
+                  lượng</span>
+                <input type="number"
+                  class="form-control form-control-sm bg-dark text-success fw-bold border-secondary text-end w-50"
+                  id="_volume" value="1000">
+              </div>
+
+              <!-- Tiền cược -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-hand-holding-dollar me-2 text-info"></i>Tiền
+                  cược</span>
+                <span class="text-white fw-bold" data-prop="_bet">0</span>
+              </div>
+
+              <!-- Take Profit (TP) -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-arrow-trend-up me-2 text-success"></i>Take Profit
+                  (TP)</span>
+                <input type="number"
+                  class="form-control form-control-sm bg-dark text-success fw-bold border-secondary text-end w-50"
+                  data-prop="_tp" oninput="handleInputChange(this)" value="150">
+              </div>
+
+              <!-- Stop Loss (SL) -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-arrow-trend-down me-2 text-danger"></i>Stop Loss
+                  (SL)</span>
+                <input type="number"
+                  class="form-control form-control-sm bg-dark text-danger fw-bold border-secondary text-end w-50"
+                  data-prop="_sl" oninput="handleInputChange(this)" value="0">
+              </div>
+
+
+              <!-- Trạng thái chơi -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-play me-2"></i>Trạng thái chơi (_isPlay)</span>
+                <label class="pm-switch mb-0">
+                  <input type="checkbox" data-prop="_isPlay" onchange="handleToggleChange(this)">
+                  <span class="pm-slider"></span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+      </div>
 
     </div>
   </main>
-  <footer class="footer-custom pt-5 pb-4">
-    <div class="container">
-      <div class="row">
-
-        <div class="col-md-4 mb-4">
-          <h5 class="fw-bold text-white mb-3">MyWebsite</h5>
-          <p class="text-muted fs-6">
-            Nền tảng chia sẻ kiến thức công nghệ, lập trình và AI.
-          </p>
-        </div>
-
-        <div class="col-md-2 mb-4">
-          <h6 class="fw-bold text-white mb-3">Liên kết</h6>
-          <ul class="list-unstyled d-flex flex-column gap-2">
-            <li><a href="#" class="footer-link text-decoration-none">Trang chủ</a></li>
-            <li><a href="#" class="footer-link text-decoration-none">Giới thiệu</a></li>
-            <li><a href="#" class="footer-link text-decoration-none">Dịch vụ</a></li>
-            <li><a href="#" class="footer-link text-decoration-none">Liên hệ</a></li>
-          </ul>
-        </div>
-
-        <div class="col-md-3 mb-4">
-          <h6 class="fw-bold text-white mb-3">Hỗ trợ</h6>
-          <ul class="list-unstyled d-flex flex-column gap-2">
-            <li><a href="#" class="footer-link text-decoration-none">FAQ</a></li>
-            <li><a href="#" class="footer-link text-decoration-none">Chính sách bảo mật</a></li>
-            <li><a href="#" class="footer-link text-decoration-none">Điều khoản dịch vụ</a></li>
-          </ul>
-        </div>
-
-        <div class="col-md-3 mb-4">
-          <h6 class="fw-bold text-white mb-3">Liên hệ</h6>
-          <p class="text-muted mb-2">📍 Việt Nam</p>
-          <p class="text-muted mb-2">📧 contact@email.com</p>
-          <p class="text-muted">📞 0123 456 789</p>
-
-          <div class="d-flex gap-3 mt-3">
-            <a href="#" class="footer-icon"><i class="bi bi-facebook"></i></a>
-            <a href="#" class="footer-icon"><i class="bi bi-github"></i></a>
-            <a href="#" class="footer-icon"><i class="bi bi-youtube"></i></a>
-          </div>
-        </div>
-
-      </div>
-
-      <hr class="footer-divider my-4">
-
-      <div class="text-center text-muted fs-7">
-        © 2026 MyWebsite. All rights reserved.
-      </div>
-    </div>
-  </footer>
-
-
-
 
   <script src="./frontend/a_globalfunc.js"></script>
   <script src="./frontend/b_echart.js"></script>
-  <script src="./frontend/c_main.js"></script>
-  <script src="./frontend/d_remote.js"></script>
-
+  <script src="./frontend/new.js"></script>
 </body>
 
 </html>

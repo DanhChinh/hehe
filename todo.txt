@@ -1,0 +1,7 @@
+tao 1 class cua he thong gom co cac thuoc tinh:
+boolen: ket noi toi game server
+boolen: ket noi toi python server
+khi an vao button dai dien cho 2 thuoc tinh tren thi thuc hien ket noi, neu ket noi bi tat thi tu dong thay doi mau phia giao dien
+number: bo dem tin nhan
+function: cap nhat giao dien
+moi lan goi, chi cap nhat phan giao dien bi thay doi

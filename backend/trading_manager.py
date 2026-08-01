@@ -7,13 +7,14 @@ from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier
 
 
 class TradingModel:
-    def __init__(self, name, model, X_clean, y_clean, le):
+    def __init__(self, name, model, X_clean, y_clean, le, isReverse=False):
         self.name = name
         self.predict = None
         self.history = [100] 
         self.money = 100
         self.bet = 0
         self.le = le
+        self.isReverse = isReverse
 
         self.clf_final, X_train_for_iso = get_beauty_model(X_clean, y_clean, model)
         self.iso_model = IsolationForest(contamination=0.01, random_state=42)
@@ -24,6 +25,9 @@ class TradingModel:
 
     def make_predict(self, new_data_sample):
         self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le, threshold=0.55)
+        if self.predict and self.isReverse:
+            self.predict = 3 - self.predict
+
         self.bet = self.money * 0.05 if self.predict else 0
 
         self.status = 1 if self.predict else 0
@@ -66,6 +70,7 @@ class TradingModelManager:
 
         for i, (name, model) in enumerate(models_config.items()):
             self.models.append(TradingModel(name, model(), X_clean, y_clean, le)) 
+            self.models.append(TradingModel(name + "_reverse", model(), X_clean, y_clean, le, True)) 
     def predict(self, x_pred):
         for model in self.models:
             model.make_predict(x_pred)
