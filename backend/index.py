@@ -18,6 +18,9 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 def home():
     return render_template("index.html")
 
+@app.route("/stk")
+def stk():
+    return render_template("stk.html")
 
 @socketio.on("predict")
 def handle_predict(msg):
@@ -30,7 +33,7 @@ def handle_predict(msg):
 
     # Lấy instance an toàn đa luồng
     tmm = get_tmm_instance()
-    tmm.predict(x_pred)
+    tmm.make_predict(x_pred)
 
     emit("info", {"sid": sid, "data": tmm.get_all_info()})
 
@@ -44,6 +47,14 @@ def handle_check(msg):
 
     emit("info", {"data": tmm.get_all_info()})
 
+@socketio.on("toggle_play")
+def handle_toggle_play(msg):
+    isPlay = msg.get("isPlay")
+
+    tmm = get_tmm_instance()
+    tmm.isPlay = isPlay
+
+    emit("info", {"data": tmm.get_all_info()})
 
 @socketio.on("connect")
 def handle_connect(auth=None):

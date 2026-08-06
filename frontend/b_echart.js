@@ -1,139 +1,146 @@
-﻿
-function drawBaseChart(chartDom, dataArray, modelName) {
-  if (!chartDom || !dataArray || dataArray.length === 0) return;
-  let chart = echarts.getInstanceByDom(chartDom) || echarts.init(chartDom);
-  const option = {
-    title: { text: `${modelName}`, textStyle: { color: '#9ca3af', fontSize: 11 }, top: 5, left: 10 },
-    grid: { left: '4%', right: '4%', bottom: '5%', top: '40', containLabel: true },
-    xAxis: { type: 'category', data: dataArray.map((_, i) => i), axisLabel: { show: false } },
-    yAxis: { type: 'value', scale: true, splitLine: { lineStyle: { color: '#1f2937' } } },
-    series: [{ data: dataArray, type: 'line', smooth: 0.1, symbol: 'none', lineStyle: { color: '#4b5563', width: 1.2 } }]
-  };
-  chart.setOption(option);
-  if (!chartDom.dataset.resizeAttached) {
-    window.addEventListener('resize', () => chart.resize());
-    chartDom.dataset.resizeAttached = "true";
-  }
+﻿// --- 1. BIẾN TOÀN CỤC CỦA 2 BIỂU ĐỒ ---
+let gameChart = null;       // Biểu đồ Cumsum (Đoạn mã của bạn)
+let rawScoreChart = null;   // Biểu đồ điểm từng ván (Đoạn mã mới)
+
+// --- CÁC HÀM HỖ TRỢ TOÁN HỌC ---
+function getLabels(arr) {
+    return arr.map((_, index) => index + 1);
 }
 
+function getSigmaThresholds(cumulativeArr) {
+    let upper2Sigma = [];
+    let lower2Sigma = [];
 
-function khoiTaoBang(data, parent = document.getElementById("DOM_dashboard")) {
-  if (!parent || parent.innerHTML.trim() !== "") return;
+    cumulativeArr.forEach((_, index) => {
+        let n = index + 1;
+        let sigma = Math.sqrt(n);
+        upper2Sigma.push(+(2 * sigma).toFixed(2));
+        lower2Sigma.push(-(2 * sigma).toFixed(2));
+    });
 
-  const headText = `
-    <div class="card shadow-sm has-close-btn">
-      <div class="table-responsive">
-        <table id="Trading_Dashboard" class="table table-sm table-borderless align-middle mb-0 text-center">
-          <thead>
-            <tr>
-              <th class="text-start ps-3">Model Name</th>
-              <th>Predict</th>
-              <th>Bet</th>
-              <th>Money</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">`;
-
-  let mainText = "";
-  data.forEach((d) => {
-    mainText += `
-      <tr>
-        <td class="fw-bold text-start ps-3">${d.name || "-"}</td>
-        <td class="fw-bold">-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
-      </tr>`;
-  });
-
-  parent.innerHTML = headText + mainText + `</tbody></table></div></div>`;
-}
-
-function khoiTaoMap(data, parent = document.getElementById("DOM_map")) {
-  if (!parent || parent.innerHTML.trim() !== "") return;
-
-  let text = `<div class="row g-2">`;
-  let baseChartCount = 0;
-
-  data.forEach((e) => {
-    if (e.is_main) {
-      text += `
-        <div class="col-12 mb-3">
-          <div class="main-trading-card p-3 bg-dark text-white rounded shadow-sm">
-            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
-                <h5 class="mb-0 fw-bold text-warning">📊 BIỂU ĐỒ TRADING TỔNG</h5>
-            </div>
-            <!-- Chỉ để lại duy nhất Canvas Biểu đồ -->
-            <div id="main-chart-dom" style="width: 100%; height: 360px;"></div>
-          </div>
-        </div>`;
-    } else {
-      text += `<div class="col-12 col-md-6"><div class="card h-100 bg-dark border-secondary"><div id="hsFix_base_${baseChartCount}" class="chart-box w-100" style="height: 180px;"></div></div></div>`;
-      baseChartCount++;
-    }
-  });
-  parent.innerHTML = text + `</div>`;
-}
-
-
-function capNhatBang(data, table = document.getElementById("DOM_dashboard")) {
-  if (!table) return;
-  const tbody = table.querySelector('tbody');
-  if (!tbody) return;
-  
-  const rows = tbody.getElementsByTagName('tr');
-
-  data.forEach((d, i) => {
-    const row = rows[i];
-    if (!row) return;
-
-    row.cells[0].innerText = d.name || "-";
-
-    let predictText = "HOLD";
-    let predictClass = "text-muted";
-
-    if (d.predict === 1) {
-      predictText = "BUY";
-      predictClass = "text-primary fw-bold";
-    } else if (d.predict === 2) {
-      predictText = "SELL";
-      predictClass = "text-danger fw-bold";
-    }
-
-    row.cells[1].innerText = predictText;
-    row.cells[1].className = predictClass;
-    row.cells[2].innerText = d.bet !== undefined ? d.bet : "-";
-    row.cells[3].innerText = d.money !== undefined ? d.money : "-";
-    row.cells[4].innerText = d.status ? "Betting" : "Waiting";
-  });
-}
-
-function capNhatMap(data) {
-  let baseChartIdx = 0;
-  data.forEach((d) => {
-    if (d.is_main === true) {
-      drawBaseChart(
-        document.getElementById("main-chart-dom"),
-        d.history,
-        d.name
-      )
-      return;
-    }
-    const baseDom = document.getElementById(`hsFix_base_${baseChartIdx}`);
-    if (baseDom && typeof drawBaseChart === 'function') {
-      drawBaseChart(baseDom, d.history, d.name);
-    }
-    baseChartIdx++;
-  });
+    return { upper2Sigma, lower2Sigma };
 }
 
 
 
+// ==========================================
+// 2. BIỂU ĐỒ 1: TỔNG CỘNG DỒN & 2-SIGMA (CỦA BẠN)
+// ==========================================
+function initChart() {
+    const ctx = document.getElementById('gameChart').getContext('2d');
 
+    gameChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Điểm cộng dồn (Cumsum)',
+                    data: [],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.1
+                },
+                {
+                    label: 'Ngưỡng trên (+2σ)',
+                    data: [],
+                    borderColor: 'rgba(34, 197, 94, 0.8)',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                },
+                {
+                    label: 'Ngưỡng dưới (-2σ)',
+                    data: [],
+                    borderColor: 'rgba(239, 68, 68, 0.8)',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMin: -8,
+                    suggestedMax: 8,
+                    grid: { color: 'rgba(200, 200, 200, 0.2)' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
 
+function updateChart(cumulativeData) {
+    if (!gameChart) return;
 
+    const thresholds = getSigmaThresholds(cumulativeData);
 
+    gameChart.data.labels = getLabels(cumulativeData);
+    gameChart.data.datasets[0].data = cumulativeData;
+    gameChart.data.datasets[1].data = thresholds.upper2Sigma;
+    gameChart.data.datasets[2].data = thresholds.lower2Sigma;
 
+    gameChart.update();
+}
 
+// ==========================================
+// 3. BIỂU ĐỒ 2: ĐIỂM TỪNG VÁN (VIẾT MỚI HỖ TRỢ)
+// ==========================================
+function initRawScoreChart() {
+    const ctx = document.getElementById('rawScoreChart').getContext('2d');
 
+    rawScoreChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Điểm ván này',
+                data: [],
+                borderColor: 'rgb(168, 85, 247)',
+                backgroundColor: 'rgba(168, 85, 247, 0.15)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgb(168, 85, 247)',
+                tension: 0.2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    grid: { color: 'rgba(200, 200, 200, 0.2)' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+function updateRawScoreChart(rawScores) {
+    if (!rawScoreChart) return;
+
+    rawScoreChart.data.labels = getLabels(rawScores);
+    rawScoreChart.data.datasets[0].data = rawScores;
+
+    rawScoreChart.update();
+}
+
+// ==========================================
+// 4. KHỞI TẠO VÀ VẼ DỮ LIỆU
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    // Khởi tạo cả 2 biểu đồ
+    initChart();
+    initRawScoreChart();
+});

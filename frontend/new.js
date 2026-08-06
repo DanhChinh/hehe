@@ -5,7 +5,7 @@ class PlayerManager {
     this._bet = 0;
     this._tp = 10000000;
     this._sl = 0;
-    this._isPlay = true;
+    this._isPlay = false;
     this._playHistory = [];
     this._signal = "HOLD";
   }
@@ -177,61 +177,11 @@ function handleToggleChange(checkbox) {
   if (!manager) return;
   const isChecked = checkbox.checked;
 
-  if (propName === "_isPlay") player.setProperty("_isPlay", isChecked)
   if (propName === "_isPythonConnected") handlePythonConnected(isChecked);
   if (propName === "_isGameConnected") handleGameConnected(isChecked);
-}
-function handlePythonConnected(isChecked) {
-  if (!isChecked) {
-    system.socket_io.close();
-    return;
-  }
-  if (!system.socket_io) {
-    system.socket_io = io("http://localhost:5000");
-
-    system.socket_io.on("connect", () => {
-      system.setProperty("_isPythonConnected", true);
-    });
-
-    system.socket_io.on("info", (msg) => {
-      let sid = msg.sid;
-      let data = msg.data;
-      let main_model = data[0];
-
-      khoiTaoBang(data);
-      khoiTaoMap(data);
-
-      // LOGIC TỰ ĐỘNG NGẮT KHI CHẠM TP/SL
-      if (player.isPlay) {
-
-        const TP = player.getProperty("_tp");
-        const SL = player.getProperty("_sl");
-        const gold = player.getProperty("_gold");
-
-        if (gold >= TP || gold <= SL) {
-          player.setProperty("_isPlay", false);
-        }
-      }
-
-
-      capNhatBang(data);
-      capNhatMap(data);
-
-      if (!sid || !player.getProperty("_isPlay")) return;
-
-      let money = roundToThousand(
-        main_model.bet * +document.getElementById("_volume").value,
-      );
-      sendMessageToGame(money, sid, main_model.predict);
-      main_model.predict == 1
-        ? TradeTable.buy(sid, money)
-        : TradeTable.sell(sid, money);
-      player.setProperty("_bet", money);
-    });
-
-    system.socket_io.on("disconnect", () => {
-      system.setProperty("_isPythonConnected", false);
-    });
+  if (propName === "_isPlay"){
+    player.setProperty("_isPlay", isChecked);
+    system.socket_io.emit("toggle_play", { isPlay: isChecked });
   }
 }
 function handleGameConnected(isChecked) {
@@ -345,4 +295,53 @@ function handleGameConnected(isChecked) {
   };
 }
 
+function handlePythonConnected(isChecked) {
+  if (!isChecked) {
+    system.socket_io.close();
+    return;
+  }
+  if (!system.socket_io) {
+    system.socket_io = io("http://localhost:5000");
+
+    system.socket_io.on("connect", () => {
+      system.setProperty("_isPythonConnected", true);
+    });
+
+    system.socket_io.on("info", (msg) => {
+      let sid = msg.sid;
+      let data = msg.data;
+
+      // LOGIC TỰ ĐỘNG NGẮT KHI CHẠM TP/SL
+      if (player.isPlay) {
+
+        const TP = player.getProperty("_tp");
+        const SL = player.getProperty("_sl");
+        const gold = player.getProperty("_gold");
+
+        if (gold >= TP || gold <= SL) {
+          player.setProperty("_isPlay", false);
+        }
+      }
+
+
+      updateChart(data.history_tm);
+      updateRawScoreChart(data.history_mm);
+
+      if (!sid || !player.getProperty("_isPlay")) return;
+
+      let money = roundToThousand(
+        data.bet * +document.getElementById("_volume").value,
+      );
+      sendMessageToGame(money, sid, data.predict);
+      data.predict == 1
+        ? TradeTable.buy(sid, money)
+        : TradeTable.sell(sid, money);
+      player.setProperty("_bet", money);
+    });
+
+    system.socket_io.on("disconnect", () => {
+      system.setProperty("_isPythonConnected", false);
+    });
+  }
+}
 

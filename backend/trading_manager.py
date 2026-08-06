@@ -3,126 +3,60 @@ from beautydata import *
 from handle_db import load_data_from_pickle as make_data
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier)
+from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier)
 
+
+class MoneyManager:
+    def __init__(self):
+        self.gold = 100
+        self.bet = 0
+        self.history = [self.gold]
+        self.isPlay = False
+    def update(self, profit):
+        if profit == 1:
+            self.gold += self.bet*0.97
+        elif profit == -1:
+            self.gold -= self.bet
+        else:
+            pass
+        self.history.append(self.gold)
+    def calc_bet(self, isPlay, predict):
+        self.bet = round(0.05 * self.gold, 2) if (isPlay and predict) else 0
 
 class TradingModel:
-    def __init__(self, name, model, X_clean, y_clean, le, isReverse=False):
-        self.name = name
+    def __init__(self, X_clean, y_clean, le):
+        self.name = "knn"
         self.predict = None
-        self.history = [100] 
-        self.money = 100
-        self.bet = 0
         self.le = le
-        self.isReverse = isReverse
-
-        self.clf_final, X_train_for_iso = get_beauty_model(X_clean, y_clean, model)
+        self.history = [0]
+        self.clf_final, X_train_for_iso = get_beauty_model(X_clean, y_clean, KNeighborsClassifier())
         self.iso_model = IsolationForest(contamination=0.01, random_state=42)
         self.iso_model.fit(X_train_for_iso)
 
-        self.status = 0
-                
+        self.isPlay = False
+        self.mm = MoneyManager()
 
     def make_predict(self, new_data_sample):
-        self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le, threshold=0.55)
-        if self.predict and self.isReverse:
-            self.predict = 3 - self.predict
-
-        self.bet = self.money * 0.05 if self.predict else 0
-
-        self.status = 1 if self.predict else 0
-
-
+        self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le)
+        self.mm.calc_bet(self.isPlay, self.predict)
+        # print(f"Predict: {self.predict}, Bet: {self.mm.bet}, Gold: {self.mm.gold}")
     def check(self, actual_label):
-        self.money += self.bet*0.97 if (self.predict == actual_label) else - self.bet
-        self.history.append(self.money)
-
+        profit = 1 if self.predict == actual_label else -1 if self.predict is not None else 0
+        self.history.append(profit)
+        self.mm.update(profit)
         self.predict = None
-        self.bet = 0
-
-        self.status = 0
-
-    def get_info(self):
-        return {
-            "name": str(self.name),
-            "predict": self.predict,
-            "history":self.history,
-            "money":round(self.money, 2),
-            "bet":round(self.bet, 4),
-            "status":self.status
-
-        }
-
-
-
-class TradingModelManager:
-    def __init__(self):
-        self.models = []
-
-        df, data, label = make_data()
-        X_clean, y_clean, le = clean_data(data, label)
-        models_config = {
-            "knn": KNeighborsClassifier,
-            "random_forest": RandomForestClassifier,
-            "extra_trees": ExtraTreesClassifier,
-            "decision_tree": DecisionTreeClassifier
-        }
-
-        for i, (name, model) in enumerate(models_config.items()):
-            self.models.append(TradingModel(name, model(), X_clean, y_clean, le)) 
-            self.models.append(TradingModel(name + "_reverse", model(), X_clean, y_clean, le, True)) 
-    def predict(self, x_pred):
-        for model in self.models:
-            model.make_predict(x_pred)
-    def check(self, result):
-        for model in self.models:
-            model.check(result)
     def get_all_info(self):
-        data = []
-        for model in self.models:
-            data.append(model.get_info())
-
-        total_models = len(data)
-
-        # 1. Tính toán Vote cho Predict và Bet
-        total_bet_buy = sum(d.get("bet", 0) for d in data if d.get("predict") == 1)
-        total_bet_sell = sum(d.get("bet", 0) for d in data if d.get("predict") == 2)
-
-        if total_bet_buy > total_bet_sell:
-            mean_predict = 1
-            mean_bet = total_bet_buy - total_bet_sell
-        elif total_bet_sell > total_bet_buy:
-            mean_predict = 2
-            mean_bet = total_bet_sell - total_bet_buy
-        else:
-            mean_predict = 0  # HOẶC None (Trạng thái HOLD / Hòa cược)
-            mean_bet = 0
-
-        # 2. Tính trung bình cộng Money và Status
-        mean_money = sum(d.get("money", 0) for d in data) / total_models
-        mean_status = sum(d.get("status", 0) for d in data) / total_models
-
-        # 3. Tính trung bình từng phần tử trong History (nếu các model có lịch sử cùng độ dài)
-        mean_history = []
-        if any(d.get("history") for d in data):
-            # Lấy độ dài history nhỏ nhất để tránh lỗi lệch index
-            min_len = min(len(d.get("history", [])) for d in data)
-            for idx in range(min_len):
-                avg_val = sum(d["history"][idx] for d in data) / total_models
-                mean_history.append(avg_val)
-
-        obj_mean = {
-            "name": "⭐ MEAN", 
-            "predict": mean_predict, 
-            "history": mean_history, 
-            "money": round(mean_money, 2), 
-            "bet": round(mean_bet, 2),
-            "status": round(mean_status, 2),
-            "is_main": True
+        return {
+            "name": self.name,
+            "predict":self.predict,
+            "history_tm":np.cumsum(self.history).tolist(),
+            "bet":self.mm.bet,
+            "history_mm":np.array(self.mm.history).tolist(),
+            "gold":self.mm.gold,
+            "isPlay":self.isPlay
         }
 
-        data.insert(0, obj_mean)
-        return data
+
 
 # --- CÁCH KHẮC PHỤC DÙNG SINGLETON SAFE-THREAD ---
 from threading import Lock
@@ -131,11 +65,11 @@ _tmm_lock = Lock()
 
 
 def get_tmm_instance():
-    """Hàm lấy instance duy nhất của TradingModelManager (Thread-safe)"""
     global _tmm_instance
     if _tmm_instance is None:
         with _tmm_lock:
-            # Double-check locking để tránh tạo 2 instance cùng lúc
             if _tmm_instance is None:
-                _tmm_instance = TradingModelManager()
+                df, data, label = make_data()
+                X_clean, y_clean, le = clean_data(data, label)
+                _tmm_instance = TradingModel(X_clean, y_clean, le)
     return _tmm_instance

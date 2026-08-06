@@ -11,6 +11,8 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -24,13 +26,32 @@
 
 <body class="pm-body">
 
-  <main class="main-wrapper container-fluid py-4">
+  <main class="main-wrapper container py-4">
     <div class="row g-4">
 
       <!-- Cột bên trái: Dashboard & Map -->
       <div class="col-lg-9">
-        <div class="container-fluid p-0 mb-3" id="DOM_dashboard"></div>
-        <div class="container-fluid p-0" id="DOM_map"></div>
+
+<div class="charts-wrapper">
+        <!-- CARD 1: BIỂU ĐỒ TỔNG CỘNG DỒN (CỦA BẠN) -->
+        <div class="chart-card">
+            <h2 class="chart-title">1. Biểu đồ Điểm Cộng Dồn (Cumsum) & Ngưỡng 2-Sigma</h2>
+            <div class="chart-container">
+                <canvas id="gameChart"></canvas>
+            </div>
+        </div>
+
+        <!-- CARD 2: BIỂU ĐỒ ĐIỂM TỪNG VÁN (TẠO MỚI) -->
+        <div class="chart-card">
+            <h2 class="chart-title">2. Biểu đồ Điểm Số Từng Ván (Raw Scores)</h2>
+            <div class="chart-container">
+                <canvas id="rawScoreChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+        
+        <!-- tradeTable -->
         <div class="container-fluid p-0" id="DOM_table">
           <div class="table-responsive">
             <table id="tradeTable" class="table table-sm table-borderless m-0">
@@ -64,7 +85,7 @@
               <div>
                 <h4 class="fw-bold text-white m-0"><i class="fa-solid fa-server text-warning me-2"></i>System Manager
                 </h4>
-                <small class="text-muted">Quản lý kết nối & trạng thái mạng</small>
+                <small class="text-white">Network Connection & Status Management</small>
               </div>
               <span
                 class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
@@ -105,33 +126,31 @@
 
               <!-- Response Count -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-bolt me-2 text-warning"></i>Phản hồi
-                  (_responseCount)</span>
+                <span class="text-secondary"><i class="fa-solid fa-bolt me-2 text-warning"></i>Response Count</span>
                 <span class="badge bg-warning text-dark fw-bold fs-6" data-prop="_responseCount">0</span>
               </div>
 
               <!-- Tin nhắn hệ thống -->
               <div class="list-group-item pm-item py-3 px-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-secondary"><i class="fa-solid fa-comments me-2"></i>Tin nhắn (_messages)</span>
+                  <span class="text-secondary"><i class="fa-solid fa-comments me-2"></i>Messages</span>
                 </div>
                 <div
                   class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-white small"
                   data-prop="_messages" style="max-height: 90px; overflow-y: auto;">
-                  Chưa có tin nhắn
+                  No messages
                 </div>
               </div>
 
               <!-- Lich su hệ thống -->
               <div class="list-group-item pm-item py-3 px-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-secondary"><i class="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử
-                    (_history)</span>
+                  <span class="text-secondary"><i class="fa-solid fa-clock-rotate-left me-2"></i>Market</span>
                 </div>
                 <div
                   class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-white small"
                   data-prop="_history" style="max-height: 90px; overflow-y: auto;">
-                  Chưa có lich su
+                  No information
                 </div>
               </div>
             </div>
@@ -148,7 +167,7 @@
               <div>
                 <h4 class="fw-bold text-white m-0"><i class="fa-solid fa-user-shield text-info me-2"></i>Player Info
                 </h4>
-                <small class="text-muted">Thông tin tài khoản & chiến lược</small>
+                <small class="text-white">Account Portfolio & Strategy </small>
               </div>
               <span
                 class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill">
@@ -159,65 +178,63 @@
             <div class="list-group list-group-flush bg-transparent">
               <!-- Tên người chơi -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-user me-2"></i>Tên người chơi</span>
+                <span class="text-secondary"><i class="fa-solid fa-user me-2"></i>Investor</span>
                 <span class="text-white fw-bold" data-prop="_name">--</span>
               </div>
 
               <!-- Số vàng -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-coins me-2 text-warning"></i>Số vàng</span>
+                <span class="text-secondary"><i class="fa-solid fa-coins me-2 text-warning"></i>Asset</span>
                 <span class="text-warning fw-bold fs-5" data-prop="_gold">0</span>
               </div>
-
-              <!-- Tín hiệu -->
+                            <!-- Trạng thái chơi -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-signal me-2"></i>Tín hiệu (_signal)</span>
-                <span class="pm-badge-signal" data-prop="_signal">HOLD</span>
-              </div>
-
-              <!-- Khoi luong -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-arrow-up-wide-short me-2 text-success"></i>Khối
-                  lượng</span>
-                <input type="number"
-                  class="form-control form-control-sm bg-dark text-success fw-bold border-secondary text-end w-50"
-                  id="_volume" value="1000">
-              </div>
-
-              <!-- Tiền cược -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-hand-holding-dollar me-2 text-info"></i>Tiền
-                  cược</span>
-                <span class="text-white fw-bold" data-prop="_bet">0</span>
-              </div>
-
-              <!-- Take Profit (TP) -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-arrow-trend-up me-2 text-success"></i>Take Profit
-                  (TP)</span>
-                <input type="number"
-                  class="form-control form-control-sm bg-dark text-success fw-bold border-secondary text-end w-50"
-                  data-prop="_tp" oninput="handleInputChange(this)" value="150">
-              </div>
-
-              <!-- Stop Loss (SL) -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-arrow-trend-down me-2 text-danger"></i>Stop Loss
-                  (SL)</span>
-                <input type="number"
-                  class="form-control form-control-sm bg-dark text-danger fw-bold border-secondary text-end w-50"
-                  data-prop="_sl" oninput="handleInputChange(this)" value="0">
-              </div>
-
-
-              <!-- Trạng thái chơi -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-play me-2"></i>Trạng thái chơi (_isPlay)</span>
+                <span class="text-secondary"><i class="fa-solid fa-play me-2"></i>Play Status</span>
                 <label class="pm-switch mb-0">
                   <input type="checkbox" data-prop="_isPlay" onchange="handleToggleChange(this)">
                   <span class="pm-slider"></span>
                 </label>
               </div>
+
+              <!-- Tín hiệu -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-signal me-2"></i>Signal</span>
+                <span class="pm-badge-signal" data-prop="_signal">HOLD</span>
+              </div>
+
+              <!-- Tiền cược -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-hand-holding-dollar me-2 text-info"></i>Invested Capital</span>
+                <span class="text-white fw-bold" data-prop="_bet">0</span>
+              </div>
+
+              <!-- Khoi luong -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-arrow-up-wide-short me-2 text-success"></i>Volume</span>
+                <input type="number"
+                  class="form-control form-control-sm bg-dark text-success fw-bold border-secondary text-end w-50"
+                  id="_volume" value="1000" step="500">
+              </div>
+
+
+              <!-- Take Profit (TP) -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-arrow-trend-up me-2 text-success"></i>Take Profit</span>
+                <input type="number"
+                  class="form-control form-control-sm bg-dark text-success fw-bold border-secondary text-end w-50"
+                  data-prop="_tp" oninput="handleInputChange(this)" value="0" step="100000">
+              </div>
+
+              <!-- Stop Loss (SL) -->
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <span class="text-secondary"><i class="fa-solid fa-arrow-trend-down me-2 text-danger"></i>Stop Loss</span>
+                <input type="number"
+                  class="form-control form-control-sm bg-dark text-danger fw-bold border-secondary text-end w-50"
+                  data-prop="_sl" oninput="handleInputChange(this)" value="0" step="50000">
+              </div>
+
+
+
             </div>
 
           </div>
