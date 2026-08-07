@@ -56,6 +56,15 @@ def handle_toggle_play(msg):
 
     emit("info", {"data": tmm.get_all_info()})
 
+@socketio.on("toggle_reverse")
+def handle_toggle_reverse(msg):
+    isReverse = msg.get("isReverse")
+
+    tmm = get_tmm_instance()
+    tmm.isReverse = isReverse
+
+    emit("info", {"data": tmm.get_all_info()})
+
 @socketio.on("connect")
 def handle_connect(auth=None):
     print("✅ Client connected")

@@ -33,13 +33,14 @@ class TradingModel:
         self.iso_model = IsolationForest(contamination=0.01, random_state=42)
         self.iso_model.fit(X_train_for_iso)
 
+        self.isReverse = False
         self.isPlay = False
         self.mm = MoneyManager()
 
     def make_predict(self, new_data_sample):
         self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le)
         self.mm.calc_bet(self.isPlay, self.predict)
-        # print(f"Predict: {self.predict}, Bet: {self.mm.bet}, Gold: {self.mm.gold}")
+        print(f"Predict: {self.predict}, Bet: {self.mm.bet}, Gold: {self.mm.gold}, isPlay: {self.isPlay}, isReverse: {self.isReverse}")
     def check(self, actual_label):
         profit = 1 if self.predict == actual_label else -1 if self.predict is not None else 0
         self.history.append(profit)
@@ -48,7 +49,7 @@ class TradingModel:
     def get_all_info(self):
         return {
             "name": self.name,
-            "predict":self.predict,
+            "predict":3 - self.predict if (self.isReverse and self.predict) else self.predict,
             "history_tm":np.cumsum(self.history).tolist(),
             "bet":self.mm.bet,
             "history_mm":np.array(self.mm.history).tolist(),

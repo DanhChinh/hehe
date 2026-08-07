@@ -8,6 +8,7 @@ class PlayerManager {
     this._isPlay = false;
     this._playHistory = [];
     this._signal = "HOLD";
+    this._isReverse = false;
   }
 
   getProperty(prop) {
@@ -179,6 +180,10 @@ function handleToggleChange(checkbox) {
 
   if (propName === "_isPythonConnected") handlePythonConnected(isChecked);
   if (propName === "_isGameConnected") handleGameConnected(isChecked);
+  if (propName === "_isReverse"){
+    player.setProperty("_isReverse", isChecked);
+    system.socket_io.emit("toggle_reverse", { isReverse: isChecked });
+  }
   if (propName === "_isPlay"){
     player.setProperty("_isPlay", isChecked);
     system.socket_io.emit("toggle_play", { isPlay: isChecked });
@@ -327,11 +332,12 @@ function handlePythonConnected(isChecked) {
       updateChart(data.history_tm);
       updateRawScoreChart(data.history_mm);
 
-      if (!sid || !player.getProperty("_isPlay")) return;
+      if (!sid || !player.getProperty("_isPlay") || !data.predict) return;
 
       let money = roundToThousand(
         data.bet * +document.getElementById("_volume").value,
       );
+
       sendMessageToGame(money, sid, data.predict);
       data.predict == 1
         ? TradeTable.buy(sid, money)
