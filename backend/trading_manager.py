@@ -53,7 +53,7 @@ class TradingModel:
     def get_all_info(self):
         return {
             "name": self.name,
-            "predict":3 - self.predict_fixed if (self.isReverse and self.predict_fixed) else self.predict_fixed,
+            "predict": self.predict_fixed if (self.isReverse and self.predict_fixed) else self.predict_fixed,
             "history_tm":np.cumsum(self.history).tolist(),
             "bet":self.mm.bet,
             "history_mm":np.array(self.mm.history).tolist(),
