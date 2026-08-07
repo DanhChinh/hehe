@@ -35,49 +35,91 @@ function initChart() {
             labels: [],
             datasets: [
                 {
-                    label: 'Điểm cộng dồn (Cumsum)',
+                    label: 'Cumsum',
                     data: [],
                     borderColor: 'rgb(59, 130, 246)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.08)',
                     borderWidth: 3,
                     fill: true,
-                    tension: 0.1
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: 'rgb(59, 130, 246)'
                 },
                 {
-                    label: 'Ngưỡng trên (+2σ)',
+                    label: '+2σ',
                     data: [],
                     borderColor: 'rgba(34, 197, 94, 0.8)',
-                    borderDash: [5, 5],
                     borderWidth: 2,
                     pointRadius: 0,
-                    fill: false
+                    fill: false,
+                    tension: 0
                 },
                 {
-                    label: 'Ngưỡng dưới (-2σ)',
+                    label: '-2σ',
                     data: [],
                     borderColor: 'rgba(239, 68, 68, 0.8)',
-                    borderDash: [5, 5],
                     borderWidth: 2,
                     pointRadius: 0,
-                    fill: false
+                    fill: false,
+                    tension: 0
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 8,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    cornerRadius: 6
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
                     suggestedMin: -8,
                     suggestedMax: 8,
-                    grid: { color: 'rgba(200, 200, 200, 0.2)' }
+                    grid: { 
+                        color: (context) => {
+                            return context.tick.value === 0 ? 'rgba(156, 163, 175, 0.6)' : 'rgba(200, 200, 200, 0.15)';
+                        },
+                        lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value > 0 ? '+' + value : value;
+                        }
+                    }
                 },
-                x: { grid: { display: false } }
+                x: { 
+                    grid: { display: false },
+                    ticks: {
+                        maxTicksLimit: 15,
+                        autoSkip: true
+                    }
+                }
             }
         }
     });
 }
+
 
 function updateChart(cumulativeData) {
     if (!gameChart) return;
@@ -103,29 +145,97 @@ function initRawScoreChart() {
         data: {
             labels: [],
             datasets: [{
-                label: 'Điểm ván này',
+                label: 'mm',
                 data: [],
                 borderColor: 'rgb(168, 85, 247)',
-                backgroundColor: 'rgba(168, 85, 247, 0.15)',
-                borderWidth: 2,
-                pointRadius: 4,
+                borderWidth: 3,
+                tension: 0.3,
+                fill: true,
+                backgroundColor: function(context) {
+                    const chart = context.chart;
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return null;
+                    
+                    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    gradient.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
+                    gradient.addColorStop(1, 'rgba(168, 85, 247, 0.01)');
+                    return gradient;
+                },
+                pointRadius: 3,
                 pointBackgroundColor: 'rgb(168, 85, 247)',
-                tension: 0.2,
-                fill: true
+                pointBorderColor: '#fff',
+                pointBorderWidth: 1.5,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(168, 85, 247)',
+                pointHoverBorderWidth: 3
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                mode: 'nearest',
+                intersect: false,
+                axis: 'x'
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 6,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    cornerRadius: 6,
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y + ' mm';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
             scales: {
                 y: {
-                    grid: { color: 'rgba(200, 200, 200, 0.2)' }
+                    grid: { 
+                        color: 'rgba(200, 200, 200, 0.15)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: { size: 11 },
+                        padding: 8,
+                        callback: function(value) {
+                            return value + ' mm';
+                        }
+                    }
                 },
-                x: { grid: { display: false } }
+                x: { 
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 11 },
+                        padding: 8,
+                        maxTicksLimit: 12,
+                        autoSkip: true
+                    }
+                }
             }
         }
     });
 }
+
 
 function updateRawScoreChart(rawScores) {
     if (!rawScoreChart) return;

@@ -27,6 +27,7 @@ class TradingModel:
     def __init__(self, X_clean, y_clean, le):
         self.name = "knn"
         self.predict = None
+        self.predict_fixed = None
         self.le = le
         self.history = [0]
         self.clf_final, X_train_for_iso = get_beauty_model(X_clean, y_clean, KNeighborsClassifier())
@@ -39,17 +40,20 @@ class TradingModel:
 
     def make_predict(self, new_data_sample):
         self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le)
-        self.mm.calc_bet(self.isPlay, self.predict)
+        self.predict_fixed = 3 - self.predict if (self.predict and self.isReverse) else self.predict
+        self.mm.calc_bet(self.isPlay, self.predict_fixed)
         print(f"Predict: {self.predict}, Bet: {self.mm.bet}, Gold: {self.mm.gold}, isPlay: {self.isPlay}, isReverse: {self.isReverse}")
     def check(self, actual_label):
-        profit = 1 if self.predict == actual_label else -1 if self.predict is not None else 0
-        self.history.append(profit)
+        isTrue = 1 if self.predict == actual_label else -1 if self.predict is not None else 0
+        profit = 1 if self.predict_fixed == actual_label else -1 if self.predict_fixed is not None else 0
+        self.history.append(isTrue)
         self.mm.update(profit)
         self.predict = None
+        self.predict_fixed = None
     def get_all_info(self):
         return {
             "name": self.name,
-            "predict":3 - self.predict if (self.isReverse and self.predict) else self.predict,
+            "predict":3 - self.predict_fixed if (self.isReverse and self.predict_fixed) else self.predict_fixed,
             "history_tm":np.cumsum(self.history).tolist(),
             "bet":self.mm.bet,
             "history_mm":np.array(self.mm.history).tolist(),

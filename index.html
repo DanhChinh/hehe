@@ -35,7 +35,7 @@
 <div class="charts-wrapper">
         <!-- CARD 1: BIỂU ĐỒ TỔNG CỘNG DỒN (CỦA BẠN) -->
         <div class="chart-card">
-            <h2 class="chart-title">1. Biểu đồ Điểm Cộng Dồn (Cumsum) & Ngưỡng 2-Sigma</h2>
+            <h2 class="chart-title">1. Cumulative Line Chart</h2>
             <div class="chart-container">
                 <canvas id="gameChart"></canvas>
             </div>
@@ -43,7 +43,7 @@
 
         <!-- CARD 2: BIỂU ĐỒ ĐIỂM TỪNG VÁN (TẠO MỚI) -->
         <div class="chart-card">
-            <h2 class="chart-title">2. Biểu đồ Điểm Số Từng Ván (Raw Scores)</h2>
+            <h2 class="chart-title">2. Volatility Chart with 5% Threshold Lines</h2>
             <div class="chart-container">
                 <canvas id="rawScoreChart"></canvas>
             </div>
@@ -83,9 +83,9 @@
 
             <div class="pm-header d-flex justify-content-between align-items-center">
               <div>
-                <h4 class="fw-bold text-white m-0"><i class="fa-solid fa-server text-warning me-2"></i>System Manager
+                <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-server text-warning me-2"></i>System Manager
                 </h4>
-                <small class="text-white">Network Connection & Status Management</small>
+                <small class="text-secondary">Network Connection & Status Management</small>
               </div>
               <span
                 class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
@@ -102,7 +102,7 @@
                   </a>
                 </span>
                 <input type="text"
-                  class="form-control form-control-sm bg-dark text-light fw-bold border-secondary text-end w-50"
+                  class="form-control form-control-sm bg-white text-dark border-light-subtle text-end w-50"
                   data-prop="_token" oninput="handleInputChange(this)" placeholder="Nhập token...">
               </div>
 
@@ -127,7 +127,7 @@
               <!-- Response Count -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-secondary"><i class="fa-solid fa-bolt me-2 text-warning"></i>Response Count</span>
-                <span class="badge bg-warning text-dark fw-bold fs-6" data-prop="_responseCount">0</span>
+                <span class="badge bg-warning text-secondary fw-bold fs-6" data-prop="_responseCount">0</span>
               </div>
 
               <!-- Tin nhắn hệ thống -->
@@ -165,9 +165,9 @@
 
             <div class="pm-header d-flex justify-content-between align-items-center">
               <div>
-                <h4 class="fw-bold text-white m-0"><i class="fa-solid fa-user-shield text-info me-2"></i>Player Info
+                <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-user-shield text-info me-2"></i>Player Info
                 </h4>
-                <small class="text-white">Account Portfolio & Strategy </small>
+                <small class=""text-secondary>Account Portfolio & Strategy </small>
               </div>
               <span
                 class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill">
@@ -179,7 +179,7 @@
               <!-- Tên người chơi -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-secondary"><i class="fa-solid fa-user me-2"></i>Investor</span>
-                <span class="text-white fw-bold" data-prop="_name">--</span>
+                <span class="text-secondary fw-bold" data-prop="_name">--</span>
               </div>
 
               <!-- Số vàng -->
@@ -214,14 +214,14 @@
               <!-- Tiền cược -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-secondary"><i class="fa-solid fa-hand-holding-dollar me-2 text-info"></i>Invested Capital</span>
-                <span class="text-white fw-bold" data-prop="_bet">0</span>
+                <span class="text-secondary fw-bold" data-prop="_bet">0</span>
               </div>
 
               <!-- Khoi luong -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-secondary"><i class="fa-solid fa-arrow-up-wide-short me-2 text-success"></i>Volume</span>
                 <input type="number"
-                  class="form-control form-control-sm bg-dark text-success fw-bold border-secondary text-end w-50"
+                  class="form-control form-control-sm bg-white text-success fw-bold border-light-subtle text-start w-50"
                   id="_volume" value="1000" step="500">
               </div>
 
@@ -230,7 +230,7 @@
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-secondary"><i class="fa-solid fa-arrow-trend-up me-2 text-success"></i>Take Profit</span>
                 <input type="number"
-                  class="form-control form-control-sm bg-dark text-success fw-bold border-secondary text-end w-50"
+                  class="form-control form-control-sm bg-white text-success fw-bold border-light-subtle text-start w-50"
                   data-prop="_tp" oninput="handleInputChange(this)" value="0" step="100000">
               </div>
 
@@ -238,7 +238,7 @@
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-secondary"><i class="fa-solid fa-arrow-trend-down me-2 text-danger"></i>Stop Loss</span>
                 <input type="number"
-                  class="form-control form-control-sm bg-dark text-danger fw-bold border-secondary text-end w-50"
+                  class="form-control form-control-sm bg-white text-danger fw-bold border-light-subtle text-start w-50"
                   data-prop="_sl" oninput="handleInputChange(this)" value="0" step="50000">
               </div>
 

@@ -43,14 +43,8 @@ canvas {
   display: block;
 }
 
-.chart-box {
-  height: 350px;
-  width: 100%;
-}
 
-.progress-bar {
-  transition: width 0.6s ease;
-}
+
 
 /* Màu sắc tín hiệu tài chính tối ưu cho nền sáng */
 .buy,
@@ -70,47 +64,7 @@ canvas {
 
 
 
-/* ==========================================
-   2. CẤU TRÚC KHỐI CHÍNH (CARD & SEPARATION)
-   ========================================== */
-.has-close-btn {
-  position: relative !important;
-  background-color: #ffffff !important;
-  /* Khối màu trắng sạch sẽ */
-  border: 1px solid #e2e8f0 !important;
-  /* Viền xám mảnh tinh tế */
-  border-radius: 12px !important;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.06) !important;
-  /* Đổ bóng tách khối nhẹ nhàng */
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  /* Bắt buộc để mảng màu tam giác vát góc không tràn ra ngoài */
-}
 
-/* Tiêu đề của các Card */
-.card-header {
-  background-color: #f1f5f9 !important;
-  /* Nền header hơi xám nhẹ để phân tách khối */
-  border-bottom: 1px solid #e2e8f0 !important;
-  color: #0f172a !important;
-  padding: 12px 16px !important;
-  font-size: 18px;
-  padding-right: 40px !important;
-  /* Tránh chữ tiêu đề đè vào tam giác đóng */
-}
-
-.card-footer {
-  background-color: transparent !important;
-  border-top: 1px solid #e2e8f0 !important;
-  padding: 10px 16px !important;
-}
-
-.card-footer a {
-  color: #0284c7 !important;
-  /* Màu xanh dương chuyên nghiệp cho liên kết */
-  font-weight: 500;
-  font-size: 16px;
-}
 
 /* Tùy chỉnh danh sách tin nhắn bên trong Card */
 .list-group-item {
@@ -124,10 +78,16 @@ canvas {
 /* ==========================================
    3. ĐỊNH DẠNG CÁC BẢNG SỐ LIỆU (TRADE TABLES)
    ========================================== */
+
+
+#DOM_table{
+  margin-top: 10px;
+  padding: 10px;
+}
 table#tradeTable,
 table#Trading_Dashboard {
   width: 100%;
-  margin: 0;
+  margin: 10px;
   border-collapse: collapse;
 }
 
@@ -173,7 +133,7 @@ table#Trading_Dashboard tbody tr:hover {
 .table-input {
   background-color: #f1f5f9 !important;
   border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
+  /* color: #0f172a !important; */
   border-radius: 4px !important;
   text-align: center;
   font-weight: 600;
@@ -203,385 +163,132 @@ table#Trading_Dashboard tbody tr:hover {
 }
 
 
-/* ==========================================
-   4. THIẾT LẬP TAM GIÁC GÓC (ĐÃ XÓA SẠCH CHỮ X)
-   ========================================== */
-.global-close-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 35px;
-  height: 35px;
-  /* Tạo hình tam giác phẳng cắt góc nghiêng 45 độ màu xám dịu */
-  background: linear-gradient(45deg, transparent 50%, #cbd5e1 50%) !important;
-  cursor: pointer;
-  z-index: 99;
-  user-select: none;
-  transition: all 0.2s ease-in-out;
-}
-
-/* Khóa chặn tuyệt đối, loại bỏ hoàn toàn text lọt vào từ CSS */
-.global-close-btn::before,
-.global-close-btn::after {
-  content: none !important;
-  display: none !important;
-}
-
-/* Hover: Đổi mảng màu sang màu đỏ rực báo đóng */
-.global-close-btn:hover {
-  background: linear-gradient(45deg, transparent 50%, #ef4444 50%) !important;
-}
 
 
-/* ==========================================
-   5. TRẠNG THÁI KHI BỊ ẨN (CONTENT BLINDED)
-   ========================================== */
-.has-close-btn.content-blinded {
-  background-color: #989ca1 !important;
-  /* Đổi thành khối xám nhạt hẳn khi ẩn */
-  border-color: #62666b !important;
-  min-height: 44px !important;
-  height: 44px !important;
-  /* Thu gọn chiều cao đồng đều */
-}
-
-/* Vô hiệu hóa hiệu ứng viền chạy khi đã ẩn */
-.has-close-btn.content-blinded::before,
-.has-close-btn.content-blinded::after {
-  display: none !important;
-}
-
-/* Che nội dung */
-.has-close-btn.content-blinded>*:not(.global-close-btn) {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
-/* Khi đang ẩn: Đổi mảng màu tam giác sang màu xanh lá báo mở */
-.has-close-btn.content-blinded .global-close-btn {
-  background: linear-gradient(45deg, transparent 50%, #22c55e 50%) !important;
-}
-
-.has-close-btn.content-blinded .global-close-btn:hover {
-  background: linear-gradient(45deg, transparent 50%, #16a34a 50%) !important;
-}
 
 
-/* ==========================================
-   6. CÁC TIỆN ÍCH KÉO THẢ & BORDER LOOP
-   ========================================== */
-.is-draggable {
-  cursor: move !important;
-  user-select: none;
-  touch-action: none;
-}
-
-.dont_touch_parent {
-  display: flex;
-  position: fixed;
-  top: 15%;
-  left: 45%;
-  gap: 12px;
-  z-index: 9999;
-}
-
-.dont_touch {
-  width: 90px;
-  height: 40px;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 700;
-  font-size: 15px;
-  border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
-}
-
-.bg_red {
-  background-color: #dc2626 !important;
-}
-
-.bg_blue {
-  background-color: #2563eb !important;
-}
-
-@property --gradient-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-.border-loop {
-  position: relative;
-  z-index: 11;
-  border-radius: 8px;
-}
-
-.border-loop::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  /* Chuyển vệt sáng sang màu xanh cyan nổi bật trên nền sáng */
-  background: conic-gradient(from var(--gradient-angle), transparent 50%, #06b6d4 100%);
-  animation: rotateBorderAngle 2s linear infinite;
-  z-index: -1;
-}
-
-.border-loop::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: inherit;
-  border-radius: inherit;
-  z-index: -1;
-}
-
-.border-loop span {
-  position: relative;
-  z-index: 2;
-}
-
-@keyframes rotateBorderAngle {
-  0% {
-    --gradient-angle: 0deg;
-  }
-
-  100% {
-    --gradient-angle: 360deg;
-  }
-}
 
 
-/* ==========================================
-   7. ĐỒNG BỘ THANH NAVBAR (TÁCH BIỆT PHÍA TRÊN)
-   ========================================== */
-.navbar-custom {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #e2e8f0 !important;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03) !important;
-  /* Đổ bóng nhẹ tách biệt với phần body */
-}
-
-.navbar-custom .nav-link {
-  color: #475569 !important;
-  font-size: 18px;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.navbar-custom .nav-link:hover,
-.navbar-custom .nav-link.active {
-  color: #0284c7 !important;
-}
-
-.navbar-custom .dropdown-menu {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 8px !important;
-  margin-top: 8px !important;
-}
-
-.navbar-custom .dropdown-item {
-  color: #334155 !important;
-  font-size: 16px;
-  padding: 8px 16px;
-}
-
-.navbar-custom .dropdown-item:hover {
-  background-color: #f1f5f9 !important;
-  color: #0284c7 !important;
-}
-
-.navbar-search {
-  background-color: #f1f5f9 !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
-  border-radius: 6px !important;
-  font-size: 16px !important;
-}
-
-.navbar-search:focus {
-  border-color: #0284c7 !important;
-  box-shadow: none !important;
-}
-
-.navbar-search::placeholder {
-  color: #94a3b8;
-}
-
-.btn-nav-primary {
-  background-color: #0284c7 !important;
-  color: #ffffff !important;
-  font-weight: 600;
-  font-size: 16px;
-  border-radius: 6px !important;
-  border: none !important;
-  padding: 6px 16px !important;
-}
-
-.btn-nav-primary:hover {
-  background-color: #0369a1 !important;
-}
-
-.btn-nav-secondary {
-  background-color: #f1f5f9 !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #334155 !important;
-  font-weight: 500;
-  font-size: 16px;
-  border-radius: 6px !important;
-  padding: 6px 16px !important;
-}
-
-.btn-nav-secondary:hover {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-
-
-/* ==========================================
-   8. ĐỒNG BỘ CHÂN TRANG (TÁCH BIỆT PHÍA DƯỚI)
-   ========================================== */
-.footer-custom {
-  background-color: #ffffff !important;
-  border-top: 1px solid #e2e8f0 !important;
-  font-size: 18px;
-  box-shadow: 0 -4px 15px rgba(15, 23, 42, 0.03) !important;
-  /* Đổ bóng ngược lên để phân tách rõ ràng */
-}
-
-.footer-link {
-  color: #475569 !important;
-  transition: color 0.2s ease-in-out;
-}
-
-.footer-link:hover {
-  color: #0284c7 !important;
-}
-
-.footer-icon {
-  color: #64748b !important;
-  font-size: 1.2rem;
-  transition: all 0.2s ease-in-out;
-}
-
-.footer-icon:hover {
-  color: #0284c7 !important;
-  transform: translateY(-2px);
-}
-
-.footer-divider {
-  border-color: #e2e8f0 !important;
-  opacity: 1;
-}
-
-.fs-7 {
-  font-size: 15px !important;
-}
 
 
 /* + */
 
-    body.pm-body {
-        background-color: #0b0e14;
-        color: #d1d4dc;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .pm-card {
-        background: #131722;
-        border: 1px solid #2a2e39;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        width: 100%;
-    }
-    .pm-header {
-        border-bottom: 1px solid #2a2e39;
-        padding-bottom: 15px;
-        margin-bottom: 15px;
-    }
-    .pm-item {
-        background: #1e222d !important;
-        border: 1px solid #2a2e39 !important;
-        border-radius: 12px !important;
-        margin-bottom: 10px;
-        transition: all 0.2s ease;
-    }
-    .pm-item:hover {
-        border-color: #363c4e !important;
-    }
-    .pm-switch {
-        position: relative;
-        display: inline-block;
-        width: 51px;
-        height: 31px;
-    }
-    .pm-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .pm-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background-color: #363c4e;
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 31px;
-    }
-    .pm-slider:before {
-        position: absolute;
-        content: "";
-        height: 27px;
-        width: 27px;
-        left: 2px;
-        bottom: 2px;
-        background-color: white;
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 50%;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-    }
-    input:checked + .pm-slider {
-        background-color: #26a69a;
-    }
-    input:checked + .pm-slider:before {
-        transform: translateX(20px);
-    }
-    .pm-badge-signal {
-        background-color: #26a69a;
-        color: #fff;
-        font-weight: 600;
-        padding: 6px 12px;
-        border-radius: 8px;
-    }
+body.pm-body {
+  background-color: #f0f3fa; /* Nền sáng xám nhạt nhẹ mắt */
+  color: #131722; /* Chữ màu tối để dễ đọc */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.pm-card {
+  background: #ffffff; /* Nền thẻ trắng tinh khiết */
+  border: 1px solid #e0e3eb; /* Đường viền xám sáng */
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ nhàng, không bị đen bẩn */
+  width: 100%;
+}
+
+.pm-header {
+  border-bottom: 1px solid #e0e3eb; /* Đường viền ngăn cách sáng */
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.pm-item {
+  background: #f8f9fd !important; /* Nền item xám rất nhẹ */
+  border: 1px solid #e0e3eb !important;
+  border-radius: 12px !important;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+}
+
+.pm-item:hover {
+  border-color: #b2b5be !important; /* Viền đậm hơn chút khi hover */
+}
+
+.pm-switch {
+  position: relative;
+  display: inline-block;
+  width: 51px;
+  height: 31px;
+}
+
+.pm-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.pm-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #d1d4dc; /* Nền nút tắt màu xám trung tính */
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 31px;
+}
+
+.pm-slider:before {
+  position: absolute;
+  content: "";
+  height: 27px;
+  width: 27px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Đổ bóng nút tròn mịn hơn */
+}
+
+input:checked+.pm-slider {
+  background-color: #00897b; /* Màu xanh Teal đậm hơn một chút để nổi bật trên nền sáng */
+}
+
+input:checked+.pm-slider:before {
+  transform: translateX(20px);
+}
+
+.pm-badge-signal {
+  background-color: #00897b; /* Màu badge đồng bộ với nút bật */
+  color: #fff;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+
+
+
 
 
 
 .charts-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            /* max-width: 900px; */
-            margin: 0 auto;
-        }
-        .chart-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .chart-title {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            color: #1e293b;
-        }
-        .chart-container {
-            position: relative;
-            height: 350px;
-            width: 100%;
-        }
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  /* max-width: 900px; */
+  margin: 0 auto;
+}
+
+.chart-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.chart-title {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.chart-container {
+  position: relative;
+  height: 350px;
+  width: 100%;
+}

@@ -159,15 +159,21 @@ const TradeTable = {
   },
 };
 
-const formatNumber = (amount, locale = "vi-VN") => {
-  return new Intl.NumberFormat(locale, {
-    style: "decimal",
-    minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
-    maximumFractionDigits: 1, // Số chữ số thập phân tối đa
-  }).format(amount);
-};
+// const formatNumber = (amount, locale = "vi-VN") => {
+//   return new Intl.NumberFormat(locale, {
+//     style: "decimal",
+//     minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
+//     maximumFractionDigits: 1, // Số chữ số thập phân tối đa
+//   }).format(amount);
+// };
 
-
+function formatNumber(value) {
+    return new Intl.NumberFormat('en-US', {
+        notation: 'compact',
+        compactDisplay: 'short',
+        maximumFractionDigits: 1 // Giữ lại tối đa 1 chữ số thập phân nếu cần (ví dụ: 1.5M)
+    }).format(value);
+}
 async function loadAccessToken() {
   try {
     const response = await fetch("https://cyan.io.vn/xg79/get_token.php", {
@@ -215,7 +221,7 @@ function sendMessageToGame(b, sid, eid) {
   if (!b || !sid || !eid) return;
 
   let message = JSON.stringify(MESSAGE_WS.bet(b, sid, eid));
-  system.setProperty("_messages", message);
+  system.setProperty("_messages", `${sid}: ${formatNumber(b)}->${eid}`);
   system.socket.send(message);
 }
 
