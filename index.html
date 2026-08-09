@@ -89,15 +89,16 @@
               </div>
               <span
                 class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
-                <i class="fa-solid fa-circle fa-2xs me-1"></i> Live
+                <i class="fa-solid fa-circle fa-2xs me-1"></i>
+                <span data-prop="_responseCount">0</span>
               </span>
             </div>
 
             <div class="list-group list-group-flush bg-transparent">
               <!-- Token (Ô input hiển thị/nhập token) -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-key me-2 text-warning"></i>
-                  <a href="./stk.html" target="_blank" rel="noopener noreferrer">
+                <span class="text-dark"><i class="fa-solid fa-key me-2 text-warning"></i>
+                  <a href="./stk" target="_blank" rel="noopener noreferrer">
                     Access Token
                   </a>
                 </span>
@@ -108,7 +109,7 @@
 
                             <!-- Python Server -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-brain me-2 text-info"></i>Python Server</span>
+                <span class="text-dark"><i class="fa-solid fa-brain me-2 text-info"></i>Python Server</span>
                 <label class="pm-switch mb-0">
                   <input type="checkbox" data-prop="_isPythonConnected" onchange="handleToggleChange(this)">
                   <span class="pm-slider"></span>
@@ -117,23 +118,18 @@
 
               <!-- Game Server -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-gamepad me-2 text-warning"></i>Game Server</span>
+                <span class="text-dark"><i class="fa-solid fa-gamepad me-2 text-warning"></i>Game Server</span>
                 <label class="pm-switch mb-0">
                   <input type="checkbox" data-prop="_isGameConnected" onchange="handleToggleChange(this)">
                   <span class="pm-slider"></span>
                 </label>
               </div>
 
-              <!-- Response Count -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-bolt me-2 text-warning"></i>Response Count</span>
-                <span class="badge bg-warning text-secondary fw-bold fs-6" data-prop="_responseCount">0</span>
-              </div>
 
               <!-- Tin nhắn hệ thống -->
               <div class="list-group-item pm-item py-3 px-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-secondary"><i class="fa-solid fa-comments me-2"></i>Messages</span>
+                  <span class="text-dark"><i class="fa-solid fa-comments me-2"></i>Messages</span>
                 </div>
                 <div
                   class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-white small"
@@ -145,7 +141,7 @@
               <!-- Lich su hệ thống -->
               <div class="list-group-item pm-item py-3 px-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-secondary"><i class="fa-solid fa-clock-rotate-left me-2"></i>Market</span>
+                  <span class="text-dark"><i class="fa-solid fa-clock-rotate-left me-2"></i>Market</span>
                 </div>
                 <div
                   class="p-2 rounded bg-black bg-opacity-25 border border-secondary border-opacity-10 text-white small"
@@ -171,25 +167,21 @@
               </div>
               <span
                 class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill">
-                <i class="fa-solid fa-user fa-2xs me-1"></i> User
+                <i class="fa-solid fa-user fa-2xs me-1"></i>
+                <span class="text-secondary fw-bold" data-prop="_name"></span>
               </span>
             </div>
 
             <div class="list-group list-group-flush bg-transparent">
-              <!-- Tên người chơi -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-user me-2"></i>Investor</span>
-                <span class="text-secondary fw-bold" data-prop="_name">--</span>
-              </div>
 
               <!-- Số vàng -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-coins me-2 text-warning"></i>Asset</span>
-                <span class="text-warning fw-bold fs-5" data-prop="_gold">0</span>
+                <span class="text-dark"><i class="fa-solid fa-coins me-2 text-warning"></i>Asset</span>
+                <span class="text-dark fw-bold fs-5" data-prop="_gold">0</span>
               </div>
                             <!-- Trạng thái chơi -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-play me-2"></i>Play Status</span>
+                <span class="text-dark"><i class="fa-solid fa-play me-2 text-success"></i>Play Status</span>
                 <label class="pm-switch mb-0">
                   <input type="checkbox" data-prop="_isPlay" onchange="handleToggleChange(this)">
                   <span class="pm-slider"></span>
@@ -198,48 +190,68 @@
 
                                           <!-- isReverse -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-play me-2"></i>Reverse</span>
+                <span class="text-dark"><i class="fa-solid fa-right-left me-2 text-danger"></i>Reverse</span>
                 <label class="pm-switch mb-0">
                   <input type="checkbox" data-prop="_isReverse" onchange="handleToggleChange(this)">
                   <span class="pm-slider"></span>
                 </label>
               </div>
 
-              <!-- Tín hiệu -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-signal me-2"></i>Signal</span>
-                <span class="pm-badge-signal" data-prop="_signal">HOLD</span>
-              </div>
 
               <!-- Tiền cược -->
-              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-hand-holding-dollar me-2 text-info"></i>Invested Capital</span>
-                <span class="text-secondary fw-bold" data-prop="_bet">0</span>
-              </div>
+<div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+  <!-- Bên trái: Tiêu đề dòng -->
+  <span class="text-dark">
+    <i class="fa-solid fa-money-bill-transfer me-2 text-success"></i>Invest
+  </span>
+
+  <!-- Bên phải: Gom nhóm Trạng thái và Số tiền -->
+  <div class="d-flex align-items-center gap-2">
+    <!-- Thẻ trạng thái Signal dạng Badge tròn, nổi bật vừa phải -->
+    <span class="badge rounded-pill bg-secondary-subtle text-secondary px-2.5 py-1.5 fw-semibold small pm-badge-signal" 
+          data-prop="_signal" 
+          style="font-size: 0.75rem; letter-spacing: 0.5px;">HOLD</span>
+    
+    <!-- Thẻ hiển thị số tiền dạng số Monospace để các chữ số luôn thẳng hàng -->
+    <span class="text-dark fw-bold font-monospace" 
+          data-prop="_bet" 
+          style="font-size: 0.95rem;">0</span>
+  </div>
+</div>
+
 
               <!-- Khoi luong -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-arrow-up-wide-short me-2 text-success"></i>Volume</span>
+                <span class="text-dark"><i class="fa-solid fa-arrow-up-wide-short me-2 text-success"></i>
+                  Volume
+                </span>
                 <input type="number"
-                  class="form-control form-control-sm bg-white text-success fw-bold border-light-subtle text-start w-50"
-                  id="_volume" value="1000" step="500">
+                  class="form-control form-control-sm bg-white text-success fw-bold border-light-subtle text-end w-50"
+                  id="_volume" value="5000" step="1000">
               </div>
 
 
               <!-- Take Profit (TP) -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-arrow-trend-up me-2 text-success"></i>Take Profit</span>
+                <span class="text-dark"><i class="fa-solid fa-arrow-trend-up me-2 text-success"></i>
+                  TP
+                  <small class="text-info ms-2">10M</small>
+
+                </span>
                 <input type="number"
-                  class="form-control form-control-sm bg-white text-success fw-bold border-light-subtle text-start w-50"
-                  data-prop="_tp" oninput="handleInputChange(this)" value="0" step="100000">
+                  class="form-control form-control-sm bg-white text-success fw-bold border-light-subtle text-end w-50"
+                  data-prop="_tp" oninput="handleInputChange(this)" value="10000000" step="1000000">
               </div>
 
               <!-- Stop Loss (SL) -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-                <span class="text-secondary"><i class="fa-solid fa-arrow-trend-down me-2 text-danger"></i>Stop Loss</span>
+                <span class="text-dark"><i class="fa-solid fa-arrow-trend-down me-2 text-danger"></i>
+                  SL
+                  <small class="text-info ms-2">0</small>
+                </span>
                 <input type="number"
-                  class="form-control form-control-sm bg-white text-danger fw-bold border-light-subtle text-start w-50"
-                  data-prop="_sl" oninput="handleInputChange(this)" value="0" step="50000">
+                  class="form-control form-control-sm bg-white text-danger fw-bold border-light-subtle text-end w-50"
+                  data-prop="_sl" oninput="handleInputChange(this)" value="0" step="100000">
               </div>
 
 

@@ -10,8 +10,8 @@ ID_COL = "sid"
 
 import sys
 
-# sys.modules['numpy._core'] = np.core
-# sys.modules['numpy._core.numeric'] = np.core.numeric
+sys.modules['numpy._core'] = np.core
+sys.modules['numpy._core.numeric'] = np.core.numeric
 
 def lam_tron_bac_thu_2(n):
     if n == 0:
@@ -87,7 +87,7 @@ def update_local_db():
             df_new['extracted'] = df_new['progress'].apply(handle_progress)
             
             df_new['target'] = df_new.apply(
-                lambda r: 1 if (int(r['d1']) + int(r['d2']) + int(r['d3']) <= 10) else 0, axis=1
+                lambda r: 1 if (int(r['d1']) + int(r['d2']) + int(r['d3']) > 10) else 2, axis=1
             )
 
             # Lọc bỏ các dòng không đủ 45 bước

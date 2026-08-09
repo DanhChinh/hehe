@@ -154,9 +154,13 @@ document.addEventListener("DOMContentLoaded", () => {
 function handleInputChange(input) {
   const propName = input.getAttribute("data-prop");
   const manager = managers.find((m) => m.hasOwnProperty(propName));
+  const smallEl = input.parentElement.querySelector("small");
   if (manager) {
     const val = input.type === "number" ? Number(input.value) : input.value;
     manager.setProperty(propName, val);
+  }
+  if (smallEl) {
+    smallEl.innerText = formatNumber(input.value);
   }
 }
 
@@ -198,6 +202,7 @@ function handleGameConnected(isChecked) {
 
   system.socket.onopen = function (event) {
     let token = system.getProperty("_token");
+    system.setProperty("reconnectCount", 0);
     system.socket.send(JSON.stringify(MESSAGE_WS.login(token)));
     system.setProperty("_messages", `socket.send: ${token}}`);
   };
@@ -317,7 +322,7 @@ function handlePythonConnected(isChecked) {
       let data = msg.data;
 
       // LOGIC TỰ ĐỘNG NGẮT KHI CHẠM TP/SL
-      if (player.isPlay) {
+      if (player._isPlay) {
 
         const TP = player.getProperty("_tp");
         const SL = player.getProperty("_sl");
@@ -332,7 +337,15 @@ function handlePythonConnected(isChecked) {
       updateChart(data.history_tm);
       updateRawScoreChart(data.history_mm);
 
-      if (!sid || !player.getProperty("_isPlay") || !data.predict) return;
+      //kiem tra dieu kien de gui lenh mua ban
+
+      if (!sid || !player.getProperty("_isPlay") || !data.predict){
+        player.setProperty("_signal", 'HOLD');
+        return;
+      }
+      player.setProperty("_signal", data.predict == 1 ? "BUY" : "SELL");
+
+      //end
 
       let money = roundToThousand(
         data.bet * +document.getElementById("_volume").value,
