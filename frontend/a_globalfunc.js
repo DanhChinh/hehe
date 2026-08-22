@@ -254,3 +254,20 @@ function roundToThousand(num) { return Math.round(num / 1000) * 1000; }
 
 
 
+function showAlert(title, message) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            document.getElementById('customAlert').classList.add('active');
+        }
+
+        // Hàm đóng thông báo
+        function closeAlert() {
+            document.getElementById('customAlert').classList.remove('active');
+        }
+
+        // Đóng khi người dùng nhấn ra ngoài vùng bảng thông báo
+        document.getElementById('customAlert').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAlert();
+            }
+        });

@@ -19,6 +19,7 @@
   <!-- Nhúng FontAwesome để thêm icon sinh động -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="./frontend/style.css">
 
 
@@ -32,25 +33,25 @@
       <!-- Cột bên trái: Dashboard & Map -->
       <div class="col-lg-9">
 
-<div class="charts-wrapper">
-        <!-- CARD 1: BIỂU ĐỒ TỔNG CỘNG DỒN (CỦA BẠN) -->
-        <div class="chart-card">
+        <div class="charts-wrapper">
+          <!-- CARD 1: BIỂU ĐỒ TỔNG CỘNG DỒN (CỦA BẠN) -->
+          <div class="chart-card">
             <h2 class="chart-title">1. Cumulative Line Chart</h2>
             <div class="chart-container">
-                <canvas id="gameChart"></canvas>
+              <canvas id="gameChart"></canvas>
             </div>
-        </div>
+          </div>
 
-        <!-- CARD 2: BIỂU ĐỒ ĐIỂM TỪNG VÁN (TẠO MỚI) -->
-        <div class="chart-card">
+          <!-- CARD 2: BIỂU ĐỒ ĐIỂM TỪNG VÁN (TẠO MỚI) -->
+          <div class="chart-card">
             <h2 class="chart-title">2. Volatility Chart with 5% Threshold Lines</h2>
             <div class="chart-container">
-                <canvas id="rawScoreChart"></canvas>
+              <canvas id="rawScoreChart"></canvas>
             </div>
+          </div>
         </div>
-    </div>
 
-        
+
         <!-- tradeTable -->
         <div class="container-fluid p-0" id="DOM_table">
           <div class="table-responsive">
@@ -77,7 +78,7 @@
 
       <!-- Cột bên phải: Tách thành 2 khối riêng biệt (Player phía trên, System phía dưới) -->
       <div class="col-lg-3 d-flex flex-column gap-4">
-                <!-- 2. KHỐI SYSTEM (HỆ THỐNG / KẾT NỐI) -->
+        <!-- 2. KHỐI SYSTEM (HỆ THỐNG / KẾT NỐI) -->
         <div class="container p-0 ">
           <div class="card pm-card p-4">
 
@@ -107,7 +108,7 @@
                   data-prop="_token" oninput="handleInputChange(this)" placeholder="Nhập token...">
               </div>
 
-                            <!-- Python Server -->
+              <!-- Python Server -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-dark"><i class="fa-solid fa-brain me-2 text-info"></i>Python Server</span>
                 <label class="pm-switch mb-0">
@@ -163,7 +164,7 @@
               <div>
                 <h4 class="fw-bold text-dark m-0"><i class="fa-solid fa-user-shield text-info me-2"></i>Player Info
                 </h4>
-                <small class=""text-secondary>Account Portfolio & Strategy </small>
+                <small class="" text-secondary>Account Portfolio & Strategy </small>
               </div>
               <span
                 class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill">
@@ -179,7 +180,7 @@
                 <span class="text-dark"><i class="fa-solid fa-coins me-2 text-warning"></i>Asset</span>
                 <span class="text-dark fw-bold fs-5" data-prop="_gold">0</span>
               </div>
-                            <!-- Trạng thái chơi -->
+              <!-- Trạng thái chơi -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-dark"><i class="fa-solid fa-play me-2 text-success"></i>Play Status</span>
                 <label class="pm-switch mb-0">
@@ -188,7 +189,7 @@
                 </label>
               </div>
 
-                                          <!-- isReverse -->
+              <!-- isReverse -->
               <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
                 <span class="text-dark"><i class="fa-solid fa-right-left me-2 text-danger"></i>Reverse</span>
                 <label class="pm-switch mb-0">
@@ -199,25 +200,23 @@
 
 
               <!-- Tiền cược -->
-<div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
-  <!-- Bên trái: Tiêu đề dòng -->
-  <span class="text-dark">
-    <i class="fa-solid fa-money-bill-transfer me-2 text-success"></i>Invest
-  </span>
+              <div class="list-group-item pm-item d-flex justify-content-between align-items-center py-3 px-3">
+                <!-- Bên trái: Tiêu đề dòng -->
+                <span class="text-dark">
+                  <i class="fa-solid fa-money-bill-transfer me-2 text-success"></i>Invest
+                </span>
 
-  <!-- Bên phải: Gom nhóm Trạng thái và Số tiền -->
-  <div class="d-flex align-items-center gap-2">
-    <!-- Thẻ trạng thái Signal dạng Badge tròn, nổi bật vừa phải -->
-    <span class="badge rounded-pill bg-secondary-subtle text-secondary px-2.5 py-1.5 fw-semibold small pm-badge-signal" 
-          data-prop="_signal" 
-          style="font-size: 0.75rem; letter-spacing: 0.5px;">HOLD</span>
-    
-    <!-- Thẻ hiển thị số tiền dạng số Monospace để các chữ số luôn thẳng hàng -->
-    <span class="text-dark fw-bold font-monospace" 
-          data-prop="_bet" 
-          style="font-size: 0.95rem;">0</span>
-  </div>
-</div>
+                <!-- Bên phải: Gom nhóm Trạng thái và Số tiền -->
+                <div class="d-flex align-items-center gap-2">
+                  <!-- Thẻ trạng thái Signal dạng Badge tròn, nổi bật vừa phải -->
+                  <span
+                    class="badge rounded-pill bg-secondary-subtle text-secondary px-2.5 py-1.5 fw-semibold small pm-badge-signal"
+                    data-prop="_signal" style="font-size: 0.75rem; letter-spacing: 0.5px;">HOLD</span>
+
+                  <!-- Thẻ hiển thị số tiền dạng số Monospace để các chữ số luôn thẳng hàng -->
+                  <span class="text-dark fw-bold font-monospace" data-prop="_bet" style="font-size: 0.95rem;">0</span>
+                </div>
+              </div>
 
 
               <!-- Khoi luong -->
@@ -227,7 +226,7 @@
                 </span>
                 <input type="number"
                   class="form-control form-control-sm bg-white text-success fw-bold border-light-subtle text-end w-50"
-                  id="_volume" value="5000" step="1000">
+                  id="_volume" value="10000" step="5000">
               </div>
 
 
@@ -240,7 +239,7 @@
                 </span>
                 <input type="number"
                   class="form-control form-control-sm bg-white text-success fw-bold border-light-subtle text-end w-50"
-                  data-prop="_tp" oninput="handleInputChange(this)" value="10000000" step="1000000">
+                  data-prop="_tp" oninput="handleInputChange(this)" value="10000000" step="500000">
               </div>
 
               <!-- Stop Loss (SL) -->
@@ -251,7 +250,7 @@
                 </span>
                 <input type="number"
                   class="form-control form-control-sm bg-white text-danger fw-bold border-light-subtle text-end w-50"
-                  data-prop="_sl" oninput="handleInputChange(this)" value="0" step="100000">
+                  data-prop="_sl" oninput="handleInputChange(this)" value="0" step="500000">
               </div>
 
 
@@ -266,7 +265,6 @@
 
     </div>
   </main>
-
   <script src="./frontend/a_globalfunc.js"></script>
   <script src="./frontend/b_echart.js"></script>
   <script src="./frontend/new.js"></script>

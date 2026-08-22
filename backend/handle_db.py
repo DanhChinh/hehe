@@ -2,16 +2,17 @@ import requests, os, json, time
 import pandas as pd
 import numpy as np
 import math
+import platform
 
 # --- CẤU HÌNH ---
 API_URL = "http://cyan.io.vn/xg79/sync_api.php"
 PKL_FILE = "data.pkl"
 ID_COL = "sid"
 
-import sys
-
-sys.modules['numpy._core'] = np.core
-sys.modules['numpy._core.numeric'] = np.core.numeric
+if platform.system() == "Linux":
+    import sys
+    sys.modules['numpy._core'] = np.core
+    sys.modules['numpy._core.numeric'] = np.core.numeric
 
 def lam_tron_bac_thu_2(n):
     if n == 0:

@@ -201,6 +201,9 @@ function handleGameConnected(isChecked) {
   system.socket = new WebSocket(MESSAGE_WS.url);
 
   system.socket.onopen = function (event) {
+    if (Swal.isVisible()) {
+        Swal.close();
+    }
     let token = system.getProperty("_token");
     system.setProperty("reconnectCount", 0);
     system.socket.send(JSON.stringify(MESSAGE_WS.login(token)));
@@ -287,6 +290,13 @@ function handleGameConnected(isChecked) {
   system.socket.onclose = function (event) {
     system.setProperty("_messages", "socket.onclose");
     system.setProperty("_isGameConnected", false);
+    Swal.fire({
+        icon: 'error',
+        title: 'Mất Kết Nối Server!',
+        text: 'Đang thử kết nối lại...',
+        showConfirmButton: true, // Ẩn nút OK để tự động xử lý
+        allowOutsideClick: false   // Không cho tắt khi bấm ra ngoài
+    });
     clearInterval(system.sendInterval);
     if (system.reconnectCount >= 2) {
       alert("Đã vượt quá số lần reconnect cho phép");
