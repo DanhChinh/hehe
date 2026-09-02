@@ -63,6 +63,16 @@ def handle_toggle_reverse(msg):
     tmm.isReverse = isReverse
     emit("info", {"data": tmm.get_all_info()})
 
+@socketio.on("set_property")
+def handle_set_property(msg):
+    idx = msg.get("idx")
+    prop = msg.get("prop")
+    val = msg.get("val")
+    tmm = get_tmm_instance()
+    tmm.set_property(idx, prop, val)
+    emit("info", {"data": tmm.get_all_info()})
+
+
 @socketio.on("connect")
 def handle_connect(auth=None):
     print("✅ Client connected")
