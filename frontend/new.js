@@ -330,6 +330,7 @@ function handlePythonConnected(isChecked) {
     system.socket_io.on("info", (msg) => {
       let sid = msg.sid;
       let data = msg.data;
+      console.log(data)
 
       // LOGIC TỰ ĐỘNG NGẮT KHI CHẠM TP/SL
       if (player._isPlay) {

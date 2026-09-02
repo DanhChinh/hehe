@@ -3,7 +3,7 @@
 // ==========================================
 let chartInstances = []; // Lưu danh sách các cặp biểu đồ đã tạo
 
-// Hàm hỗ trợ tạo cấu trúc HTML chứa 2 biểu đồ cho mỗi phần tử trong mảng
+// Hàm hỗ trợ tạo cấu trúc HTML chứa 2 biểu đồ và form điều khiển cho mỗi phần tử trong mảng
 function ensureChartContainers(count) {
     const wrapper = document.querySelector('.charts-wrapper');
     if (!wrapper) return;
@@ -14,18 +14,11 @@ function ensureChartContainers(count) {
     if (currentCards.length < count) {
         for (let i = currentCards.length; i < count; i++) {
             const groupDiv = document.createElement('div');
-            groupDiv.className = 'chart-pair-group';
-            groupDiv.style.marginBottom = '40px';
-            groupDiv.style.borderBottom = '1px solid rgba(200, 200, 200, 0.2)';
-            groupDiv.style.paddingBottom = '20px';
+            groupDiv.className = 'chart-pair-group mb-4';
 
             groupDiv.innerHTML = `
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="text-dark mb-0">Phần tử dữ liệu #${i + 1}</h3>
-    <button type="button" class="btn btn-sm btn-outline-danger px-2 py-0 fw-bold" onclick="toggleCharts(${i})">&times;</button>
-</div>
-
-<div id="chartsWrapper_${i}" class="row g-4">
+<h3 class="text-dark mb-0">Phần tử dữ liệu #${i + 1}</h3>
+<div id="chartsWrapper_${i}" class="row g-4 align-items-stretch">
     <div class="col-md-6">
         <div class="card h-100 p-3 shadow-sm">
             <h2 class="chart-title" style="font-size: 14px;">Cumulative Line Chart</h2>
@@ -34,7 +27,7 @@ function ensureChartContainers(count) {
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card h-100 p-3 shadow-sm">
             <h2 class="chart-title" style="font-size: 14px;">Volatility Chart</h2>
             <div class="chart-container position-relative" style="height: 250px;">
@@ -42,9 +35,50 @@ function ensureChartContainers(count) {
             </div>
         </div>
     </div>
+    <div class="col-md-2">
+        <div class="card h-100 p-2 shadow-sm d-flex flex-column justify-content-between" style="font-size: 13px;">
+            <div>
+                <h2 class="chart-title mb-2" style="font-size: 14px;">Settings</h2>
+                
+                <!-- Inputs: tp, sl, volume -->
+                <div class="mb-2">
+                    <label class="form-label mb-0" style="font-size: 12px;">TP:</label>
+                    <input type="number" class="form-control form-control-sm" onchange="set_property(${i}, 'tp', +this.value)">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label mb-0" style="font-size: 12px;">SL:</label>
+                    <input type="number" class="form-control form-control-sm" onchange="set_property(${i}, 'sl', +this.value)">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label mb-0" style="font-size: 12px;">Volume:</label>
+                    <input type="number" class="form-control form-control-sm" onchange="set_property(${i}, 'volume', +this.value)">
+                </div>
+
+                <!-- Invest Text -->
+                <div class="mb-2">
+                    <label class="form-label mb-0" style="font-size: 12px;">Invest:</label>
+                    <input type="text" class="form-control form-control-sm" onchange="set_property(${i}, 'invest', +this.value)">
+                </div>
+            </div>
+
+            <!-- Checkboxes / Toggle Buttons: isPlay, isReverse, isShow -->
+            <div class="mt-2 pt-2 border-top">
+                <div class="form-check form-switch mb-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="isPlay_${i}" onchange="set_property(${i}, 'isPlay', this.checked)">
+                    <label class="form-check-label" for="isPlay_${i}" style="font-size: 12px;">Play</label>
+                </div>
+                <div class="form-check form-switch mb-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="isReverse_${i}" onchange="set_property(${i}, 'isReverse', this.checked)">
+                    <label class="form-check-label" for="isReverse_${i}" style="font-size: 12px;">Reverse</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="isShow_${i}" onchange="set_property(${i}, 'isShow', this.checked)">
+                    <label class="form-check-label" for="isShow_${i}" style="font-size: 12px;">Show</label>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-
             `;
             wrapper.appendChild(groupDiv);
         }
@@ -57,7 +91,7 @@ function ensureChartContainers(count) {
 function renderMultipleCharts(dataArray) {
     if (!Array.isArray(dataArray) || dataArray.length === 0) return;
 
-    // Đảm bảo giao diện HTML có đủ số lượng canvas tương ứng với kích thước mảng
+    // Đảm bảo giao diện HTML có đủ số lượng canvas và form tương ứng với kích thước mảng
     ensureChartContainers(dataArray.length);
 
     // Duyệt qua từng phần tử trong mảng dữ liệu trả về từ server
@@ -76,6 +110,25 @@ function renderMultipleCharts(dataArray) {
             upper2Sigma.push(+(2 * sigma).toFixed(2));
             lower2Sigma.push(-(2 * sigma).toFixed(2));
         });
+
+        // --- ĐỔ DỮ LIỆU VÀO CÁC FORM CONTROLS ---
+        const groupDiv = document.querySelectorAll('.chart-pair-group')[index];
+        if (groupDiv) {
+            const inputs = groupDiv.querySelectorAll('input');
+            // Thứ tự các input trong col-md-2: 
+            // 0: tp, 1: sl, 2: volume, 3: invest, 4: isPlay (checkbox), 5: isReverse (checkbox), 6: isShow (checkbox)
+            if (inputs.length >= 7) {
+                // Kiểm tra activeElement để tránh ghi đè khi người dùng đang nhập liệu dở
+                if (document.activeElement !== inputs[0]) inputs[0].value = item.tp ?? '';
+                if (document.activeElement !== inputs[1]) inputs[1].value = item.sl ?? '';
+                if (document.activeElement !== inputs[2]) inputs[2].value = item.volume ?? '';
+                if (document.activeElement !== inputs[3]) inputs[3].value = item.invest ?? '';
+                
+                inputs[4].checked = !!item.isPlay;
+                inputs[5].checked = !!item.isReverse;
+                inputs[6].checked = !!item.isShow;
+            }
+        }
 
         // Kiểm tra xem cặp biểu đồ thứ `index` đã được khởi tạo instance chưa
         if (!chartInstances[index]) {
@@ -135,12 +188,10 @@ function renderMultipleCharts(dataArray) {
     });
 }
 
-
-function toggleCharts(index) {
-        const wrapper = document.getElementById(`chartsWrapper_${index}`);
-        if (wrapper.style.display === 'none') {
-            wrapper.style.display = 'flex'; // Hoặc '' nếu dùng row mặc định của Bootstrap
-        } else {
-            wrapper.style.display = 'none';
-        }
-    }
+// ==========================================
+// 3. GỬI SỰ KIỆN LÊN SERVER QUA SOCKET.IO
+// ==========================================
+function set_property(idx, prop, val) {
+    console.log(idx, prop, val)
+    system.socket_io.emit("set_property", { idx, prop, val });
+}
