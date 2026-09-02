@@ -1,6 +1,5 @@
 from beautydata import *
-
-from handle_db import load_data_from_pickle as make_data
+import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier)
@@ -62,6 +61,21 @@ class TradingModel:
         }
 
 
+class TMM:
+    def __init__(self, zipxy, le):
+        self.arr = [TradingModel(x, y, le) for x, y in zipxy]
+    def make_predict(self, new_data_sample):
+        for item in self.arr:
+            item.make_predict(new_data_sample)
+    def check(self, actual_label):
+        for item in self.arr:
+            item.check(actual_label)
+    def get_all_info(self):
+        data = []
+        for item in self.arr:
+            data.append(item.get_all_info())
+        return data
+
 
 # --- CÁCH KHẮC PHỤC DÙNG SINGLETON SAFE-THREAD ---
 from threading import Lock
@@ -74,7 +88,10 @@ def get_tmm_instance():
     if _tmm_instance is None:
         with _tmm_lock:
             if _tmm_instance is None:
-                df, data, label = make_data()
-                X_clean, y_clean, le = clean_data(data, label)
-                _tmm_instance = TradingModel(X_clean, y_clean, le)
+                X_clean, y_clean, le = load_clean()
+                X_splits = np.array_split(X_clean, 10)
+                y_splits = np.array_split(y_clean, 10)
+
+                _tmm_instance = TMM(zip(X_splits, y_splits), le)   
     return _tmm_instance
+    

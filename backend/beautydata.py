@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import gc
+import joblib
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.model_selection import cross_val_predict, train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -51,7 +52,6 @@ def clean_data(X, y):
     return X_clean, y_clean_encoded, le
 
 def get_beauty_model(X_clean, y_clean, model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)):
-    print(f"--- Đang huấn luyện mô hình {type(model).__name__} ---")
     """
     Tách dữ liệu sạch và huấn luyện mô hình mới hoàn toàn.
     """
@@ -65,11 +65,8 @@ def get_beauty_model(X_clean, y_clean, model = RandomForestClassifier(n_estimato
         X_temp, y_temp, test_size=0.1765, random_state=42, stratify=y_temp
     )
 
-    print(f"\n--- Phân chia dữ liệu sạch ---")
-    print(f"Train: {X_train.shape}, Val: {X_val.shape}, Test: {X_test.shape}")
 
     # Khởi tạo mô hình mới (tránh dùng lại bộ nhớ mô hình cũ)
-    print("Đang huấn luyện mô hình chính thức...")
     clf_final = model
     clf_final.fit(X_train, y_train)
 
@@ -77,10 +74,7 @@ def get_beauty_model(X_clean, y_clean, model = RandomForestClassifier(n_estimato
     y_pred_test = clf_final.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred_test)
 
-    print("\n" + "="*30)
-    print(f"ĐỘ CHÍNH XÁC TRÊN TẬP TEST: {accuracy * 100:.2f}%")
-    print("="*30)
-    print(classification_report(y_test, y_pred_test))
+    print(f"accuracy: {accuracy * 100:.2f}%")
 
     return clf_final, X_train
 
@@ -131,3 +125,15 @@ def evaluate_new_data(new_row, model, iso_model, le, threshold=0.6):
     #     "confidence": max_prob,
     #     "reasons": reasons
     # }
+
+
+
+
+def save_clean(data):
+    joblib.dump(data, 'processed_data.pkl')
+def load_clean():
+    loaded_data = joblib.load('processed_data.pkl')
+    X_clean = loaded_data['X_clean']
+    y_clean = loaded_data['y_clean']
+    le = loaded_data['le']
+    return X_clean, y_clean, le

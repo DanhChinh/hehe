@@ -49,20 +49,18 @@ def handle_check(msg):
 
 @socketio.on("toggle_play")
 def handle_toggle_play(msg):
+    pass
     isPlay = msg.get("isPlay")
-
     tmm = get_tmm_instance()
     tmm.isPlay = isPlay
-
     emit("info", {"data": tmm.get_all_info()})
 
 @socketio.on("toggle_reverse")
 def handle_toggle_reverse(msg):
+    pass
     isReverse = msg.get("isReverse")
-
     tmm = get_tmm_instance()
     tmm.isReverse = isReverse
-
     emit("info", {"data": tmm.get_all_info()})
 
 @socketio.on("connect")

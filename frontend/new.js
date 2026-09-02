@@ -344,8 +344,9 @@ function handlePythonConnected(isChecked) {
       }
 
 
-      updateChart(data.history_tm);
-      updateRawScoreChart(data.history_mm);
+      // updateChart(data.history_tm);
+      // updateRawScoreChart(data.history_mm);
+      renderMultipleCharts(data);
 
       //kiem tra dieu kien de gui lenh mua ban
 

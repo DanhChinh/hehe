@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <h3 class="mb-1">Phần tử dữ liệu #${i + 1}</h3>
+        <div class="row">
+            <canvas class="col-6" id="gameChart_${i}"></canvas>
+            <canvas class="col-6" id="rawScoreChart_${i}"></canvas>
+        </div>
+    </div>
+
+    <div class="charts-wrapper" style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div class="chart-card" style="flex: 1; min-width: 300px; height: 300px;">
+            <h2 class="chart-title" style="font-size: 14px;">Cumulative Line Chart</h2>
+            <div class="chart-container" style="position: relative; height: 250px;">
+                <canvas id="gameChart_${i}"></canvas>
+            </div>
+        </div>
+        <div class="chart-card" style="flex: 1; min-width: 300px; height: 300px;">
+            <h2 class="chart-title" style="font-size: 14px;">Volatility Chart</h2>
+            <div class="chart-container" style="position: relative; height: 250px;">
+                <canvas id="rawScoreChart_${i}"></canvas>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
