@@ -333,16 +333,16 @@ function handlePythonConnected(isChecked) {
       console.log(data)
 
       // LOGIC TỰ ĐỘNG NGẮT KHI CHẠM TP/SL
-      if (player._isPlay) {
+      // if (player._isPlay) {
 
-        const TP = player.getProperty("_tp");
-        const SL = player.getProperty("_sl");
-        const gold = player.getProperty("_gold");
+      //   const TP = player.getProperty("_tp");
+      //   const SL = player.getProperty("_sl");
+      //   const gold = player.getProperty("_gold");
 
-        if (gold >= TP || gold <= SL) {
-          player.setProperty("_isPlay", false);
-        }
-      }
+      //   if (gold >= TP || gold <= SL) {
+      //     player.setProperty("_isPlay", false);
+      //   }
+      // }
 
 
       // updateChart(data.history_tm);
@@ -351,23 +351,35 @@ function handlePythonConnected(isChecked) {
 
       //kiem tra dieu kien de gui lenh mua ban
 
-      if (!sid || !player.getProperty("_isPlay") || !data.predict){
-        player.setProperty("_signal", 'HOLD');
+      if (!sid){
         return;
       }
-      player.setProperty("_signal", data.predict == 1 ? "BUY" : "SELL");
+      data.forEach(
+        (d)=>{
+      sendMessageToGame(d.invest, sid, d.predict);
+      d.predict == 1
+        ? TradeTable.buy(sid, d.invest)
+        : TradeTable.sell(sid, d.invest);
+        }
+      )
 
-      //end
+      // if (!sid || !player.getProperty("_isPlay") || !data.predict){
+      //   player.setProperty("_signal", 'HOLD');
+      //   return;
+      // }
+      // player.setProperty("_signal", data.predict == 1 ? "BUY" : "SELL");
 
-      let money = roundToThousand(
-        data.bet * +document.getElementById("_volume").value,
-      );
+      // //end
 
-      sendMessageToGame(money, sid, data.predict);
-      data.predict == 1
-        ? TradeTable.buy(sid, money)
-        : TradeTable.sell(sid, money);
-      player.setProperty("_bet", money);
+      // let money = roundToThousand(
+      //   data.bet * +document.getElementById("_volume").value,
+      // );
+
+      // sendMessageToGame(money, sid, data.predict);
+      // data.predict == 1
+      //   ? TradeTable.buy(sid, money)
+      //   : TradeTable.sell(sid, money);
+      // player.setProperty("_bet", money);
     });
 
     system.socket_io.on("disconnect", () => {

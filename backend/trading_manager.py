@@ -47,6 +47,10 @@ class TradingModel:
         self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le)
         self.predict_fixed = 3 - self.predict if (self.predict and self.isReverse) else self.predict
         self.mm.calc_bet(self.isPlay, self.predict_fixed)
+        if self.predict and self.isPlay and self.volume:
+            self.invest = self.mm.bet * self.volume
+        else:
+            self.invest = 0
         print(f"Predict: {self.predict}, Bet: {self.mm.bet}, Gold: {self.mm.gold}, isPlay: {self.isPlay}, isReverse: {self.isReverse}")
     def check(self, actual_label):
         isTrue = 1 if self.predict == actual_label else -1 if self.predict is not None else 0
