@@ -265,13 +265,6 @@ input:checked+.pm-slider:before {
 
 
 
-.charts-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  /* max-width: 900px; */
-  margin: 0 auto;
-}
 
 .chart-card {
   background: #ffffff;
