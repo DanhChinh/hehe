@@ -49,11 +49,13 @@ const TradeTable = {
 
   // 🟢 MUA (cộng dồn)
   buy(id, qty) {
+    if (!id || !qty) return;
     this.init(id);
     this.data[id].buy += qty;
     this.render();
   },
   sell(id, qty) {
+    if (!id || !qty) return;
     this.init(id);
     this.data[id].sell += qty;
     this.render();
@@ -88,12 +90,7 @@ const TradeTable = {
     }
 
 
-    if(player.getProperty("_isPlay")) {
-      player.setProperty(
-        "_gold",
-        player.getProperty("_gold")+t.profit
-      )
-    }
+
 
 
     this.total += t.profit;
@@ -143,12 +140,11 @@ const TradeTable = {
       .forEach((t) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${t.id}</td>
+          <td>${t.id % 1000}</td>
           <td>${formatNumber(t.buy)}</td>
           <td>${formatNumber(t.matchBuy)}</td>
           <td>${formatNumber(t.sell)}</td>
           <td>${formatNumber(t.matchSell)}</td>
-          <td>${t.market}</td>
           <td>${formatNumber(t.profit)}</td>
           <td>${formatNumber(t.total)}</td>
         `;
@@ -158,14 +154,11 @@ const TradeTable = {
     this.updateColors();
   },
 };
+TradeTable.buy(1, 1);
+TradeTable.matchBuy(1, 1);
+TradeTable.close(1, 1);
 
-// const formatNumber = (amount, locale = "vi-VN") => {
-//   return new Intl.NumberFormat(locale, {
-//     style: "decimal",
-//     minimumFractionDigits: 0, // Số chữ số thập phân tối thiểu
-//     maximumFractionDigits: 1, // Số chữ số thập phân tối đa
-//   }).format(amount);
-// };
+
 
 function formatNumber(value) {
     return new Intl.NumberFormat('en-US', {

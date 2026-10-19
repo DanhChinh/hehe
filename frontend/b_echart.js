@@ -38,7 +38,7 @@ function ensureChartContainers(count) {
             groupDiv.innerHTML = `
                 <!-- Thanh tiêu đề & Nút Toggle -->
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h3 class="text-dark mb-0 fs-6 fw-bold">Phần tử #${i + 1}</h3>
+                    <h3 class="text-dark mb-0 fs-6 fw-bold">#000${i + 1}</h3>
                     <button class="btn btn-sm btn-outline-primary py-0 px-2" type="button" onclick="toggleItemView(${i})" style="font-size: 11px;">
                         <i class="fa-solid fa-right-left me-1"></i> Biểu đồ / Cài đặt
                     </button>
@@ -90,9 +90,8 @@ function ensureChartContainers(count) {
                                                 onchange="set_property(${i}, 'volume', +this.value)">
                                         </div>
                                         <div class="mb-1">
-                                            <label class="form-label mb-0" style="font-size: 10px;">Invest:</label>
                                             <input type="text" id="input_invest_${i}" class="form-control form-control-sm py-0 px-1" style="font-size: 11px;"
-                                                onchange="set_property(${i}, 'invest', +this.value)">
+                                                onchange="set_property(${i}, 'invest', +this.value)" disabled>
                                         </div>
                                     </div>
 

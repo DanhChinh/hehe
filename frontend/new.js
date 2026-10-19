@@ -363,23 +363,6 @@ function handlePythonConnected(isChecked) {
         }
       )
 
-      // if (!sid || !player.getProperty("_isPlay") || !data.predict){
-      //   player.setProperty("_signal", 'HOLD');
-      //   return;
-      // }
-      // player.setProperty("_signal", data.predict == 1 ? "BUY" : "SELL");
-
-      // //end
-
-      // let money = roundToThousand(
-      //   data.bet * +document.getElementById("_volume").value,
-      // );
-
-      // sendMessageToGame(money, sid, data.predict);
-      // data.predict == 1
-      //   ? TradeTable.buy(sid, money)
-      //   : TradeTable.sell(sid, money);
-      // player.setProperty("_bet", money);
     });
 
     system.socket_io.on("disconnect", () => {

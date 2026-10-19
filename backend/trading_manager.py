@@ -8,10 +8,14 @@ from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier
 class MoneyManager:
     def __init__(self):
         self.gold = 100
-        self.bet = 5
-        self.history = [self.gold]
-        self.isPlay = False
+        self.bet = 0
+        self.history = [100]
+        self.count = 0
+        self.isPlayPrev = False
     def update(self, profit):
+        if not self.isPlayPrev:
+            self.history.append(self.gold)
+            return
         if profit == 1:
             self.gold += self.bet*0.97
         elif profit == -1:
@@ -19,9 +23,11 @@ class MoneyManager:
         else:
             pass
         self.history.append(self.gold)
-    def calc_bet(self, isPlay, predict):
-        if len(self.history) %3 == 0:
-            self.bet = round(0.05 * self.gold, 2) if (isPlay and predict) else 0
+    def calc_bet(self, isPlay):
+        self.isPlayPrev = isPlay
+        if self.count %3 == 0:
+            self.bet = round(0.05 * self.gold, 2) 
+        self.count += 1
 
 class TradingModel:
     def __init__(self, X_clean, y_clean, le):
@@ -47,14 +53,10 @@ class TradingModel:
     def make_predict(self, new_data_sample):
         self.predict = evaluate_new_data(new_data_sample, self.clf_final, self.iso_model, self.le)
         self.predict_fixed = 3 - self.predict if (self.predict and self.isReverse) else self.predict
-        self.mm.calc_bet(self.isPlay, self.predict_fixed)
+        self.mm.calc_bet(self.isPlay)
         if self.predict and self.isPlay and self.volume:
             self.invest = self.mm.bet * self.volume
         else:
-            self.invest = 0
-        price = np.cumsum(self.history)[-1]
-        if price >= self.tp or price <= self.sl:
-            self.isPlay = False
             self.invest = 0
 
 
@@ -63,6 +65,10 @@ class TradingModel:
         isTrue = 1 if self.predict == actual_label else -1 if self.predict is not None else 0
         profit = 1 if self.predict_fixed == actual_label else -1 if self.predict_fixed is not None else 0
         self.history.append(isTrue)
+        price = np.cumsum(self.history)[-1]
+        if price >= self.tp or price <= self.sl:
+            self.isPlay = False
+        
         self.mm.update(profit)
         self.predict = None
         self.predict_fixed = None
