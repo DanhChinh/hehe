@@ -8,7 +8,7 @@ from sklearn.ensemble import (RandomForestClassifier, GradientBoostingClassifier
 class MoneyManager:
     def __init__(self):
         self.gold = 100
-        self.bet = 0
+        self.bet = 5
         self.history = [self.gold]
         self.isPlay = False
     def update(self, profit):
@@ -20,7 +20,8 @@ class MoneyManager:
             pass
         self.history.append(self.gold)
     def calc_bet(self, isPlay, predict):
-        self.bet = round(0.05 * self.gold, 2) if (isPlay and predict) else 0
+        if len(self.history) %3 == 0:
+            self.bet = round(0.05 * self.gold, 2) if (isPlay and predict) else 0
 
 class TradingModel:
     def __init__(self, X_clean, y_clean, le):
@@ -51,6 +52,12 @@ class TradingModel:
             self.invest = self.mm.bet * self.volume
         else:
             self.invest = 0
+        price = np.cumssum(self.history)[-1]
+        if price >= self.tp or price <= self.sl:
+            self.isPlay = False
+            self.invest = 0
+
+
         print(f"Predict: {self.predict}, Bet: {self.mm.bet}, Gold: {self.mm.gold}, isPlay: {self.isPlay}, isReverse: {self.isReverse}")
     def check(self, actual_label):
         isTrue = 1 if self.predict == actual_label else -1 if self.predict is not None else 0
@@ -108,8 +115,8 @@ def get_tmm_instance():
         with _tmm_lock:
             if _tmm_instance is None:
                 X_clean, y_clean, le = load_clean()
-                X_splits = np.array_split(X_clean, 10)
-                y_splits = np.array_split(y_clean, 10)
+                X_splits = np.array_split(X_clean, 9)
+                y_splits = np.array_split(y_clean, 9)
 
                 _tmm_instance = TMM(zip(X_splits, y_splits), le) 
 
