@@ -52,7 +52,7 @@ class TradingModel:
             self.invest = self.mm.bet * self.volume
         else:
             self.invest = 0
-        price = np.cumssum(self.history)[-1]
+        price = np.cumsum(self.history)[-1]
         if price >= self.tp or price <= self.sl:
             self.isPlay = False
             self.invest = 0
